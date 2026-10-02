@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 组件内 3 列逐小时单元格（widget_small 用） -->
+    <style name="WidgetHourCell">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="WidgetHourLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">#bbffffff</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="WidgetHourIcon">
+        <item name="android:layout_width">26dp</item>
+        <item name="android:layout_height">26dp</item>
+        <item name="android:layout_marginTop">-1dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:contentDescription">@null</item>
+    </style>
+
+    <style name="WidgetHourTemp">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">-1dp</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+</resources>

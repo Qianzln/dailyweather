@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SHOW_ALARMS" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.APP_CALENDAR" />
+        </intent>
+        <package android:name="com.google.android.deskclock" />
+        <package android:name="com.android.deskclock" />
+        <package android:name="com.sec.android.app.clockpackage" />
+        <package android:name="com.huawei.deskclock" />
+        <package android:name="com.hihonor.deskclock" />
+        <package android:name="com.coloros.alarmclock" />
+        <package android:name="com.oplus.alarmclock" />
+        <package android:name="com.oneplus.deskclock" />
+        <package android:name="com.android.bbkclock" />
+    </queries>
+
+    <application
+        android:name=".DailyWeatherApp"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.DailyWeather">
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".widget.WeatherWidgetProvider"
+            android:exported="true"
+            android:label="@string/widget_small">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeatherWidget2x1Provider"
+            android:exported="true"
+            android:label="@string/widget_2x1">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_widget_2x1_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeatherWidget4x2Provider"
+            android:exported="true"
+            android:label="@string/widget_4x2">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_widget_4x2_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeatherWidgetMediumProvider"
+            android:exported="true"
+            android:label="@string/widget_medium">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_widget_medium_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeatherWidgetIOSProvider"
+            android:exported="true"
+            android:label="@string/widget_ios">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_widget_ios_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeatherWidgetHourlyProvider"
+            android:exported="true"
+            android:label="@string/widget_hourly">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_widget_hourly_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.WeatherWidgetWeekProvider"
+            android:exported="true"
+            android:label="@string/widget_week">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/weather_widget_week_info" />
+        </receiver>
+
+        <receiver
+            android:name=".notification.LiveUpdateDismissReceiver"
+            android:exported="false" />
+    </application>
+</manifest>

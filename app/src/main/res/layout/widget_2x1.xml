@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 复刻 widget_2x1：横排 32dp 图标 + 26sp 自动缩放温度 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="true"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:id="@+id/widget_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"
+        android:clipChildren="true"
+        android:clipToOutline="true"
+        android:background="@drawable/widget_rounded_bg">
+
+        <ImageView
+            android:id="@+id/widget_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null" />
+
+        <LinearLayout
+            android:id="@+id/widget_2x1_row"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp">
+
+            <ImageView
+                android:id="@+id/widget_2x1_icon"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="@null" />
+
+            <TextView
+                android:id="@+id/widget_2x1_temp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="18dp"
+                android:textSize="26sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:maxLines="1"
+                android:includeFontPadding="false"
+                android:fontFamily="sans-serif-medium"
+                android:letterSpacing="0.02"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="16sp"
+                android:autoSizeMaxTextSize="26sp" />
+        </LinearLayout>
+    </FrameLayout>
+</FrameLayout>

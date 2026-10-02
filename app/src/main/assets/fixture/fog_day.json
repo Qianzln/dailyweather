@@ -1,0 +1,15 @@
+{
+  "skycon": "FOG", "temp": 9.0, "feels": 8.0, "humidity": 0.95, "wind": 2.0, "windDir": 0,
+  "aqi": 156, "pm25": 118, "uv": 1.0, "minutely": "", "forecastKey": "未来24小时雾", "airDesc": "中度污染",
+  "hourly": [
+    {"m":0,"t":9,"s":"FOG","p":10},{"m":1,"t":9,"s":"FOG","p":10},{"m":2,"t":10,"s":"MODERATE_HAZE","p":10},
+    {"m":3,"t":11,"s":"MODERATE_HAZE","p":0},{"m":4,"t":12,"s":"CLOUDY","p":0},{"m":5,"t":13,"s":"CLOUDY","p":0},
+    {"m":6,"t":12,"s":"MODERATE_HAZE","p":10},{"m":7,"t":11,"s":"FOG","p":15}
+  ],
+  "daily": [
+    {"d":0,"min":8,"max":13,"s":"FOG","p":10},{"d":1,"min":9,"max":14,"s":"MODERATE_HAZE","p":10},
+    {"d":2,"min":8,"max":15,"s":"CLOUDY","p":20},{"d":3,"min":7,"max":13,"s":"LIGHT_RAIN","p":50},
+    {"d":4,"min":6,"max":12,"s":"CLOUDY","p":15}
+  ],
+  "alerts": []
+}

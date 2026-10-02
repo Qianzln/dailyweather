@@ -1,0 +1,17 @@
+{
+  "skycon": "THUNDER_SHOWER", "temp": 24.0, "feels": 25.0, "humidity": 0.88, "wind": 26.0, "windDir": 120,
+  "aqi": 55, "pm25": 22, "uv": 3.0, "minutely": "未来两小时有中雨", "forecastKey": "未来24小时雷阵雨", "airDesc": "良",
+  "hourly": [
+    {"m":0,"t":24,"s":"THUNDER_SHOWER","p":90},{"m":1,"t":24,"s":"HEAVY_RAIN","p":85},{"m":2,"t":23,"s":"MODERATE_RAIN","p":70},
+    {"m":3,"t":23,"s":"LIGHT_RAIN","p":55},{"m":4,"t":23,"s":"CLOUDY","p":30},{"m":5,"t":24,"s":"PARTLY_CLOUDY_DAY","p":20},
+    {"m":6,"t":25,"s":"CLOUDY","p":25},{"m":7,"t":24,"s":"LIGHT_RAIN","p":45}
+  ],
+  "daily": [
+    {"d":0,"min":22,"max":25,"s":"THUNDER_SHOWER","p":90},{"d":1,"min":21,"max":26,"s":"MODERATE_RAIN","p":75},
+    {"d":2,"min":20,"max":25,"s":"LIGHT_RAIN","p":55},{"d":3,"min":20,"max":27,"s":"CLOUDY","p":25},
+    {"d":4,"min":21,"max":28,"s":"PARTLY_CLOUDY_DAY","p":10}
+  ],
+  "alerts": [
+    {"title":"雷电黄色预警","status":"预警中","desc":"预计未来6小时本市将发生雷电活动，请减少户外作业。"}
+  ]
+}

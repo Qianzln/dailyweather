@@ -1,0 +1,15 @@
+{
+  "skycon": "CLOUDY", "temp": 13.0, "feels": 12.0, "humidity": 0.62, "wind": 11.0, "windDir": 315,
+  "aqi": 68, "pm25": 30, "uv": 2.0, "minutely": "", "forecastKey": "未来24小时阴", "airDesc": "良",
+  "hourly": [
+    {"m":0,"t":13,"s":"CLOUDY","p":10},{"m":1,"t":13,"s":"CLOUDY","p":10},{"m":2,"t":13,"s":"CLOUDY","p":0},
+    {"m":3,"t":14,"s":"CLOUDY","p":0},{"m":4,"t":14,"s":"CLOUDY","p":0},{"m":5,"t":15,"s":"OVERCAST","p":0},
+    {"m":6,"t":15,"s":"CLOUDY","p":0},{"m":7,"t":14,"s":"CLOUDY","p":10}
+  ],
+  "daily": [
+    {"d":0,"min":11,"max":15,"s":"CLOUDY","p":10},{"d":1,"min":12,"max":17,"s":"PARTLY_CLOUDY_DAY","p":0},
+    {"d":2,"min":13,"max":18,"s":"CLOUDY","p":20},{"d":3,"min":12,"max":16,"s":"LIGHT_RAIN","p":55},
+    {"d":4,"min":11,"max":15,"s":"CLOUDY","p":10}
+  ],
+  "alerts": []
+}

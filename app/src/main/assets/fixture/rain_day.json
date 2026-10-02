@@ -1,0 +1,30 @@
+{
+  "skycon": "LIGHT_RAIN", "hour": 22,
+  "temp": 21.0, "feels": 20.0, "humidity": 0.78, "wind": 9.0, "windDir": 45,
+  "aqi": 42, "pm25": 18, "uv": 1.0,
+  "minutely": "雨很快就要停一会儿",
+  "forecastKey": "未来24小时阴",
+  "airDesc": "优",
+  "hourly": [
+    {"m":0,"t":21,"s":"LIGHT_RAIN","p":77},
+    {"m":1,"t":21,"s":"LIGHT_RAIN","p":46},
+    {"m":2,"t":21,"s":"CLOUDY","p":0},
+    {"m":3,"t":21,"s":"CLOUDY","p":0},
+    {"m":4,"t":21,"s":"CLOUDY","p":0},
+    {"m":5,"t":21,"s":"CLOUDY","p":0},
+    {"m":6,"t":22,"s":"CLOUDY","p":0},
+    {"m":7,"t":22,"s":"CLOUDY","p":0},
+    {"m":8,"t":22,"s":"PARTLY_CLOUDY_DAY","p":0},
+    {"m":9,"t":22,"s":"PARTLY_CLOUDY_DAY","p":0}
+  ],
+  "daily": [
+    {"d":-1,"min":21,"max":24,"s":"MODERATE_RAIN","p":70},
+    {"d":0,"min":21,"max":22,"s":"CLOUDY","p":0},
+    {"d":1,"min":21,"max":23,"s":"LIGHT_RAIN","p":60},
+    {"d":2,"min":18,"max":22,"s":"PARTLY_CLOUDY_DAY","p":0},
+    {"d":3,"min":18,"max":23,"s":"LIGHT_RAIN","p":60},
+    {"d":4,"min":19,"max":24,"s":"CLOUDY","p":20},
+    {"d":5,"min":19,"max":25,"s":"CLEAR_DAY","p":0}
+  ],
+  "alerts": []
+}

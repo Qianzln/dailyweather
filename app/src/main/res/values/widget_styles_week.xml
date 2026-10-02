@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- widget_week 底部 7 日列 -->
+    <style name="WidgetWeekCell">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:paddingTop">3dp</item>
+        <item name="android:paddingBottom">3dp</item>
+    </style>
+
+    <style name="WidgetWeekDay">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="WidgetWeekLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">#bbffffff</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+</resources>

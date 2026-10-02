@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 复刻 widget_medium：顶部定位+城市 + 42sp 温度 + 风速/湿度/AQI/紫外线 + 天气图标 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="true"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:id="@+id/widget_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="true"
+        android:clipToOutline="true"
+        android:background="@drawable/widget_rounded_bg">
+
+        <ImageView
+            android:id="@+id/widget_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null" />
+
+        <LinearLayout
+            android:id="@+id/widget_top_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginEnd="14dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:translationY="3dp"
+                    android:layout_marginStart="5dp">
+
+                    <ImageView
+                        android:id="@+id/widget_location_icon"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:src="@drawable/ic_widget_location"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:id="@+id/widget_city"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:textSize="12sp"
+                        android:textColor="#eeffffff"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/widget_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-2dp"
+                    android:textSize="42sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:singleLine="true"
+                    android:includeFontPadding="false"
+                    android:translationY="6dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.02" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/widget_params_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="5dp"
+                android:translationY="3dp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/widget_wind"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="#ddffffff"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:id="@+id/widget_humidity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textSize="12sp"
+                        android:textColor="#ddffffff"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/widget_aqi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:textColor="#ddffffff"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:id="@+id/widget_uv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textSize="12sp"
+                        android:textColor="#ddffffff"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/widget_weather_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="2dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/widget_weather_icon"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/widget_desc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textSize="12sp"
+                    android:textColor="#eeffffff"
+                    android:maxLines="1"
+                    android:includeFontPadding="false"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</FrameLayout>

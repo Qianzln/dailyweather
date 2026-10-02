@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 复刻 widget_4x2：时钟 + 城市/日期 + 天气图标/概况 + 3 日预报行 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="true"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:id="@+id/widget_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="true"
+        android:clipToOutline="true"
+        android:background="@drawable/widget_rounded_bg">
+
+        <ImageView
+            android:id="@+id/widget_4x2_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null" />
+
+        <LinearLayout
+            android:id="@+id/widget_top_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/widget_time_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextClock
+                        android:id="@+id/widget_clock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="56sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/white"
+                        android:singleLine="true"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-medium"
+                        android:letterSpacing="0.02"
+                        android:format12Hour="hh:mm"
+                        android:format24Hour="HH:mm" />
+
+                    <TextClock
+                        android:id="@+id/widget_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textSize="16sp"
+                        android:textColor="#eeffffff"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-medium"
+                        android:format12Hour="M月d日 EEEE"
+                        android:format24Hour="M月d日 EEEE" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/widget_city"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="14sp"
+                        android:textColor="#ddffffff"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <ImageView
+                        android:id="@+id/widget_location_icon"
+                        android:layout_width="12dp"
+                        android:layout_height="12dp"
+                        android:layout_marginStart="3dp"
+                        android:src="@drawable/ic_widget_location"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="@null" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/widget_weather_icon"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:scaleType="fitCenter"
+                    android:contentDescription="@null" />
+
+                <TextView
+                    android:id="@+id/widget_weather_desc"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center"
+                    android:textSize="16sp"
+                    android:textColor="#eeffffff"
+                    android:maxLines="1"
+                    android:includeFontPadding="false"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:id="@+id/widget_temp_range"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="center"
+                    android:textSize="14sp"
+                    android:textColor="#ddffffff"
+                    android:includeFontPadding="false"
+                    android:fontFamily="sans-serif-medium" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/widget_daily_forecast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <LinearLayout android:id="@+id/widget_day_1" style="@style/WidgetDayCell">
+                <TextView android:id="@+id/widget_day_label_1" style="@style/WidgetDayLabel" />
+                <ImageView android:id="@+id/widget_day_icon_1" style="@style/WidgetDayIcon" />
+                <TextView android:id="@+id/widget_day_range_1" style="@style/WidgetDayRange" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/widget_day_2" style="@style/WidgetDayCell">
+                <TextView android:id="@+id/widget_day_label_2" style="@style/WidgetDayLabel" />
+                <ImageView android:id="@+id/widget_day_icon_2" style="@style/WidgetDayIcon" />
+                <TextView android:id="@+id/widget_day_range_2" style="@style/WidgetDayRange" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/widget_day_3" style="@style/WidgetDayCell">
+                <TextView android:id="@+id/widget_day_label_3" style="@style/WidgetDayLabel" />
+                <ImageView android:id="@+id/widget_day_icon_3" style="@style/WidgetDayIcon" />
+                <TextView android:id="@+id/widget_day_range_3" style="@style/WidgetDayRange" />
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</FrameLayout>

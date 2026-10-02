@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 复刻 widget_hourly：城市 + 40sp 温度 + 图标 + 最高/最低 + 底部 4 小时段 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="true"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:id="@+id/widget_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="true"
+        android:clipToOutline="true"
+        android:background="@drawable/widget_rounded_bg">
+
+        <ImageView
+            android:id="@+id/widget_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="11dp"
+            android:paddingBottom="10dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/widget_hourly_city"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="#f2ffffff"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:includeFontPadding="false"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <ImageView
+                            android:id="@+id/widget_hourly_location_icon"
+                            android:layout_width="11dp"
+                            android:layout_height="11dp"
+                            android:layout_marginStart="3dp"
+                            android:src="@drawable/ic_widget_location"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@null" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/widget_hourly_temp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:textSize="40sp"
+                        android:textColor="#ffffffff"
+                        android:singleLine="true"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-light" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/widget_hourly_weather_icon"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:scaleType="fitCenter"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:id="@+id/widget_hourly_desc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textSize="12sp"
+                        android:textColor="#f2ffffff"
+                        android:maxLines="1"
+                        android:includeFontPadding="false"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/widget_hourly_hi_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="最高"
+                            android:textSize="9sp"
+                            android:textColor="#99ffffff"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/widget_hourly_hi"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="2dp"
+                            android:textSize="15sp"
+                            android:textColor="#ffffffff"
+                            android:includeFontPadding="false"
+                            android:fontFamily="sans-serif-medium" />
+
+                        <TextView
+                            android:id="@+id/widget_hourly_lo_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="最低"
+                            android:textSize="9sp"
+                            android:textColor="#99ffffff"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/widget_hourly_lo"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="2dp"
+                            android:textSize="15sp"
+                            android:textColor="#ffffffff"
+                            android:includeFontPadding="false"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="4">
+
+                <LinearLayout style="@style/WidgetHourCell">
+                    <TextView android:id="@+id/widget_hourly_hour_1" style="@style/WidgetHourLabel" />
+                    <ImageView android:id="@+id/widget_hourly_icon_1" style="@style/WidgetHourIcon" />
+                    <TextView android:id="@+id/widget_hourly_temp_1" style="@style/WidgetHourTemp" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/WidgetHourCell">
+                    <TextView android:id="@+id/widget_hourly_hour_2" style="@style/WidgetHourLabel" />
+                    <ImageView android:id="@+id/widget_hourly_icon_2" style="@style/WidgetHourIcon" />
+                    <TextView android:id="@+id/widget_hourly_temp_2" style="@style/WidgetHourTemp" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/WidgetHourCell">
+                    <TextView android:id="@+id/widget_hourly_hour_3" style="@style/WidgetHourLabel" />
+                    <ImageView android:id="@+id/widget_hourly_icon_3" style="@style/WidgetHourIcon" />
+                    <TextView android:id="@+id/widget_hourly_temp_3" style="@style/WidgetHourTemp" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/WidgetHourCell">
+                    <TextView android:id="@+id/widget_hourly_hour_4" style="@style/WidgetHourLabel" />
+                    <ImageView android:id="@+id/widget_hourly_icon_4" style="@style/WidgetHourIcon" />
+                    <TextView android:id="@+id/widget_hourly_temp_4" style="@style/WidgetHourTemp" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</FrameLayout>

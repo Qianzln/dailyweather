@@ -1,0 +1,17 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+# 凭据不入库
+keys.properties
+keystore/
+
+# 构建产物（安装用，不入库）
+/release/
+*.apk

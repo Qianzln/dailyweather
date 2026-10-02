@@ -1,0 +1,15 @@
+{
+  "skycon": "CLEAR_NIGHT", "temp": 17.0, "feels": 16.0, "humidity": 0.55, "wind": 4.0, "windDir": 90,
+  "aqi": 28, "pm25": 9, "uv": 0.0, "minutely": "", "forecastKey": "未来24小时晴", "airDesc": "优",
+  "hourly": [
+    {"m":0,"t":17,"s":"CLEAR_NIGHT","p":0},{"m":1,"t":16,"s":"CLEAR_NIGHT","p":0},{"m":2,"t":16,"s":"CLEAR_NIGHT","p":0},
+    {"m":3,"t":15,"s":"CLEAR_NIGHT","p":0},{"m":4,"t":15,"s":"CLEAR_NIGHT","p":0},{"m":5,"t":16,"s":"CLEAR_NIGHT","p":0},
+    {"m":6,"t":18,"s":"CLEAR_DAY","p":0},{"m":7,"t":20,"s":"CLEAR_DAY","p":0}
+  ],
+  "daily": [
+    {"d":0,"min":15,"max":24,"s":"CLEAR_DAY","p":0},{"d":1,"min":16,"max":25,"s":"PARTLY_CLOUDY_DAY","p":10},
+    {"d":2,"min":17,"max":23,"s":"CLOUDY","p":20},{"d":3,"min":15,"max":22,"s":"CLEAR_DAY","p":0},
+    {"d":4,"min":14,"max":23,"s":"CLEAR_DAY","p":0}
+  ],
+  "alerts": []
+}

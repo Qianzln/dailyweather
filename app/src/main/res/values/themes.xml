@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Compose 单 Activity 应用：XML 主题只负责首帧，窗口底色对齐启动蓝（南风 #256fd0） -->
+    <style name="Theme.DailyWeather" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/launcher_bg</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+    </style>
+</resources>

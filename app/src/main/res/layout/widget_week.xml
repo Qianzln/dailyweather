@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 复刻 widget_week：时钟 + 日期 + 农历 + 7 日列 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="true"
+    android:clipToPadding="false">
+
+    <FrameLayout
+        android:id="@+id/widget_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="true"
+        android:clipToOutline="true"
+        android:background="@drawable/widget_rounded_bg">
+
+        <ImageView
+            android:id="@+id/widget_week_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:contentDescription="@null" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+                <TextClock
+                    android:id="@+id/widget_clock"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="42sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/white"
+                    android:singleLine="true"
+                    android:includeFontPadding="false"
+                    android:fontFamily="sans-serif-medium"
+                    android:letterSpacing="0.02"
+                    android:autoSizeTextType="uniform"
+                    android:autoSizeMinTextSize="26sp"
+                    android:autoSizeMaxTextSize="42sp"
+                    android:format12Hour="hh:mm"
+                    android:format24Hour="HH:mm" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/widget_time_area"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextClock
+                            android:id="@+id/widget_week_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="13sp"
+                            android:textColor="#eeffffff"
+                            android:maxLines="1"
+                            android:includeFontPadding="false"
+                            android:fontFamily="sans-serif-medium"
+                            android:format12Hour="M月d日 EEEE a"
+                            android:format24Hour="M月d日 EEEE a" />
+
+                        <TextView
+                            android:id="@+id/widget_week_lunar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:textSize="12sp"
+                            android:textColor="#ddffffff"
+                            android:maxLines="1"
+                            android:includeFontPadding="false"
+                            android:fontFamily="sans-serif-medium" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal"
+                android:weightSum="7">
+
+                <LinearLayout style="@style/WidgetWeekCell">
+                    <TextView android:id="@+id/widget_week_day_1" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_label_1" style="@style/WidgetWeekLabel" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/WidgetWeekCell">
+                    <TextView android:id="@+id/widget_week_day_2" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_label_2" style="@style/WidgetWeekLabel" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/WidgetWeekCell">
+                    <TextView android:id="@+id/widget_week_day_3" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_label_3" style="@style/WidgetWeekLabel" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/WidgetWeekCell">
+                    <TextView android:id="@+id/widget_week_day_4" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_label_4" style="@style/WidgetWeekLabel" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/WidgetWeekCell">
+                    <TextView android:id="@+id/widget_week_day_5" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_label_5" style="@style/WidgetWeekLabel" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/WidgetWeekCell">
+                    <TextView android:id="@+id/widget_week_day_6" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_label_6" style="@style/WidgetWeekLabel" />
+                </LinearLayout>
+
+                <LinearLayout style="@style/WidgetWeekCell">
+                    <TextView android:id="@+id/widget_week_day_7" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_label_7" style="@style/WidgetWeekLabel" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+</FrameLayout>

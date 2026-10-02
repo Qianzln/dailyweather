@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- widget_4x2 底部 3 日预报单元格 -->
+    <style name="WidgetDayCell">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:paddingStart">2dp</item>
+        <item name="android:paddingEnd">2dp</item>
+    </style>
+
+    <style name="WidgetDayLabel">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">#bbffffff</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+
+    <style name="WidgetDayIcon">
+        <item name="android:layout_width">22dp</item>
+        <item name="android:layout_height">22dp</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:contentDescription">@null</item>
+    </style>
+
+    <style name="WidgetDayRange">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+    </style>
+</resources>

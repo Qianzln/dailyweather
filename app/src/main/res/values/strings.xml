@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">每日天气</string>
+    <string name="widget_small">每日天气 · 小组件</string>
+    <string name="widget_2x1">每日天气 · 2×1</string>
+    <string name="widget_4x2">每日天气 · 4×2</string>
+    <string name="widget_medium">每日天气 · 中卡</string>
+    <string name="widget_ios">每日天气 · iOS 风</string>
+    <string name="widget_hourly">每日天气 · 逐小时</string>
+    <string name="widget_week">每日天气 · 周视图</string>
+</resources>
