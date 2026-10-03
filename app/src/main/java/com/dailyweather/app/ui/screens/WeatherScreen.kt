@@ -103,7 +103,7 @@ fun WeatherScreen(
     androidx.compose.runtime.LaunchedEffect(vm.selectedCityId) { source = vm.sourceOf(vm.selectedCityId) }
 
     val motion by vm.settingFlow(WeatherViewModel.SettingKey.MOTION).collectAsState(true)
-    val scene = remember(snapshot) { SceneBridge.stateFor(snapshot) }
+    val scene = remember(snapshot, cityZone) { SceneBridge.stateFor(snapshot, cityZone) }
     val sky = SkyPalette.of(scene)
 
     CompositionLocalProvider(LocalSky provides sky) {
@@ -395,7 +395,11 @@ private fun DayRow(
             modifier = Modifier.width(38.dp),
         )
         Box(modifier = Modifier.weight(1f).height(Tokens.TempBarHeight)) {
-            TempBar(day, globalMin, span, if (offset == 0) currentTemp else null)
+            // 南风的区间条按温度冷暖着色：全局刻度上冷端青绿、暖端黄。
+            TempBar(
+                day, globalMin, span, if (offset == 0) currentTemp else null,
+                tempBarColor(day.tempMin, globalMin, span), tempBarColor(day.tempMax, globalMin, span),
+            )
         }
         Text(
             text = Units.temp(day.tempMax),
@@ -412,6 +416,8 @@ private fun TempBar(
     globalMin: Double,
     span: Double,
     markerTemp: Double?,
+    startColor: Color = Tokens.BarStart,
+    endColor: Color = Tokens.BarEnd,
 ) {
     val from = ((day.tempMin - globalMin) / span).toFloat().coerceIn(0f, 1f)
     val to = ((day.tempMax - globalMin) / span).toFloat().coerceIn(0f, 1f)
@@ -423,18 +429,25 @@ private fun TempBar(
         val x0 = from * track
         val x1 = (to * track).coerceAtLeast(x0 + barH)
         drawRoundRect(
-            // 渐变铺满整条轨道，填充只是取其中一段——所以同一 x 位置在不同行的颜色一致。
-            brush = Brush.horizontalGradient(listOf(Tokens.BarStart, Tokens.BarEnd), 0f, track),
+            // 每行自己的冷暖渐变铺满填充段（颜色由 DayRow 按全局温度刻度算好）。
+            brush = Brush.horizontalGradient(listOf(startColor, endColor), x0, x1),
             topLeft = Offset(x0, 0f),
             size = Size(x1 - x0, barH),
             cornerRadius = CornerRadius(barH / 2f, barH / 2f),
         )
         if (marker != null) {
             drawCircle(Color.White, radius = barH * 0.95f, center = Offset(marker * track, barH / 2f))
-            drawCircle(Tokens.BarEnd, radius = barH * 0.55f, center = Offset(marker * track, barH / 2f))
+            drawCircle(endColor, radius = barH * 0.55f, center = Offset(marker * track, barH / 2f))
         }
     }
 }
+
+/** 全周同一把温度刻度：冷端青绿 → 暖端黄（对齐南风日卡区间条的配色逻辑）。 */
+private fun tempBarColor(temp: Double, globalMin: Double, span: Double): Color =
+    androidx.compose.ui.graphics.lerp(
+        Color(0xFF52C7A2), Color(0xFFF6D35B),
+        ((temp - globalMin) / span).coerceIn(0.0, 1.0).toFloat(),
+    )
 
 /**
  * 台风雷达卡：[实测] 高 109dp，左侧标题 + 短临描述，右侧 93×72 圆角缩略图。

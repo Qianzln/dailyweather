@@ -45,9 +45,14 @@ object SceneBridge {
     fun windOf(snapshot: WeatherSnapshot?): Float =
         ((snapshot?.realtime?.windSpeed ?: 0.0) / 60.0).toFloat().coerceIn(0.05f, 1f)
 
-    fun stateFor(snapshot: WeatherSnapshot?, cal: Calendar = Calendar.getInstance()): WeatherSceneState {
+    fun stateFor(
+        snapshot: WeatherSnapshot?,
+        zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
+    ): WeatherSceneState {
         val kind = kindOf(snapshot?.currentSkycon ?: "")
         val wet = kind == WeatherKind.RAIN || kind == WeatherKind.THUNDER || kind == WeatherKind.SNOW
+        // 相位必须按城市当地时间判：设备在别的时区时，默认时区会把白天判成夜。
+        val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone(zone))
         return WeatherSceneState(
             kind = kind,
             phase = phaseOf(cal),

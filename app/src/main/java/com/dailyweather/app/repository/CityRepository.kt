@@ -60,6 +60,8 @@ class CityRepository(
             id = id, name = displayName, longitude = lng, latitude = lat,
             isCurrentLocation = true, sortOrder = 0, cityName = displayName,
             coordinateVerified = true,
+            // 定位城市的设备时区未必与所在地一致（模拟器/出国场景）：中国境内直接用北京时间。
+            timeZoneId = if (lng in 73.0..135.0 && lat in 3.0..54.0) "Asia/Shanghai" else "",
         )
         val list = weatherStore.getCities()
         val existing = list.firstOrNull { it.id == id }
