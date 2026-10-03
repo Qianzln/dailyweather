@@ -66,4 +66,15 @@ class AppContainer(context: Context) {
         if (proxyConfigured) {
             runCatching { amapGeo.searchDistrict(keyword) }.getOrNull()
         } else null
+
+    /** 应用更新检查（经代理读 GitHub 版本元数据）。返回最新版本号，检测失败返回 null。 */
+    suspend fun checkLatestVersion(): String? {
+        if (!proxyConfigured) return null
+        return runCatching {
+            val body = proxy.get("/weather/app/latest")
+            val root = org.json.JSONObject(body)
+            // 云函数透传 GitHub releases/latest 的 tag_name 等，只取版本号。
+            root.optString("tag_name").ifBlank { root.optString("version").ifBlank { "" } }
+        }.getOrNull()?.takeIf { it.isNotBlank() }
+    }
 }

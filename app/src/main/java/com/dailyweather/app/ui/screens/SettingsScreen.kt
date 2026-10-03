@@ -63,7 +63,16 @@ fun SettingsScreen(vm: WeatherViewModel, onBack: () -> Unit, onOpenSub: (String)
         }
         GroupCard {
             NavRow("了解天气图标", onClick = { onOpenSub("了解天气图标") })
-            NavRow("检查更新", trailing = "v${BuildConfig.VERSION_NAME}")
+            // 检查更新：点击触发检测，trailing 显示检测中/结果。
+            NavRow(
+                "检查更新",
+                trailing = when {
+                    vm.updateChecking -> "检测中…"
+                    vm.updateMessage != null -> vm.updateMessage.orEmpty()
+                    else -> "v${BuildConfig.VERSION_NAME}"
+                },
+                onClick = { vm.checkUpdate() },
+            )
             NavRow("联系作者", onClick = { onOpenSub("联系作者") }, divider = false)
         }
     }

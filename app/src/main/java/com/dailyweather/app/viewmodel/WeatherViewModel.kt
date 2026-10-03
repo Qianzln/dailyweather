@@ -3,6 +3,7 @@ package com.dailyweather.app.viewmodel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.dailyweather.app.BuildConfig
 import com.dailyweather.app.data.City
 import com.dailyweather.app.data.SettingsStore
 import com.dailyweather.app.data.model.WeatherSnapshot
@@ -37,6 +38,31 @@ class WeatherViewModel(private val container: AppContainer) {
     /** 定位城市是否首次定位中（用于组件占位态）。 */
     var locatingFirstTime by mutableStateOf(false)
         private set
+
+    // ---- 检查更新 ----
+    /** 检查更新结果：null=检测中/未知；非空字符串=提示文案。 */
+    var updateMessage by mutableStateOf<String?>(null)
+        private set
+    var updateChecking by mutableStateOf(false)
+        private set
+
+    /** 检测最新版本，经云代理读 GitHub 元数据，与当前 Compare。 */
+    fun checkUpdate() {
+        if (updateChecking) return
+        updateChecking = true
+        updateMessage = null
+        scope.launch {
+            val latest = container.checkLatestVersion()
+            updateChecking = false
+            updateMessage = if (latest == null) {
+                "暂时无法连接更新服务"
+            } else if (latest.removePrefix("v").removePrefix("V") != BuildConfig.VERSION_NAME.removePrefix("v")) {
+                "发现新版本 v$latest"
+            } else {
+                "已是最新版本"
+            }
+        }
+    }
 
     var message by mutableStateOf<String?>(null)
         private set
