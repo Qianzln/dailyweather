@@ -85,7 +85,7 @@ data class CloudBakeKey(
 fun lightRigFor(phase: SkyPhase, overcast: Float): CloudLightRig = when (phase) {
     SkyPhase.MORNING -> CloudLightRig(
         skyFill = Color(0xFF8FB6E8),
-        overcastSkyFill = Color(0xFF5A5E66),
+        overcastSkyFill = Color(0xFF8E8F93),
         ambient = Color(0xFF4A5A78), ambientStrength = 0.30f,
         ground = Color(0xFF8A6A50), groundStrength = 0.16f,
         sun = Color(0xFFFFC58A), sunStrength = 0.85f, sunDir = 0.05f,

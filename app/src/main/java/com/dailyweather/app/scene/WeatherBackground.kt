@@ -48,7 +48,7 @@ private val skyRows = mapOf(
     // 清晨：地平线泛暖，天顶还留着夜里的蓝。
     SkyPhase.MORNING to SkyRow(
         clear = SkyGradientStops(Color(0xFF3D5A9E), Color(0xFF7E8FC4), Color(0xFFF0B27A)),
-        overcast = SkyGradientStops(Color(0xFF424C5A), Color(0xFF4E5966), Color(0xFF75818D)),
+        overcast = SkyGradientStops(Color(0xFF6F7A87), Color(0xFF818B97), Color(0xFFA6AAB0)),
     ),
     SkyPhase.DAY to SkyRow(
         // 晴：唯一有包内证据的一档，直接用 splash_gradient 的三原色。
