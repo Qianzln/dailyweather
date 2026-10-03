@@ -84,9 +84,17 @@ class RefreshManager(
         if (LocationCoordinator.isPlaceholder(fix.longitude, fix.latitude)) {
             return Outcome.Failed(null, "定位仍是占位坐标")
         }
-        // 命名：高德 regeo（GCJ-02 转换在 AmapGeo 内部）；失败回落通用名
-        val displayName = amapGeo.regeoName(fix.latitude, fix.longitude)?.city ?: "我的位置"
-        val city = cityRepository.upsertCurrentLocation(fix.longitude, fix.latitude, displayName)
+        // 命名：定位尽量越细越好——优先区县（对齐南风「雨花台区」），无区县退市级；
+        // 四级名（市/区/乡镇/社区）存进 cityName/districtName，详情页可再展开。
+        val place = amapGeo.regeoName(fix.latitude, fix.longitude)
+        val displayName = place?.district?.ifBlank { null }
+            ?: place?.city
+            ?: "我的位置"
+        val city = cityRepository.upsertCurrentLocation(
+            fix.longitude, fix.latitude, displayName,
+            cityName = place?.city.orEmpty(),
+            districtName = place?.district.orEmpty(),
+        )
         return refresh(city, reason)
     }
 

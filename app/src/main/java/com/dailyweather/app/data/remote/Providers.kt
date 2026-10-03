@@ -139,15 +139,31 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
             pressureHpa = pressureHpaOf(wrapped(current, "pressure")),
             visibilityKm = visibilityKmOf(wrapped(current, "visibility")),
         )
-        Log.i(TAG, "小米解析完成: skycon=$skycon aqi=$aqi hourly=${hourly.size} daily=${daily.size}")
+        // 分钟级降水（120 个值，字符串数字）；逐小时 AQI 挂到对应小时点上。
+        val minutely = root.optJSONObject("minutely")?.optJSONObject("precipitation")?.let { mp ->
+            val desc = mp.optString("description", "")
+            val series = mp.optJSONArray("value") ?: JSONArray()
+            WeatherSnapshot.Minutely(
+                description = desc,
+                precipitation2h = (0 until series.length()).mapNotNull { i ->
+                    series.optString(i).toDoubleOrNull()
+                },
+            )
+        }?.takeIf { it.precipitation2h.isNotEmpty() }
+        val hourlyAqi = root.optJSONObject("forecastHourly")?.optJSONObject("aqi")
+            ?.optJSONArray("value")
+        Log.i(TAG, "小米解析完成: skycon=$skycon aqi=$aqi hourly=${hourly.size} daily=${daily.size} minutely=${minutely != null}")
         return WeatherSnapshot(
             cityId = cityId,
             fetchedAt = nowEpoch,
             serverTime = nowEpoch,
             forecastKey = "",
             realtime = realtime,
-            minutelyDesc = "",
-            hourly = hourly,
+            minutelyDesc = minutely?.description.orEmpty(),
+            minutely = minutely,
+            hourly = hourly.mapIndexed { i, p ->
+                p.copy(aqi = hourlyAqi?.optInt(i, 0) ?: 0)
+            },
             daily = daily,
             alerts = emptyList(),
         )

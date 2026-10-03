@@ -17,6 +17,10 @@ object SnapshotCodec {
         .put("serverTime", snapshot.serverTime)
         .put("forecastKey", snapshot.forecastKey)
         .put("minutelyDesc", snapshot.minutelyDesc)
+        .put("minutely", snapshot.minutely?.let { m ->
+            JSONObject().put("description", m.description)
+                .put("values", JSONArray(m.precipitation2h))
+        })
         .put("realtime", snapshot.realtime?.let { rt ->
             JSONObject()
                 .put("temperature", rt.temperature)
@@ -38,6 +42,7 @@ object SnapshotCodec {
             snapshot.hourly.forEach { h ->
                 put(JSONObject().put("time", h.time).put("temperature", h.temperature)
                     .put("skycon", h.skycon).put("precipitationProbability", h.precipitationProbability)
+                    .put("precipitationMm", h.precipitationMm).put("aqi", h.aqi)
                     .put("precipitationMm", h.precipitationMm))
             }
         })
@@ -66,6 +71,13 @@ object SnapshotCodec {
             serverTime = root.optLong("serverTime"),
             forecastKey = root.optString("forecastKey"),
             minutelyDesc = root.optString("minutelyDesc"),
+            minutely = root.optJSONObject("minutely")?.let { m ->
+                val arr = m.optJSONArray("values")
+                WeatherSnapshot.Minutely(
+                    description = m.optString("description"),
+                    precipitation2h = if (arr != null) (0 until arr.length()).map { arr.optDouble(it, 0.0) } else emptyList(),
+                )
+            }?.takeIf { it.precipitation2h.isNotEmpty() },
             realtime = root.optJSONObject("realtime")?.let { rt ->
                 WeatherSnapshot.Realtime(
                     temperature = rt.optDouble("temperature"),
@@ -99,6 +111,7 @@ object SnapshotCodec {
                             skycon = h.optString("skycon"),
                             precipitationProbability = h.optDouble("precipitationProbability"),
                             precipitationMm = h.optDouble("precipitationMm", 0.0),
+                            aqi = h.optInt("aqi", 0),
                         )
                     )
                 }

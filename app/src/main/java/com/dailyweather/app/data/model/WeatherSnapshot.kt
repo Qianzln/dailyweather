@@ -14,6 +14,8 @@ data class WeatherSnapshot(
     val forecastKey: String,
     val realtime: Realtime?,
     val minutelyDesc: String,
+    /** 分钟级降水序列（含描述）；上游没给时为 null。 */
+    val minutely: Minutely? = null,
     val hourly: List<HourlyPoint>,
     val daily: List<DailyPoint>,
     val alerts: List<AlertItem>,
@@ -47,6 +49,15 @@ data class WeatherSnapshot(
         val precipitationProbability: Double,
         /** 逐小时降水量 mm（彩云 hourly.precipitation[].value）。0 = 上游没给。 */
         val precipitationMm: Double = 0.0,
+        /** 逐小时 AQI（小米 forecastHourly.aqi）。0 = 上游没给。 */
+        val aqi: Int = 0,
+    )
+
+    /** 分钟级降水（未来两小时，每分钟一个值；小米/彩云都给）。 */
+    data class Minutely(
+        val description: String,
+        /** 120 个值，mm/h 口径照上游原值。 */
+        val precipitation2h: List<Double>,
     )
 
     data class DailyPoint(
@@ -186,13 +197,23 @@ object CaiyunParser {
             }
         } ?: emptyList()
 
+        val minutelyObj = result.optJSONObject("minutely")
+        val minutely = minutelyObj?.let { m ->
+            val vals = m.optJSONArray("precipitation_2h")
+            WeatherSnapshot.Minutely(
+                description = m.optString("description", ""),
+                precipitation2h = if (vals != null) (0 until vals.length()).map { vals.optDouble(it, 0.0) } else emptyList(),
+            )
+        }
+
         return WeatherSnapshot(
             cityId = cityId,
             fetchedAt = fetchedAt,
             serverTime = serverTime,
             forecastKey = result.optString("forecast_keypoint"),
             realtime = realtime,
-            minutelyDesc = result.optJSONObject("minutely")?.optString("description", "") ?: "",
+            minutelyDesc = minutelyObj?.optString("description", "") ?: "",
+            minutely = minutely?.takeIf { it.precipitation2h.isNotEmpty() },
             hourly = hourly,
             daily = daily,
             alerts = alerts,

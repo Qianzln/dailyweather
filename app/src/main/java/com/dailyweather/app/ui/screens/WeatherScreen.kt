@@ -93,6 +93,7 @@ fun WeatherScreen(
     onOpenCityList: () -> Unit,
     onOpenSearch: () -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenDetail: (com.dailyweather.app.DetailKind) -> Unit = {},
     onLocate: () -> Unit,
 ) {
     val cities by vm.cities.collectAsState()
@@ -122,7 +123,18 @@ fun WeatherScreen(
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedSkyGradient(scene, Modifier.matchParentSize())
-            WeatherEffectOverlay(scene, Modifier.matchParentSize())
+            // 天气切换时的交叉淡入淡出（对齐南风 effectTimeline：约 900ms 过渡），
+            // 新旧两层粒子互相淡入淡出，而不是"雨突然停了"。
+            androidx.compose.animation.Crossfade(
+                targetState = scene.kind to scene.phase,
+                animationSpec = androidx.compose.animation.core.tween(900),
+                label = "weatherEffectCrossfade",
+                modifier = Modifier.matchParentSize(),
+            ) { key ->
+                val (kind, phase) = key
+                val faded = scene.copy(kind = kind, phase = phase)
+                WeatherEffectOverlay(faded, Modifier.matchParentSize())
+            }
             TopProgressiveScrim(Modifier.matchParentSize())
 
             Column(
@@ -172,12 +184,12 @@ fun WeatherScreen(
                         ) {
                             cards.forEach { card ->
                                 when (card) {
-                                    HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone)
+                                    HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone) { onOpenDetail(com.dailyweather.app.DetailKind.HOURLY) }
                                     HomeCardId.DAILY -> DailyCard(snap, blueTheme, cityZone)
-                                    HomeCardId.PRECIP -> PrecipCard(snap)
+                                    HomeCardId.PRECIP -> PrecipCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.MINUTELY) }
                                     HomeCardId.RADAR -> RadarCard(snap)
                                     HomeCardId.LIFE -> LifeAdviceCard(snap)
-                                    HomeCardId.AQI -> AqiCard(snap)
+                                    HomeCardId.AQI -> AqiCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.AIR_QUALITY) }
                                     HomeCardId.SUN -> SunCard(snap, cityZone)
                                     HomeCardId.DETAIL -> DetailCard(snap)
                                     else -> Unit
@@ -289,11 +301,11 @@ private fun HeroSection(snapshot: WeatherSnapshot) {
 
 /** 小时卡：[实测] 卡高 99dp、列宽 51dp；降水概率单独占一行，无降水也占位，好让温度行对齐。 */
 @Composable
-private fun HourlyCard(snapshot: WeatherSnapshot, blueTheme: Boolean, zone: java.time.ZoneId) {
+private fun HourlyCard(snapshot: WeatherSnapshot, blueTheme: Boolean, zone: java.time.ZoneId, onClick: () -> Unit = {}) {
     val sky = LocalSky.current
     if (snapshot.hourly.isEmpty()) return
     GlassCard(
-        modifier = Modifier.fillMaxWidth().height(Tokens.HourlyCardHeight),
+        modifier = Modifier.fillMaxWidth().height(Tokens.HourlyCardHeight).clickable(onClick = onClick),
         contentPadding = PaddingValues(0.dp),
     ) {
         LazyRow(
@@ -558,10 +570,10 @@ private fun LifeAdviceCard(snapshot: WeatherSnapshot) {
 }
 
 @Composable
-private fun AqiCard(snapshot: WeatherSnapshot) {
+private fun AqiCard(snapshot: WeatherSnapshot, onClick: () -> Unit = {}) {
     val sky = LocalSky.current
     val rt = snapshot.realtime ?: return
-    GlassCard(modifier = Modifier.fillMaxWidth()) {
+    GlassCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -724,15 +736,18 @@ private fun SunCard(snapshot: WeatherSnapshot, zone: java.time.ZoneId) {
  * 未来 24 小时全程无降水时不渲染（南风也是"没雨就不占屏"）。
  */
 @Composable
-private fun PrecipCard(snapshot: WeatherSnapshot) {
+private fun PrecipCard(snapshot: WeatherSnapshot, onClick: () -> Unit = {}) {
     val sky = LocalSky.current
     val hours = remember(snapshot.fetchedAt) {
         snapshot.hourly.take(24)
     }
     if (hours.isEmpty() || hours.all { it.precipitationMm < 0.05 }) return
-                val maxMm = hours.maxOf { it.precipitationMm }.coerceAtLeast(1.0)
-                val zone = java.time.ZoneId.systemDefault()
-                GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+    val maxMm = hours.maxOf { it.precipitationMm }.coerceAtLeast(1.0)
+    val zone = java.time.ZoneId.systemDefault()
+    GlassCard(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        contentPadding = PaddingValues(14.dp),
+    ) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             rememberLucide("umbrella")?.let {
@@ -950,7 +965,7 @@ private fun DetailCard(snapshot: WeatherSnapshot) {
 
 /** 横向光谱条 + 位置标记点（南风 AqiSpectrumBar / UvSpectrumBar 的通用形态）。 */
 @Composable
-private fun SpectrumBar(
+internal fun SpectrumBar(
     progress: Float,
     colors: List<Color>,
     modifier: Modifier = Modifier,

@@ -84,7 +84,11 @@ class WeatherRepository(
             base.hourly
         } else {
             base.hourly.mapIndexed { i, p ->
-                p.copy(precipitationProbability = extra.hourly.getOrNull(i)?.precipitationProbability ?: 0.0)
+                val xh = extra.hourly.getOrNull(i)
+                p.copy(
+                    precipitationProbability = xh?.precipitationProbability ?: 0.0,
+                    aqi = p.aqi.takeIf { it > 0 } ?: xh?.aqi ?: 0,
+                )
             }
         }
         val daily = if (base.daily.size >= extra.daily.size) base.daily else extra.daily
@@ -100,6 +104,7 @@ class WeatherRepository(
             },
             forecastKey = base.forecastKey.ifBlank { extra.forecastKey },
             minutelyDesc = base.minutelyDesc.ifBlank { extra.minutelyDesc },
+            minutely = base.minutely ?: extra.minutely,
             hourly = hourly,
             daily = daily,
             alerts = if (base.alerts.isEmpty()) extra.alerts else base.alerts,

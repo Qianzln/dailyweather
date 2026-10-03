@@ -11,7 +11,7 @@ import org.json.JSONObject
 class AmapGeo(private val proxy: CloudProxy) {
 
     /** 城市四级名：city 为主名（对齐南风 cityName/districtName/poiName/streetName 的能力面）。 */
-    data class PlaceName(val city: String, val detail: String)
+    data class PlaceName(val city: String, val district: String, val detail: String)
 
     val configured: Boolean get() = proxy.isConfigured
 
@@ -55,7 +55,7 @@ class AmapGeo(private val proxy: CloudProxy) {
             else -> province
         }
         val detail = listOf(township, community).filter { it.isNotBlank() }.joinToString("")
-        return PlaceName(cityName.ifBlank { "我的位置" }, detail)
+        return PlaceName(cityName.ifBlank { "我的位置" }, district, detail)
     }
 
     /**

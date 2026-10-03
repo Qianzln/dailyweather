@@ -54,11 +54,19 @@ class CityRepository(
         return list + missing
     }
 
-    suspend fun upsertCurrentLocation(lng: Double, lat: Double, displayName: String): City {
+    suspend fun upsertCurrentLocation(
+        lng: Double,
+        lat: Double,
+        displayName: String,
+        cityName: String = "",
+        districtName: String = "",
+    ): City {
         val id = "current"
         val city = City(
             id = id, name = displayName, longitude = lng, latitude = lat,
-            isCurrentLocation = true, sortOrder = 0, cityName = displayName,
+            isCurrentLocation = true, sortOrder = 0,
+            cityName = cityName.ifBlank { displayName },
+            districtName = districtName,
             coordinateVerified = true,
             // 定位城市的设备时区未必与所在地一致（模拟器/出国场景）：中国境内直接用北京时间。
             timeZoneId = if (lng in 73.0..135.0 && lat in 3.0..54.0) "Asia/Shanghai" else "",

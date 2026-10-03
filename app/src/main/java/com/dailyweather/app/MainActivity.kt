@@ -22,8 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.core.view.WindowCompat
 import com.dailyweather.app.di.AppContainer
+import com.dailyweather.app.ui.screens.AirQualityDetailScreen
 import com.dailyweather.app.ui.screens.CityListScreen
 import com.dailyweather.app.ui.screens.CitySearchScreen
+import com.dailyweather.app.ui.screens.HourlyDetailScreen
+import com.dailyweather.app.ui.screens.MinutelyPrecipScreen
 import com.dailyweather.app.ui.screens.SettingsScreen
 import com.dailyweather.app.ui.screens.SettingsSubScreen
 import com.dailyweather.app.ui.screens.WeatherScreen
@@ -66,7 +69,12 @@ private sealed interface Screen {
     data object Search : Screen
     data object Settings : Screen
     data class Sub(val title: String) : Screen
+
+    /** 首页卡片的详情子屏（逐小时 / 空气质量 / 分钟级降水）。 */
+    data class Detail(val kind: DetailKind) : Screen
 }
+
+enum class DetailKind { HOURLY, AIR_QUALITY, MINUTELY }
 
 @Composable
 private fun AppNavigation(vm: WeatherViewModel, blueTheme: Boolean, onLocate: () -> Unit) {
@@ -91,6 +99,7 @@ private fun AppNavigation(vm: WeatherViewModel, blueTheme: Boolean, onLocate: ()
                 onOpenCityList = { stack = stack + Screen.CityList },
                 onOpenSearch = { stack = stack + Screen.Search },
                 onOpenSettings = { stack = stack + Screen.Settings },
+                onOpenDetail = { kind -> stack = stack + Screen.Detail(kind) },
                 onLocate = onLocate,
             )
             Screen.CityList -> CityListScreen(
@@ -109,6 +118,17 @@ private fun AppNavigation(vm: WeatherViewModel, blueTheme: Boolean, onLocate: ()
                 title = screen.title, vm = vm, onBack = pop,
                 onOpenSub = { t -> stack = stack + Screen.Sub(t) },
             )
+            is Screen.Detail -> {
+                val snapshots by vm.snapshotCache.collectAsState()
+                val city = vm.cityFor(vm.selectedCityId)
+                val snap = snapshots[vm.selectedCityId] ?: snapshots[city?.id]
+                val zone = city?.zone ?: java.time.ZoneId.systemDefault()
+                when (screen.kind) {
+                    DetailKind.HOURLY -> HourlyDetailScreen(snapshot = snap ?: return@AnimatedContent, zone = zone, onBack = pop)
+                    DetailKind.AIR_QUALITY -> AirQualityDetailScreen(snapshot = snap ?: return@AnimatedContent, onBack = pop)
+                    DetailKind.MINUTELY -> MinutelyPrecipScreen(snapshot = snap ?: return@AnimatedContent, onBack = pop)
+                }
+            }
         }
     }
 }
