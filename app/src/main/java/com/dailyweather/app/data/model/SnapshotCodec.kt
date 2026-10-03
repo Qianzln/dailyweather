@@ -37,7 +37,8 @@ object SnapshotCodec {
         .put("hourly", JSONArray().apply {
             snapshot.hourly.forEach { h ->
                 put(JSONObject().put("time", h.time).put("temperature", h.temperature)
-                    .put("skycon", h.skycon).put("precipitationProbability", h.precipitationProbability))
+                    .put("skycon", h.skycon).put("precipitationProbability", h.precipitationProbability)
+                    .put("precipitationMm", h.precipitationMm))
             }
         })
         .put("daily", JSONArray().apply {
@@ -97,6 +98,7 @@ object SnapshotCodec {
                             temperature = h.optDouble("temperature"),
                             skycon = h.optString("skycon"),
                             precipitationProbability = h.optDouble("precipitationProbability"),
+                            precipitationMm = h.optDouble("precipitationMm", 0.0),
                         )
                     )
                 }

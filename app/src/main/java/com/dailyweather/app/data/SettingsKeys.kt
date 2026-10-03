@@ -46,6 +46,7 @@ enum class HomeCardId(val title: String) {
     AQI("空气质量"),
     HOURLY("逐小时预报"),
     DAILY("多日预报"),
+    PRECIP("分钟级降水"),
     SUN("日出日落"),
     DETAIL("气象详情"),
     RADAR("台风雷达&海洋潮汐"),

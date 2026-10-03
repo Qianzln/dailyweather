@@ -28,6 +28,9 @@ class DailyWeatherApp : Application() {
         super.onCreate()
         container = AppContainer(this)
         NotificationChannels.ensureAll(this)
+        // 冷启动预热粒子精灵（对齐南风 SkyPulseApp：辉光/雨滴流星/24 帧雪花），
+        // 后台线程生成，首帧组合时缓存已热，动画零卡顿进入。
+        com.dailyweather.app.scene.ParticleSprites.prewarm(this)
         scheduleBackgroundWork()
         syncUnits()
         Log.i(TAG, "DailyWeatherApp ready")

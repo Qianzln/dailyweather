@@ -44,6 +44,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -74,7 +75,10 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.roundToInt
+import kotlin.math.sin
 
 /**
  * 首页：分层天空（渐变 → 云层 → 降水/氛围 → 顶部压暗）+ 居中 Hero + 卡片流。
@@ -103,10 +107,19 @@ fun WeatherScreen(
     androidx.compose.runtime.LaunchedEffect(vm.selectedCityId) { source = vm.sourceOf(vm.selectedCityId) }
 
     val motion by vm.settingFlow(WeatherViewModel.SettingKey.MOTION).collectAsState(true)
+    // 省电模式感知（对应南风 rememberPowerSaveMode）：省电时特效降到 Low 档。
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val powerManager = context.getSystemService(android.content.Context.POWER_SERVICE) as android.os.PowerManager
+    val powerSave = powerManager.isPowerSaveMode
     val scene = remember(snapshot, cityZone) { SceneBridge.stateFor(snapshot, cityZone) }
     val sky = SkyPalette.of(scene)
 
-    CompositionLocalProvider(LocalSky provides sky) {
+    CompositionLocalProvider(
+        LocalSky provides sky,
+        // 「天气动效」开关 + 省电模式 → 整个粒子层的绘制开关。
+        LocalWeatherEffectDrawEnabled provides (motion && !powerSave),
+        LocalEffectQuality provides if (powerSave) EffectQuality.Low else EffectQuality.High,
+    ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedSkyGradient(scene, Modifier.matchParentSize())
             WeatherEffectOverlay(scene, Modifier.matchParentSize())
@@ -161,10 +174,11 @@ fun WeatherScreen(
                                 when (card) {
                                     HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone)
                                     HomeCardId.DAILY -> DailyCard(snap, blueTheme, cityZone)
+                                    HomeCardId.PRECIP -> PrecipCard(snap)
                                     HomeCardId.RADAR -> RadarCard(snap)
                                     HomeCardId.LIFE -> LifeAdviceCard(snap)
                                     HomeCardId.AQI -> AqiCard(snap)
-                                    HomeCardId.SUN -> SunCard(snap)
+                                    HomeCardId.SUN -> SunCard(snap, cityZone)
                                     HomeCardId.DETAIL -> DetailCard(snap)
                                     else -> Unit
                                 }
@@ -574,6 +588,27 @@ private fun AqiCard(snapshot: WeatherSnapshot) {
                     Icon(it, contentDescription = null, tint = Color(0xFF8FD08F), modifier = Modifier.size(20.dp))
                 }
             }
+            // AQI 光谱条（对应南风 AqiSpectrumBar）：绿→黄→橙→红→紫，0–300 刻度。
+            if (rt.aqi > 0) {
+                Spacer(Modifier.height(12.dp))
+                SpectrumBar(
+                    progress = (rt.aqi / 300.0).coerceIn(0.0, 1.0).toFloat(),
+                    colors = listOf(
+                        Color(0xFF4ADE80), Color(0xFFFBBF24), Color(0xFFFB923C),
+                        Color(0xFFF87171), Color(0xFFA78BFA),
+                    ),
+                    modifier = Modifier.fillMaxWidth().height(5.dp),
+                )
+                Spacer(Modifier.height(4.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    listOf("0", "50", "100", "150", "200", "300").forEach {
+                        Text(
+                            it, color = Tokens.TextTertiary, fontSize = 9.sp,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+            }
             // 全污染物一行（彩云/小米都带六项；0 = 上游没给，如实显示「—」）。
             val pollutants = listOf(
                 "PM2.5" to rt.pm25, "PM10" to rt.pm10, "O₃" to rt.o3,
@@ -603,30 +638,152 @@ private fun AqiCard(snapshot: WeatherSnapshot) {
 }
 
 @Composable
-private fun SunCard(snapshot: WeatherSnapshot) {
+private fun SunCard(snapshot: WeatherSnapshot, zone: java.time.ZoneId) {
+    val sky = LocalSky.current
     val today = snapshot.daily.firstOrNull() ?: return
     if (today.sunrise.isBlank() && today.sunset.isBlank()) return
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(Tokens.CardGap)) {
-        SunTile("日出", today.sunrise, "sunrise", Modifier.weight(1f))
-        SunTile("日落", today.sunset, "sunset", Modifier.weight(1f))
+    // 日照进度：日出 0 → 日落 1；夜间为 null（太阳画到地平线下）。
+    val progress = remember(snapshot.fetchedAt) {
+        SceneBridge.sunProgressOf(snapshot, zone, System.currentTimeMillis())
+    }
+    GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+        Column {
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        rememberLucide("sunrise")?.let {
+                            Icon(it, contentDescription = null, tint = Tokens.BarEnd, modifier = Modifier.size(14.dp))
+                        }
+                        Spacer(Modifier.width(5.dp))
+                        Text("日出", color = Tokens.TextTertiary, fontSize = 12.sp)
+                    }
+                    Text(today.sunrise.take(5), color = sky.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                }
+                Spacer(Modifier.weight(1f))
+                Column(horizontalAlignment = Alignment.End) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        rememberLucide("sunset")?.let {
+                            Icon(it, contentDescription = null, tint = Tokens.BarEnd, modifier = Modifier.size(14.dp))
+                        }
+                        Spacer(Modifier.width(5.dp))
+                        Text("日落", color = Tokens.TextTertiary, fontSize = 12.sp)
+                    }
+                    Text(today.sunset.take(5), color = sky.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                }
+            }
+            Spacer(Modifier.height(6.dp))
+            // 太阳弧线（对应南风 HorizontalSunProgress）：白天太阳在弧上，夜间藏到地平线下。
+            Canvas(modifier = Modifier.fillMaxWidth().height(72.dp)) {
+                val w = size.width
+                val h = size.height
+                val horizon = h * 0.88f
+                // 半径取宽高较小约束，保证弧顶不裁出画布。
+                val r = minOf(w * 0.42f, h * 0.74f)
+                val cx = w / 2f
+                // 地平线（虚线效果用细实线代替）
+                drawLine(
+                    color = Tokens.TextTertiary.copy(alpha = 0.4f),
+                    start = Offset(0f, horizon), end = Offset(w, horizon),
+                    strokeWidth = 1f,
+                )
+                // 弧轨道
+                val arcTop = androidx.compose.ui.geometry.Rect(
+                    cx - r, horizon - r, cx + r, horizon + r,
+                )
+                drawArc(
+                    color = Tokens.TextTertiary.copy(alpha = 0.35f),
+                    startAngle = 180f, sweepAngle = 180f, useCenter = false,
+                    topLeft = arcTop.topLeft, size = arcTop.size,
+                    style = Stroke(width = 1.5f, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(4f, 6f))),
+                )
+                val p = progress
+                if (p != null) {
+                    // 太阳在弧上：progress 0 → 180°，1 → 0°。
+                    val angle = 180f * (1f - p)
+                    val rad = angle * PI.toFloat() / 180f
+                    val sx = cx + cos(rad) * r
+                    val sy = horizon - sin(rad) * r
+                    drawCircle(Color(0x55FFD98A), radius = 16f, center = Offset(sx, sy))
+                    drawCircle(Color(0xFFFFD35C), radius = 7f, center = Offset(sx, sy))
+                    drawCircle(Color(0xFFFFF3CE), radius = 4.2f, center = Offset(sx, sy))
+                } else {
+                    // 夜间：月亮弧点画在地平线下方中央。
+                    drawCircle(
+                        Color(0xFF9FB6D8).copy(alpha = 0.8f), radius = 5f,
+                        center = Offset(cx, horizon + 6f),
+                    )
+                }
+            }
+        }
     }
 }
 
+/**
+ * 逐小时降水柱状卡（对应南风 MinutelyPrecipitationCard / PrecipBarsCanvas 的
+ * 小时粒度版——分钟级曲线要等彩云 BYOK，这里先用 hourly.precipitation mm 画柱）。
+ * 未来 24 小时全程无降水时不渲染（南风也是"没雨就不占屏"）。
+ */
 @Composable
-private fun SunTile(title: String, value: String, icon: String, modifier: Modifier) {
+private fun PrecipCard(snapshot: WeatherSnapshot) {
     val sky = LocalSky.current
-    GlassCard(
-        modifier = modifier,
-        contentPadding = PaddingValues(14.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            rememberLucide(icon)?.let {
-                Icon(it, contentDescription = null, tint = Tokens.BarEnd, modifier = Modifier.size(18.dp))
-            }
-            Spacer(Modifier.width(8.dp))
-            Column {
-                Text(title, color = Tokens.TextTertiary, fontSize = 12.sp)
-                Text(value.take(5), color = sky.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+    val hours = remember(snapshot.fetchedAt) {
+        snapshot.hourly.take(24)
+    }
+    if (hours.isEmpty() || hours.all { it.precipitationMm < 0.05 }) return
+                val maxMm = hours.maxOf { it.precipitationMm }.coerceAtLeast(1.0)
+                val zone = java.time.ZoneId.systemDefault()
+                GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            rememberLucide("umbrella")?.let {
+                                Icon(it, contentDescription = null, tint = sky.textSecondary, modifier = Modifier.size(15.dp))
+                            }
+                            Spacer(Modifier.width(6.dp))
+                            Text("未来 24 小时降水", color = sky.textSecondary, fontSize = 13.sp)
+                            Spacer(Modifier.weight(1f))
+                            val peak = hours.maxOf { it.precipitationMm }
+                            Text(
+                                "峰值 ${Units.precipitationText(peak)}",
+                                color = Tokens.PrecipCyan, fontSize = 12.sp,
+                            )
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Canvas(modifier = Modifier.fillMaxWidth().height(72.dp)) {
+                            val n = hours.size
+                            val slot = size.width / n
+                            val barW = slot * 0.55f
+                            hours.forEachIndexed { i, point ->
+                                val mm = point.precipitationMm
+                                if (mm >= 0.05) {
+                                    val barH = ((mm / maxMm * size.height * 0.86f).toFloat()).coerceAtLeast(3f)
+                                    drawRoundRect(
+                                        color = Tokens.PrecipCyan.copy(alpha = 0.55f + 0.35f * (mm / maxMm).toFloat()),
+                                        topLeft = Offset(i * slot + (slot - barW) / 2f, size.height - barH),
+                                        size = Size(barW, barH),
+                                        cornerRadius = CornerRadius(barW / 2f, barW / 2f),
+                                    )
+                                }
+                            }
+                            // 底线
+                            drawLine(
+                                color = Tokens.TextTertiary.copy(alpha = 0.35f),
+                                start = Offset(0f, size.height), end = Offset(size.width, size.height),
+                                strokeWidth = 1f,
+                            )
+                        }
+            Spacer(Modifier.height(4.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                // 首尾钟点标注
+                val fmt = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+                listOf(0, hours.size - 1).forEach { idx ->
+                    val t = hours[idx].time
+                    Text(
+                        java.time.Instant.ofEpochMilli(t).atZone(zone).format(fmt),
+                        color = Tokens.TextTertiary, fontSize = 10.sp,
+                        textAlign = if (idx == 0) TextAlign.Start else TextAlign.End,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
     }
@@ -754,11 +911,95 @@ private fun DetailCard(snapshot: WeatherSnapshot) {
                             Text(value, color = sky.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.Medium)
                             Spacer(Modifier.height(2.dp))
                             Text(label, color = Tokens.TextTertiary, fontSize = 12.sp)
+                            // 迷你可视化：风罗盘针 / 气压刻度 / 紫外线光谱（对应南风
+                            // WindCompass / PressureGauge / UvSpectrumBar 的格内缩版）。
+                            when (icon) {
+                                "wind-ios" -> if (rt.windSpeed > 0) {
+                                    WindNeedle(
+                                        directionDeg = rt.windDirection,
+                                        modifier = Modifier.padding(top = 6.dp).size(26.dp),
+                                    )
+                                }
+                                "pressure-ios" -> if (rt.pressureHpa > 0) {
+                                    SpectrumBar(
+                                        progress = ((rt.pressureHpa - 970.0) / 80.0).coerceIn(0.0, 1.0).toFloat(),
+                                        colors = listOf(Color(0xFF5B8CFF), Color(0xFF4ADE80), Color(0xFFFBBF24)),
+                                        modifier = Modifier.padding(top = 10.dp).width(52.dp).height(4.dp),
+                                    )
+                                }
+                                "uv-sun-ios" -> if (rt.uvIndex > 0) {
+                                    SpectrumBar(
+                                        progress = (rt.uvIndex / 11.0).coerceIn(0.0, 1.0).toFloat(),
+                                        colors = listOf(
+                                            Color(0xFF4ADE80), Color(0xFFFBBF24), Color(0xFFFB923C),
+                                            Color(0xFFF87171), Color(0xFFA78BFA),
+                                        ),
+                                        modifier = Modifier.padding(top = 10.dp).width(52.dp).height(4.dp),
+                                    )
+                                }
+                                else -> Unit
+                            }
                         }
                     }
                     repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
+    }
+}
+
+/** 横向光谱条 + 位置标记点（南风 AqiSpectrumBar / UvSpectrumBar 的通用形态）。 */
+@Composable
+private fun SpectrumBar(
+    progress: Float,
+    colors: List<Color>,
+    modifier: Modifier = Modifier,
+) {
+    Canvas(modifier) {
+        val h = size.height
+        val w = size.width
+        drawRoundRect(
+            brush = Brush.horizontalGradient(colors),
+            topLeft = Offset.Zero,
+            size = size,
+            cornerRadius = CornerRadius(h / 2f, h / 2f),
+        )
+        val x = (w * progress).coerceIn(h, w - h)
+        drawCircle(Color.White, radius = h * 0.75f, center = Offset(x, h / 2f))
+        drawCircle(Color(0xFF3A4254), radius = h * 0.34f, center = Offset(x, h / 2f))
+    }
+}
+
+/** 风向罗盘：圆圈 + 指针指向风的来向（windDirection，0=北）。 */
+@Composable
+private fun WindNeedle(directionDeg: Int, modifier: Modifier = Modifier) {
+    Canvas(modifier) {
+        val c = center
+        val r = size.minDimension / 2f
+        drawCircle(color = Color.White.copy(alpha = 0.25f), radius = r, center = c, style = Stroke(1.5f))
+        drawCircle(color = Color.White.copy(alpha = 0.4f), radius = r * 0.10f, center = c)
+        // N 刻度点
+        drawCircle(
+            color = Color.White.copy(alpha = 0.8f), radius = 1.6f,
+            center = Offset(c.x, c.y - r + 2f),
+        )
+        val a = (directionDeg.toFloat() - 90f) * PI.toFloat() / 180f
+        drawLine(
+            color = Color.White,
+            start = Offset(c.x + cos(a) * r * 0.18f, c.y + sin(a) * r * 0.18f),
+            end = Offset(c.x + cos(a) * r * 0.78f, c.y + sin(a) * r * 0.78f),
+            strokeWidth = 2.2f,
+            cap = StrokeCap.Round,
+        )
+        // 箭头尖
+        val tip = Offset(c.x + cos(a) * r * 0.78f, c.y + sin(a) * r * 0.78f)
+        val leftA = a + PI.toFloat() * 0.85f
+        drawLine(
+            color = Color.White,
+            start = tip,
+            end = Offset(tip.x + cos(leftA) * r * 0.22f, tip.y + sin(leftA) * r * 0.22f),
+            strokeWidth = 2.2f,
+            cap = StrokeCap.Round,
+        )
     }
 }

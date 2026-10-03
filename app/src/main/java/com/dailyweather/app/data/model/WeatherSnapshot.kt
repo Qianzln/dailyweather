@@ -45,6 +45,8 @@ data class WeatherSnapshot(
         val temperature: Double,
         val skycon: String,
         val precipitationProbability: Double,
+        /** 逐小时降水量 mm（彩云 hourly.precipitation[].value）。0 = 上游没给。 */
+        val precipitationMm: Double = 0.0,
     )
 
     data class DailyPoint(
@@ -127,6 +129,7 @@ object CaiyunParser {
                             temperature = t.optDouble("value", 0.0),
                             skycon = skycons.optJSONObject(i)?.optString("value", "") ?: "",
                             precipitationProbability = prob,
+                            precipitationMm = precip?.optJSONObject(i)?.optDouble("value", 0.0) ?: 0.0,
                         )
                     )
                 }

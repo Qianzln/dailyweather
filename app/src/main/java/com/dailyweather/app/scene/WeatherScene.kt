@@ -13,7 +13,7 @@ enum class SkyPhase { MORNING, DAY, EVENING, NIGHT }
 
 /** 天气状况，粒度取自南风实际支持的场景键。 */
 enum class WeatherKind {
-    CLEAR, PARTLY_CLOUDY, CLOUDY, RAIN, SNOW, FOG, WIND, THUNDER;
+    CLEAR, PARTLY_CLOUDY, CLOUDY, RAIN, SNOW, SLEET, FOG, WIND, THUNDER;
 
     /** 该状况的默认转阴度，喂给 [CloudLightRig.overcast]。 */
     val baseOvercast: Float
@@ -23,6 +23,7 @@ enum class WeatherKind {
             CLOUDY -> 1.00f
             RAIN -> 0.85f
             SNOW -> 0.90f
+            SLEET -> 0.88f
             FOG -> 0.70f
             WIND -> 0.15f
             THUNDER -> 0.95f
@@ -42,6 +43,11 @@ data class WeatherSceneState(
     val intensity: Float = 0f,
     /** 风强 0–1：只影响漂移速度与云被拉长的程度。 */
     val wind: Float = 0.3f,
+    /**
+     * 日照进度 0–1：日出→日落之间太阳在弧线上的位置（对应南风 SunPose）。
+     * null = 夜间或缺日出日落数据，不画太阳。
+     */
+    val sunProgress: Float? = null,
 ) {
     val isNight: Boolean get() = phase == SkyPhase.NIGHT
 
@@ -102,7 +108,7 @@ fun cloudFieldsFor(state: WeatherSceneState): List<CloudFieldSpec> {
             CloudFieldSpec(CloudSpecies.STRATUS, 3, 0.20f..0.34f, 0.052f * stretch, 1.10f * stretch, 0.92f, 97),
         )
 
-        WeatherKind.SNOW -> listOf(
+        WeatherKind.SNOW, WeatherKind.SLEET -> listOf(
             CloudFieldSpec(CloudSpecies.STRATUS, 3, 0.08f..0.24f, 0.012f, 1.10f, 0.60f, 101),
             CloudFieldSpec(CloudSpecies.CUMULUS, 2, 0.26f..0.40f, 0.020f, 0.85f, 0.68f, 103),
         )
