@@ -57,15 +57,12 @@ object HomeCards {
 
     val defaultOrder: List<HomeCardId> = HomeCardId.entries.toList()
 
-    /** 会员锁定的卡片：未登录时灰态带锁、不可开启。 */
-    val membershipLocked: Set<HomeCardId> = setOf(
-        HomeCardId.AQI, HomeCardId.SUN, HomeCardId.DETAIL,
-    )
+    /**
+     * 会员锁定的卡片。南风未登录时把 空气质量/日出日落/气象详情 锁成灰态，
+     * 但本工程这三项的数据是真的，锁着等于把已完成的功能藏起来，所以不锁。
+     * 要恢复成南风的原样，把这三项填回这个集合即可。
+     */
+    val membershipLocked: Set<HomeCardId> = emptySet()
 
-    fun defaultVisible(id: HomeCardId): Boolean = when (id) {
-        HomeCardId.SUMMARY, HomeCardId.HOURLY, HomeCardId.DAILY,
-        HomeCardId.RADAR, HomeCardId.LIFE,
-        -> true
-        else -> false
-    }
+    fun defaultVisible(id: HomeCardId): Boolean = true
 }

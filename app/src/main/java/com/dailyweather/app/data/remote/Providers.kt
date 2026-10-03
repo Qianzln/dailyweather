@@ -129,6 +129,8 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
             uvIndex = valueOf(wrapped(current, "uvIndex")) ?: 0.0,
             comfortDesc = "",
             airQualityDesc = aqiLevelCn(aqi),
+            pressureHpa = pressureHpaOf(wrapped(current, "pressure")),
+            visibilityKm = visibilityKmOf(wrapped(current, "visibility")),
         )
         Log.i(TAG, "小米解析完成: skycon=$skycon aqi=$aqi hourly=${hourly.size} daily=${daily.size}")
         return WeatherSnapshot(
@@ -240,6 +242,17 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
             w?.opt("value")?.let { (it as? Number)?.toDouble() ?: it.toString().toDoubleOrNull() }
 
         private fun unitOf(w: JSONObject?): String = w?.optString("unit", "").orEmpty()
+        /** 气压只认 hPa/mb（实测两种都出现过）；认不出单位 = 0 表示没有，不猜换算。 */
+        private fun pressureHpaOf(w: JSONObject?): Double {
+            val v = valueOf(w) ?: return 0.0
+            return if (unitOf(w).lowercase() in setOf("hpa", "mb", "mbar")) v else 0.0
+        }
+
+        /** 能见度只认 km；其他单位一律当缺失。 */
+        private fun visibilityKmOf(w: JSONObject?): Double {
+            val v = valueOf(w) ?: return 0.0
+            return if (unitOf(w).lowercase() == "km") v else 0.0
+        }
 
         /** 风速显式声明单位；认不出来就当作缺失，不猜换算。 */
         private fun windSpeedOf(wind: JSONObject?): Double? {

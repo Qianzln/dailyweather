@@ -30,6 +30,8 @@ data class WeatherSnapshot(
         val uvIndex: Double,
         val comfortDesc: String,
         val airQualityDesc: String,
+        val pressureHpa: Double = 0.0,
+        val visibilityKm: Double = 0.0,
     )
 
     data class HourlyPoint(
@@ -90,6 +92,8 @@ object CaiyunParser {
                 uvIndex = lifeIndex?.optJSONObject("ultraviolet")?.optDouble("index", 0.0) ?: 0.0,
                 comfortDesc = lifeIndex?.optJSONObject("comfort")?.optString("desc", "") ?: "",
                 airQualityDesc = desc?.optString("chn", "") ?: "",
+                pressureHpa = r.optDouble("pressure", 0.0),
+                visibilityKm = r.optDouble("visibility", 0.0),
             )
         }
 

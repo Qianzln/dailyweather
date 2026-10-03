@@ -164,6 +164,7 @@ fun WeatherScreen(
                                     HomeCardId.LIFE -> LifeAdviceCard(snap)
                                     HomeCardId.AQI -> AqiCard(snap)
                                     HomeCardId.SUN -> SunCard(snap)
+                                    HomeCardId.DETAIL -> DetailCard(snap)
                                     else -> Unit
                                 }
                             }
@@ -670,4 +671,53 @@ private fun hourlyLabel(index: Int, epochMs: Long): String {
 private fun isNightHour(epochMs: Long): Boolean {
     val h = java.time.LocalTime.ofInstant(java.time.Instant.ofEpochMilli(epochMs), java.time.ZoneId.systemDefault()).hour
     return h !in 6..18
+}
+
+/**
+ * 气象详情：体感 / 风速 / 湿度 / 气压 / 能见度 / 紫外线。
+ *
+ * 这一卡是风速、气压、能见度三个单位选项唯一的显示出口——没有它，
+ * 单位设置里那几行就只是存了个数而已。缺值的格子显示「—」，不填假数。
+ */
+@Composable
+private fun DetailCard(snapshot: WeatherSnapshot) {
+    val sky = LocalSky.current
+    val rt = snapshot.realtime ?: return
+    val tiles = listOf(
+        ("体感" to if (rt.apparentTemperature > -900) Units.temp(rt.apparentTemperature) else "—") to "thermometer-ios",
+        ("风速" to if (rt.windSpeed > 0) Units.windText(rt.windSpeed) else "—") to "wind-ios",
+        ("湿度" to "${(rt.humidity * 100).roundToInt()}%") to "humidity-ios",
+        ("气压" to if (rt.pressureHpa > 0) Units.pressureText(rt.pressureHpa) else "—") to "pressure-ios",
+        ("能见度" to if (rt.visibilityKm > 0) Units.visibilityText(rt.visibilityKm) else "—") to "visibility-ios",
+        ("紫外线" to if (rt.uvIndex > 0) rt.uvIndex.roundToInt().toString() else "—") to "uv-sun-ios",
+    )
+    GlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            start = 16.dp, end = 16.dp, top = 18.dp, bottom = 18.dp,
+        ),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+            tiles.chunked(3).forEach { row ->
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    row.forEach { (pair, icon) ->
+                        val (label, value) = pair
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            rememberLucide(icon)?.let {
+                                Icon(it, contentDescription = null, tint = sky.textSecondary, modifier = Modifier.size(20.dp))
+                            }
+                            Spacer(Modifier.height(7.dp))
+                            Text(value, color = sky.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.Medium)
+                            Spacer(Modifier.height(2.dp))
+                            Text(label, color = Tokens.TextTertiary, fontSize = 12.sp)
+                        }
+                    }
+                    repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
+    }
 }

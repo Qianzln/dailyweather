@@ -76,6 +76,9 @@ fun AppearanceSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
     val material by vm.stringSetting(SettingsKeys.CARD_MATERIAL, SettingsKeys.CARD_MATERIAL_DEFAULT).collectAsState("LIQUID")
     val radar by vm.boolSetting(SettingsKeys.SHOW_RADAR, true).collectAsState(true)
     val life by vm.boolSetting(SettingsKeys.SHOW_LIFE, true).collectAsState(true)
+    val aqi by vm.boolSetting(SettingsKeys.SHOW_AQI, true).collectAsState(true)
+    val sun by vm.boolSetting(SettingsKeys.SHOW_SUN, true).collectAsState(true)
+    val detail by vm.boolSetting(SettingsKeys.SHOW_DETAIL, true).collectAsState(true)
     val orderRaw by vm.stringSetting(SettingsKeys.CARD_ORDER, "").collectAsState("")
 
     val order = remember(orderRaw) {
@@ -95,11 +98,11 @@ fun AppearanceSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
         }
         SectionHeader("主页卡片")
         GroupCard {
-            SwitchRow("空气质量", false, locked = true)
+            SwitchRow("空气质量", aqi, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_AQI, it) })
             SwitchRow("分钟级降水", false, locked = true)
             SwitchRow("48小时预报", false, locked = true)
-            SwitchRow("日出日落", false, locked = true)
-            SwitchRow("气象详情", false, locked = true)
+            SwitchRow("日出日落", sun, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_SUN, it) })
+            SwitchRow("气象详情", detail, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_DETAIL, it) })
             SwitchRow("台风雷达&海洋潮汐", radar, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_RADAR, it) })
             SwitchRow("生活建议", life, divider = false, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_LIFE, it) })
         }

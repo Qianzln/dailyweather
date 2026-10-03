@@ -95,6 +95,8 @@ object Fixture {
                 uvIndex = root.optDouble("uv", 0.0),
                 comfortDesc = root.optString("comfort"),
                 airQualityDesc = root.optString("airDesc"),
+                pressureHpa = root.optDouble("pressure", 0.0),
+                visibilityKm = root.optDouble("visibility", 0.0),
             ),
             minutelyDesc = root.optString("minutely"),
             hourly = hourly,

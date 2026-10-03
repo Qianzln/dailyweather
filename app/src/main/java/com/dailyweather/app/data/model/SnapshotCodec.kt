@@ -30,6 +30,7 @@ object SnapshotCodec {
                 .put("uvIndex", rt.uvIndex)
                 .put("comfortDesc", rt.comfortDesc)
                 .put("airQualityDesc", rt.airQualityDesc)
+                .put("pressureHpa", rt.pressureHpa).put("visibilityKm", rt.visibilityKm)
         })
         .put("hourly", JSONArray().apply {
             snapshot.hourly.forEach { h ->
@@ -75,6 +76,8 @@ object SnapshotCodec {
                     uvIndex = rt.optDouble("uvIndex"),
                     comfortDesc = rt.optString("comfortDesc"),
                     airQualityDesc = rt.optString("airQualityDesc"),
+                    pressureHpa = rt.optDouble("pressureHpa", 0.0),
+                    visibilityKm = rt.optDouble("visibilityKm", 0.0),
                 )
             },
             hourly = buildList {
