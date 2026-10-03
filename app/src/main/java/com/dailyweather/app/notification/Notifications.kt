@@ -66,13 +66,16 @@ object NotificationChannels {
         )
 }
 
-/** 常驻天气胶囊（低版本普通通知；Android 16 promoted-ongoing 在阶段二接）。 */
+/** 常驻天气胶囊：Android 16（API 36+）promoted-ongoing 升格卡，低版本回退普通常驻通知。 */
 object PersistentWeatherNotification {
 
     const val NOTIFICATION_ID = 1001
 
+    /** Android 16（Baklava）将常驻通知升格为 promoted ongoing（流体云卡片）。 */
+    private const val FLAG_PROMOTED_ONGOING = 0x00020000 // Notification.FLAG_PROMOTED_ONGOING
+
     fun post(context: Context, title: String, text: String) {
-        val notification: Notification = NotificationCompat.Builder(context, NotificationChannels.CHANNEL_LIVE)
+        val builder = NotificationCompat.Builder(context, NotificationChannels.CHANNEL_LIVE)
             .setSmallIcon(R.drawable.ic_widget_thermometer)
             .setContentTitle(title)
             .setContentText(text)
@@ -80,8 +83,16 @@ object PersistentWeatherNotification {
             .setSilent(true)
             .setContentIntent(NotificationChannels.appIntent(context))
             .setDeleteIntent(dismissIntent(context))
-            .build()
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        // Android 16 及以上且系统允许 promoted ongoing 时，给常驻胶囊加升格标记。
+        // NotificationCompat.Builder.setFlag 私有，这里用反射给最终 Notification 补该位。
+        val notification = builder.build()
+        if (Build.VERSION.SDK_INT >= 36 && nm.canPostPromotedNotifications()) {
+            runCatching {
+                val f = android.app.Notification::class.java.getField("flags")
+                f.setInt(notification, (f.getInt(notification) or FLAG_PROMOTED_ONGOING))
+            }
+        }
         nm.notify(NOTIFICATION_ID, notification)
     }
 
