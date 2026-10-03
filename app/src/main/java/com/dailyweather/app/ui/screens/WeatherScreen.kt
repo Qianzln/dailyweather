@@ -548,29 +548,55 @@ private fun AqiCard(snapshot: WeatherSnapshot) {
     val sky = LocalSky.current
     val rt = snapshot.realtime ?: return
     GlassCard(modifier = Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = if (rt.aqi > 0) rt.aqi.toString() else "—",
-                color = sky.textPrimary,
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier.width(64.dp),
-            )
-            Column(modifier = Modifier.weight(1f)) {
+        Column {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = SkyconMap.aqiLevel(rt.aqi),
+                    text = if (rt.aqi > 0) rt.aqi.toString() else "—",
                     color = sky.textPrimary,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium,
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Light,
+                    modifier = Modifier.width(64.dp),
                 )
-                Text(
-                    text = rt.airQualityDesc.ifBlank { "PM2.5 ${rt.pm25.roundToInt()} · 空气数据待接入" },
-                    color = Tokens.TextTertiary,
-                    fontSize = 12.sp,
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = SkyconMap.aqiLevel(rt.aqi),
+                        color = sky.textPrimary,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    Text(
+                        text = rt.airQualityDesc.ifBlank { "PM2.5 ${rt.pm25.roundToInt()} · 空气数据待接入" },
+                        color = Tokens.TextTertiary,
+                        fontSize = 12.sp,
+                    )
+                }
+                rememberLucide("leaf")?.let {
+                    Icon(it, contentDescription = null, tint = Color(0xFF8FD08F), modifier = Modifier.size(20.dp))
+                }
             }
-            rememberLucide("leaf")?.let {
-                Icon(it, contentDescription = null, tint = Color(0xFF8FD08F), modifier = Modifier.size(20.dp))
+            // 全污染物一行（彩云/小米都带六项；0 = 上游没给，如实显示「—」）。
+            val pollutants = listOf(
+                "PM2.5" to rt.pm25, "PM10" to rt.pm10, "O₃" to rt.o3,
+                "NO₂" to rt.no2, "SO₂" to rt.so2, "CO" to rt.co,
+            )
+            if (pollutants.any { it.second > 0.0 }) {
+                Spacer(Modifier.height(10.dp))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    pollutants.forEach { (label, value) ->
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                text = if (value > 0.0) "${value.roundToInt()}" else "—",
+                                color = sky.textPrimary,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Text(label, color = Tokens.TextTertiary, fontSize = 10.sp)
+                        }
+                    }
+                }
             }
         }
     }

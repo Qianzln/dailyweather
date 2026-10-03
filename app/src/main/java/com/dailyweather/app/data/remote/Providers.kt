@@ -89,10 +89,10 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
                 mapOf("latitude" to lat, "longitude" to lon, "locationKey" to locationKey, "days" to "7"),
             )
         )
-        return parse(city.id, root)
+        return parse(city.id, root, city.zone)
     }
 
-    internal fun parse(cityId: String, root: JSONObject): WeatherSnapshot {
+    internal fun parse(cityId: String, root: JSONObject, zone: java.time.ZoneId = java.time.ZoneId.systemDefault()): WeatherSnapshot {
         val nowEpoch = System.currentTimeMillis()
         val current = root.optJSONObject("current") ?: throw IllegalStateException("小米无 current")
 
@@ -103,7 +103,9 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
         val windSpeed = windSpeedOf(wrapped(current, "wind")) ?: 0.0
         val windDir = valueOf(wrapped(current, "wind")?.optJSONObject("direction")) ?: 0.0
         val code = current.optString("weather", "")
-        val skycon = weatherCodeToSkycon(code, isNight = !isDayHour(Calendar24.hour()))
+        // 昼夜判定按城市当地时间：设备时区与城市不一致时，UTC 午夜会把白天判成夜。
+        val cityHour = java.time.LocalTime.now(zone).hour
+        val skycon = weatherCodeToSkycon(code, isNight = !isDayHour(cityHour))
 
         val aqiObj = root.optJSONObject("aqi")
         val aqi = aqiObj?.optString("aqi", "")?.toIntOrNull()?.takeIf { it > 0 } ?: 0
@@ -126,6 +128,11 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
             windDirection = windDir.roundToInt(),
             aqi = aqi,
             pm25 = aqiObj?.optString("pm25", "")?.toDoubleOrNull() ?: 0.0,
+            pm10 = aqiObj?.optString("pm10", "")?.toDoubleOrNull() ?: 0.0,
+            o3 = aqiObj?.optString("o3", "")?.toDoubleOrNull() ?: 0.0,
+            no2 = aqiObj?.optString("no2", "")?.toDoubleOrNull() ?: 0.0,
+            so2 = aqiObj?.optString("so2", "")?.toDoubleOrNull() ?: 0.0,
+            co = aqiObj?.optString("co", "")?.toDoubleOrNull() ?: 0.0,
             uvIndex = valueOf(wrapped(current, "uvIndex")) ?: 0.0,
             comfortDesc = "",
             airQualityDesc = aqiLevelCn(aqi),
@@ -319,7 +326,3 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
     }
 }
 
-/** 设备当前小时（24 制）。抽出来是为了让"当前是否白天"只有一处判定。 */
-private object Calendar24 {
-    fun hour(): Int = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
-}

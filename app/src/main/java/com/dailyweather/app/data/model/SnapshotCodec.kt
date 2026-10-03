@@ -27,6 +27,8 @@ object SnapshotCodec {
                 .put("windDirection", rt.windDirection)
                 .put("aqi", rt.aqi)
                 .put("pm25", rt.pm25)
+                .put("pm10", rt.pm10).put("o3", rt.o3).put("no2", rt.no2)
+                .put("so2", rt.so2).put("co", rt.co)
                 .put("uvIndex", rt.uvIndex)
                 .put("comfortDesc", rt.comfortDesc)
                 .put("airQualityDesc", rt.airQualityDesc)
@@ -73,6 +75,11 @@ object SnapshotCodec {
                     windDirection = rt.optInt("windDirection"),
                     aqi = rt.optInt("aqi"),
                     pm25 = rt.optDouble("pm25"),
+                    pm10 = rt.optDouble("pm10", 0.0),
+                    o3 = rt.optDouble("o3", 0.0),
+                    no2 = rt.optDouble("no2", 0.0),
+                    so2 = rt.optDouble("so2", 0.0),
+                    co = rt.optDouble("co", 0.0),
                     uvIndex = rt.optDouble("uvIndex"),
                     comfortDesc = rt.optString("comfortDesc"),
                     airQualityDesc = rt.optString("airQualityDesc"),
