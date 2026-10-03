@@ -499,10 +499,10 @@ private fun DayRow(
             modifier = Modifier.width(38.dp),
         )
         Box(modifier = Modifier.weight(1f).height(Tokens.TempBarHeight)) {
-            // 南风的区间条按温度冷暖着色：全局刻度上冷端青绿、暖端黄。
+            // 南风区间条用固定黄色渐变（BarStart→BarEnd），不做冷暖着色。
             TempBar(
                 day, globalMin, span, if (offset == 0) currentTemp else null,
-                tempBarColor(day.tempMin, globalMin, span), tempBarColor(day.tempMax, globalMin, span),
+                Tokens.BarStart, Tokens.BarEnd,
             )
         }
         Text(
@@ -545,13 +545,6 @@ private fun TempBar(
         }
     }
 }
-
-/** 全周同一把温度刻度：冷端青绿 → 暖端黄（对齐南风日卡区间条的配色逻辑）。 */
-private fun tempBarColor(temp: Double, globalMin: Double, span: Double): Color =
-    androidx.compose.ui.graphics.lerp(
-        Color(0xFF52C7A2), Color(0xFFF6D35B),
-        ((temp - globalMin) / span).coerceIn(0.0, 1.0).toFloat(),
-    )
 
 /**
  * 台风雷达卡：左侧标题 + 短临描述，右侧真实雷达帧缩略图（云代理 /weather/radar/frame）。
@@ -681,9 +674,9 @@ private fun AqiCard(snapshot: WeatherSnapshot, onClick: () -> Unit = {}) {
                 Text(
                     text = if (rt.aqi > 0) rt.aqi.toString() else "—",
                     color = sky.textPrimary,
-                    fontSize = 26.sp,
+                    fontSize = 34.sp,
                     fontWeight = FontWeight.Light,
-                    modifier = Modifier.width(64.dp),
+                    modifier = Modifier.width(72.dp),
                 )
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
