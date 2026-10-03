@@ -38,6 +38,9 @@ class AppContainer(context: Context) {
 
     val amapGeo = AmapGeo(proxy)
 
+    /** 雷达数据网关（经同一 CloudProxy，引用 wui 同款链路）。 */
+    val radarGateway = com.dailyweather.app.data.remote.RadarGateway(proxy)
+
     val cityRepository = CityRepository(weatherStore, settings)
     val weatherRepository = WeatherRepository(
         weatherStore, cityRepository,

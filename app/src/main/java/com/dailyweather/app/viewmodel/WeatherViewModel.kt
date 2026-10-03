@@ -14,6 +14,7 @@ import com.dailyweather.app.sync.RefreshManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -128,6 +129,67 @@ class WeatherViewModel(private val container: AppContainer) {
     fun snapshotFor(cityId: String?): WeatherSnapshot? = cityId?.let { snapshots.value[it] }
 
     fun cityFor(cityId: String?): City? = cityId?.let { id -> cities.value.firstOrNull { it.id == id } }
+
+    // ---- 雷达帧加载 ----
+    /** 雷达帧序列（按时间升序，用于轮播）。 */
+    var radarFrames by mutableStateOf<List<Pair<Long, ByteArray>>>(emptyList())
+        private set
+    var radarFrameTime by mutableStateOf<Long?>(null)
+        private set
+    var radarIntervalSec by mutableStateOf(600L)
+        private set
+    var radarError by mutableStateOf<String?>(null)
+        private set
+    /** 用于雷达卡触发重新拉帧的版本号（每次刷新 +1）。 */
+    var radarRefreshKey by mutableStateOf(0)
+        private set
+
+    /** 拉取雷达元数据 + 最近若干帧，供雷达卡缩略图轮播。meta 偶发 502，重试 2 次。 */
+    fun loadRadar() {
+        scope.launch {
+            radarError = null
+            try {
+                var meta: com.dailyweather.app.data.remote.RadarGateway.RadarMetadata? = null
+                repeat(3) { attempt ->
+                    runCatching { container.radarGateway.metadata() }
+                        .onSuccess { meta = it }
+                    if (meta != null) return@repeat
+                    delay(800L * (attempt + 1))
+                }
+                val m = meta ?: run {
+                    radarError = "雷达服务暂不可用"
+                    return@launch
+                }
+                if (m.frameTimes.isEmpty()) {
+                    radarError = "暂无雷达帧"
+                    return@launch
+                }
+                radarIntervalSec = m.frameIntervalSec
+                val city = cityFor(selectedCityId)
+                    ?: cities.value.firstOrNull { it.isCurrentLocation }
+                    ?: cities.value.firstOrNull()
+                val lat = city?.latitude ?: 32.06
+                val lon = city?.longitude ?: 118.78
+                // 取最近 4 帧轮播（省流：只拉一小段），失败帧跳过。
+                val times = m.frameTimes.takeLast(4)
+                val frames = buildList {
+                    for (t in times) {
+                        runCatching { container.radarGateway.frame(t, lat, lon) }
+                            .getOrNull()?.let { add(t to it) }
+                    }
+                }
+                if (frames.isNotEmpty()) {
+                    radarFrames = frames
+                    radarFrameTime = frames.last().first
+                    radarRefreshKey += 1
+                } else {
+                    radarError = "雷达帧拉取失败"
+                }
+            } catch (e: Exception) {
+                radarError = "雷达加载失败：${e.message?.take(40)}"
+            }
+        }
+    }
 
     fun refreshCurrent() {
         val id = selectedCityId ?: return

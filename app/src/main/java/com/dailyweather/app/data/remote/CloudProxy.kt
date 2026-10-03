@@ -57,6 +57,63 @@ class CloudProxy(baseRaw: String) {
             }
         }
 
+    /**
+     * 经云代理的 GET，返回**字节数组**（雷达帧 PNG 等二进制用）。
+     * 与 [get] 分离：二进制正文不带 Accept: application/json，避免上游返回 JSON 内容协商。
+     */
+    suspend fun getBytes(path: String, params: Map<String, String> = emptyMap()): ByteArray =
+        withContext(Dispatchers.IO) {
+            if (!isConfigured) {
+                throw ProxyNotConfiguredException("云代理未配置（keys.properties 的 cloudbase_proxy_url 为空）")
+            }
+            val query = params.entries.joinToString("&") { (k, v) ->
+                "$k=${URLEncoder.encode(v, "UTF-8")}"
+            }
+            val url = URL(baseURL + path + if (query.isEmpty()) "" else "?$query")
+            val conn = url.openConnection() as HttpURLConnection
+            try {
+                conn.connectTimeout = TIMEOUT_MS
+                conn.readTimeout = TIMEOUT_MS
+                conn.requestMethod = "GET"
+                conn.setRequestProperty("Accept", "image/*")
+                val code = conn.responseCode
+                val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+                val bytes = stream?.use { it.readBytes() } ?: ByteArray(0)
+                if (code !in 200..299) {
+                    Log.w(TAG, "GET $path → HTTP $code")
+                    throw ProxyHttpException("云代理 HTTP $code ($path)")
+                }
+                bytes
+            } finally {
+                conn.disconnect()
+            }
+        }
+
+    /** 取字节数组及其状态码；404 用于"该帧已不在可用列表"这类语义判定。 */
+    suspend fun getBytesWithStatus(path: String, params: Map<String, String> = emptyMap()): Pair<Int, ByteArray> =
+        withContext(Dispatchers.IO) {
+            if (!isConfigured) {
+                throw ProxyNotConfiguredException("云代理未配置（keys.properties 的 cloudbase_proxy_url 为空）")
+            }
+            val query = params.entries.joinToString("&") { (k, v) ->
+                "$k=${URLEncoder.encode(v, "UTF-8")}"
+            }
+            val url = URL(baseURL + path + if (query.isEmpty()) "" else "?$query")
+            val conn = url.openConnection() as HttpURLConnection
+            try {
+                conn.connectTimeout = TIMEOUT_MS
+                conn.readTimeout = TIMEOUT_MS
+                conn.requestMethod = "GET"
+                conn.setRequestProperty("Accept", "image/*")
+                val code = conn.responseCode
+                val stream = if (code in 200..299) conn.inputStream else conn.errorStream
+                val bytes = stream?.use { it.readBytes() } ?: ByteArray(0)
+                code to bytes
+            } finally {
+                conn.disconnect()
+            }
+        }
+
     companion object {
         private const val TAG = "CloudProxy"
 

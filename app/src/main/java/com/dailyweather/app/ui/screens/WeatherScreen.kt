@@ -1,6 +1,7 @@
 package com.dailyweather.app.ui.screens
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,7 +37,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -200,7 +205,7 @@ fun WeatherScreen(
                                         HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone) { onOpenDetail(com.dailyweather.app.DetailKind.HOURLY) }
                                         HomeCardId.DAILY -> DailyCard(snap, blueTheme, cityZone)
                                         HomeCardId.PRECIP -> PrecipCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.MINUTELY) }
-                                        HomeCardId.RADAR -> RadarCard(snap)
+                                        HomeCardId.RADAR -> RadarCard(snap, vm)
                                         HomeCardId.LIFE -> LifeAdviceCard(snap)
                                         HomeCardId.AQI -> AqiCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.AIR_QUALITY) }
                                         HomeCardId.SUN -> SunCard(snap, cityZone)
@@ -549,15 +554,27 @@ private fun tempBarColor(temp: Double, globalMin: Double, span: Double): Color =
     )
 
 /**
- * 台风雷达卡：[实测] 高 109dp，左侧标题 + 短临描述，右侧 93×72 圆角缩略图。
- *
- * 缩略图是程序化占位（网格 + 一条台风路径），雷达帧还没进快照；接上后只换位图、不改几何。
+ * 台风雷达卡：左侧标题 + 短临描述，右侧真实雷达帧缩略图（云代理 /weather/radar/frame）。
+ * 缩略图帧按 10 分钟滚动动画（meta.frameIntervalSec），点击可触发重新加载。
  */
 @Composable
-private fun RadarCard(snapshot: WeatherSnapshot) {
+private fun RadarCard(snapshot: WeatherSnapshot, vm: WeatherViewModel) {
     val sky = LocalSky.current
+    val frames = vm.radarFrames
+    val radarError = vm.radarError
+    // 轮播：每隔 frameIntervalSec 切到下一帧（帧数据就在本地，只换索引不重拉）。
+    var frameIndex by remember { mutableIntStateOf(0) }
+    LaunchedEffect(frames.size, vm.radarRefreshKey) {
+        if (frames.isEmpty()) { vm.loadRadar(); return@LaunchedEffect }
+        frameIndex = 0
+        while (true) {
+            delay((vm.radarIntervalSec * 1000L).coerceAtLeast(3_000))
+            if (frames.size > 1) frameIndex = (frameIndex + 1) % frames.size
+        }
+    }
+    val current = frames.getOrNull(frameIndex)
     GlassCard(
-        modifier = Modifier.fillMaxWidth().height(Tokens.RadarCardHeight),
+        modifier = Modifier.fillMaxWidth().height(Tokens.RadarCardHeight).clickable { vm.loadRadar() },
         contentPadding = PaddingValues(16.dp),
     ) {
         Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
@@ -565,14 +582,15 @@ private fun RadarCard(snapshot: WeatherSnapshot) {
                 Text("台风雷达", color = sky.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                 Spacer(Modifier.height(11.dp))
                 Text(
-                    text = snapshot.minutelyDesc.ifBlank { "雷达数据待接入" },
+                    text = radarError ?: (current?.first?.let { "雷达 ${frameLabel(it)}" } ?: snapshot.minutelyDesc.ifBlank { "雷达数据加载中..." }),
                     color = Tokens.TextSecondary,
-                    fontSize = 13.sp,
+                    fontSize = 12.sp,
                     maxLines = 2,
                 )
             }
             Spacer(Modifier.width(12.dp))
             RadarThumb(
+                image = current?.second,
                 modifier = Modifier
                     .width(Tokens.RadarThumbWidth)
                     .height(Tokens.RadarThumbHeight)
@@ -582,24 +600,35 @@ private fun RadarCard(snapshot: WeatherSnapshot) {
     }
 }
 
+/** unix 秒 → "HH:mm"。 */
+private fun frameLabel(epochSec: Long): String {
+    val c = java.util.Calendar.getInstance()
+    c.timeInMillis = epochSec * 1000
+    return "%02d:%02d".format(c.get(java.util.Calendar.HOUR_OF_DAY), c.get(java.util.Calendar.MINUTE))
+}
+
 @Composable
-private fun RadarThumb(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier.background(Color(0x5540576A))) {
-        val w = size.width
-        val h = size.height
-        val grid = Color.White.copy(alpha = 0.055f)
-        for (i in 1..3) {
-            drawLine(grid, Offset(w * i / 4f, 0f), Offset(w * i / 4f, h), 1.dp.toPx())
-            drawLine(grid, Offset(0f, h * i / 4f), Offset(w, h * i / 4f), 1.dp.toPx())
+private fun RadarThumb(image: ByteArray?, modifier: Modifier = Modifier) {
+    if (image == null) {
+        // 加载中：程序化网格占位（保留原观感，避免突然空白）。
+        Canvas(modifier = modifier.background(Color(0x5540576A))) {
+            val grid = Color.White.copy(alpha = 0.10f)
+            val w = size.width; val h = size.height
+            for (i in 1..3) {
+                drawLine(grid, Offset(w * i / 4f, 0f), Offset(w * i / 4f, h), 1.dp.toPx())
+                drawLine(grid, Offset(0f, h * i / 4f), Offset(w, h * i / 4f), 1.dp.toPx())
+            }
         }
-        val path = Path().apply {
-            moveTo(w * 0.08f, h * 0.85f)
-            cubicTo(w * 0.40f, h * 0.72f, w * 0.55f, h * 0.55f, w * 0.89f, h * 0.13f)
-        }
-        drawPath(path, Color.White.copy(alpha = 0.23f), style = Stroke(width = 2.dp.toPx()))
-        val head = Offset(w * 0.78f, h * 0.28f)
-        drawCircle(Color.White.copy(alpha = 0.13f), radius = w * 0.13f, center = head)
-        drawCircle(Color.White.copy(alpha = 0.55f), radius = 3.dp.toPx(), center = head)
+        return
+    }
+    // 真帧：解码 PNG 位图。
+    val bmp = remember(image) { android.graphics.BitmapFactory.decodeByteArray(image, 0, image.size) }
+    val cb = remember(bmp) { bmp?.asImageBitmap() }
+    if (cb != null) {
+        Image(cb, contentDescription = "雷达回波", modifier = modifier, contentScale = ContentScale.Crop)
+    } else {
+        // 解码失败兜底网格背景。
+        Box(modifier = modifier.background(Color(0x5540576A)))
     }
 }
 
