@@ -21,6 +21,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
+/** 组件上次渲染的数据签名（cityId -> signature），变化时才重绘。 */
+private val lastSignatures = mutableMapOf<String, String>()
+
 /**
  * 组件同步/渲染 Worker（对齐南风 `WidgetSyncWorker` + `WidgetScheduler`）：
  * - onetime：放置组件/数据更新后的即时渲染；
@@ -62,7 +65,8 @@ class WidgetSyncWorker(
         const val KEY_RENDER_ONLY = "render_only"
         const val KEY_REASON = "reason"
 
-        /** 所有已放置实例的渲染（对齐南风 updateAll）。 */
+        /** 所有已放置实例的渲染（对齐南风 updateAll）。
+         *  按尺寸分档：小组件优先渲染，大组件延后 100ms，避免拖慢响应。 */
         suspend fun renderAll(context: Context) {
             val app = context as? DailyWeatherApp ?: (context.applicationContext as DailyWeatherApp)
             val container = app.container
@@ -71,17 +75,37 @@ class WidgetSyncWorker(
             val primary = cities.firstOrNull { it.isCurrentLocation } ?: cities.firstOrNull()
             val snap: WeatherSnapshot? = primary?.let { container.weatherRepository.cached(it.id) }
 
-            val providers = listOf(
+            val awm = AppWidgetManager.getInstance(context)
+            
+            // 小组件（1x1 / 2x1）立即渲染
+            val smallProviders = listOf(
                 WeatherWidgetProvider::class.java,
                 WeatherWidget2x1Provider::class.java,
+            )
+            smallProviders.forEach { cls ->
+                val ids = awm.getAppWidgetIds(ComponentName(context, cls))
+                ids.forEach { id -> WidgetScheduler.renderOne(context, cls, id, primary, snap, blue) }
+            }
+
+            // 中等组件（4x2 / Medium / iOS）延后 50ms
+            kotlinx.coroutines.delay(50)
+            val mediumProviders = listOf(
                 WeatherWidget4x2Provider::class.java,
                 WeatherWidgetMediumProvider::class.java,
                 WeatherWidgetIOSProvider::class.java,
+            )
+            mediumProviders.forEach { cls ->
+                val ids = awm.getAppWidgetIds(ComponentName(context, cls))
+                ids.forEach { id -> WidgetScheduler.renderOne(context, cls, id, primary, snap, blue) }
+            }
+
+            // 大组件（Hourly / Week）延后 100ms
+            kotlinx.coroutines.delay(50)
+            val largeProviders = listOf(
                 WeatherWidgetHourlyProvider::class.java,
                 WeatherWidgetWeekProvider::class.java,
             )
-            val awm = AppWidgetManager.getInstance(context)
-            providers.forEach { cls ->
+            largeProviders.forEach { cls ->
                 val ids = awm.getAppWidgetIds(ComponentName(context, cls))
                 ids.forEach { id -> WidgetScheduler.renderOne(context, cls, id, primary, snap, blue) }
             }
@@ -132,6 +156,15 @@ object WidgetScheduler {
         snap: WeatherSnapshot?,
         blue: Boolean,
     ) {
+        // 数据签名按需渲染：无快照或签名变化才重绘。
+        val sig = snap?.contentSignature() ?: ""
+        val key = "${city?.id ?: "null"}_$appWidgetId"
+        if (snap != null && lastSignatures[key] == sig && sig.isNotEmpty()) {
+            Log.d(WidgetSyncWorker.TAG, "renderOne: 签名未变，跳过重绘 widgetId=$appWidgetId sig=$sig")
+            return
+        }
+        lastSignatures[key] = sig
+
         val awm = AppWidgetManager.getInstance(context)
         val views = when (cls.simpleName) {
             "WeatherWidget2x1Provider" -> WidgetRenderer.twoByOne(context, city, snap, blue)

@@ -51,8 +51,8 @@ private val skyRows = mapOf(
         overcast = SkyGradientStops(Color(0xFF6F7A87), Color(0xFF818B97), Color(0xFFA6AAB0)),
     ),
     SkyPhase.DAY to SkyRow(
-        // 晴：唯一有包内证据的一档，直接用 splash_gradient 的三原色。
-        clear = SkyGradientStops(Color(0xFF256FD0), Color(0xFF437ECB), Color(0xFF90ACD0)),
+        // 晴：比阴天亮得多——更浅更通透的天蓝，与阴天灰蓝拉开明显差异（对齐南风）。
+        clear = SkyGradientStops(Color(0xFF3A8BDF), Color(0xFF5FA6E8), Color(0xFFA8CDF0)),
         // [实测] 阴天：天顶 #3F515F → 0.40 处 #4A5B6D → 屏底 #6D8496（逐像素线性变亮）。
         overcast = SkyGradientStops(
             zenith = Color(0xFF3E5060),

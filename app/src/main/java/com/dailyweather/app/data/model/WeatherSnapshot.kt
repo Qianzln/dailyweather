@@ -20,6 +20,14 @@ data class WeatherSnapshot(
     val daily: List<DailyPoint>,
     val alerts: List<AlertItem>,
 ) {
+    /** 内容签名（组件按需渲染用）：取实况温度+天气+小时首点+日卡首点的指纹。
+     *  变化时才触发重绘；定位中/无数据返回空签名强制刷新。 */
+    fun contentSignature(): String = buildString {
+        append(realtime?.temperature?.toInt() ?: "")
+        append(realtime?.skycon ?: "")
+        append(hourly.firstOrNull()?.temperature?.toInt() ?: "")
+        append(daily.firstOrNull()?.date ?: "")
+    }
     data class Realtime(
         val temperature: Double,
         val apparentTemperature: Double,

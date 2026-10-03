@@ -34,13 +34,23 @@ data class SkyPalette(
     companion object {
         fun of(state: WeatherSceneState): SkyPalette {
             val stops = skyStopsFor(state.phase, state.overcast)
+            // 卡片随天空变亮变暗（南风同款行为）：取天空中部色，压一点亮度后作为卡面。
+            // 不再用写死的深蓝灰——那是「晴天卡片也偏深」的根因。alpha 保留 0.82，
+            // 让天空能透 18%，又不至于白字失读。
+            val mid = stops.mid
+            val cardFill = Color(
+                red = (mid.red * 0.86f).coerceIn(0f, 1f),
+                green = (mid.green * 0.86f).coerceIn(0f, 1f),
+                blue = (mid.blue * 0.92f).coerceIn(0f, 1f),
+                alpha = 0.82f,
+            )
             return SkyPalette(
                 isDay = state.phase != SkyPhase.NIGHT,
                 skyTop = stops.zenith,
                 skyBottom = stops.horizon,
                 textPrimary = Tokens.TextPrimary,
                 textSecondary = Tokens.TextSecondary,
-                cardFill = Tokens.CardFill,
+                cardFill = cardFill,
                 cardStroke = Tokens.CardStroke,
                 accent = Tokens.BarEnd,
             )

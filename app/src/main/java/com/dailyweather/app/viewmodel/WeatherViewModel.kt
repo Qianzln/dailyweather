@@ -33,6 +33,10 @@ class WeatherViewModel(private val container: AppContainer) {
 
     var refreshing by mutableStateOf(false)
         private set
+    
+    /** 定位城市是否首次定位中（用于组件占位态）。 */
+    var locatingFirstTime by mutableStateOf(false)
+        private set
 
     var message by mutableStateOf<String?>(null)
         private set
@@ -118,8 +122,11 @@ class WeatherViewModel(private val container: AppContainer) {
         if (refreshing) return
         refreshing = true
         scope.launch {
+            val isFirstTime = container.cityRepository.currentLocationCity() == null
+            locatingFirstTime = isFirstTime
             val outcome = container.refreshManager.refreshCurrentLocation("app_locate_refresh")
             refreshing = false
+            locatingFirstTime = false
             when (outcome) {
                 is RefreshManager.Outcome.Failed -> message = outcome.reason
                 is RefreshManager.Outcome.Skipped -> {}

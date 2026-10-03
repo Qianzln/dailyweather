@@ -67,9 +67,11 @@ object WidgetRenderer {
         val views = RemoteViews(context.packageName, R.layout.widget_small)
         views.setImageViewBitmap(R.id.widget_bg, backgroundBitmap(isDayNow()))
         views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context))
+        // 定位占位态：定位城市无快照视为定位中。
         if (snap == null) {
-            views.setTextViewText(R.id.widget_temp, "--°")
-            views.setTextViewText(R.id.widget_desc, "等待数据")
+            val isLocating = city?.isCurrentLocation == true
+            views.setTextViewText(R.id.widget_temp, if (isLocating) "··°" else "--°")
+            views.setTextViewText(R.id.widget_desc, if (isLocating) "定位中..." else "等待数据")
             return views
         }
         views.setTextViewText(R.id.widget_temp, "${snap.currentTemp.toInt()}°")
