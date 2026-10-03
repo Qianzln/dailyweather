@@ -96,6 +96,7 @@ fun CitySearchScreen(vm: WeatherViewModel, onBack: () -> Unit) {
                                     name = name.substringBefore(" ·"),
                                     longitude = lng,
                                     latitude = lat,
+                                    timeZoneId = "Asia/Shanghai",
                                 )
                             )
                             onBack()

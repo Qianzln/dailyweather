@@ -27,7 +27,14 @@ data class City(
     val cityName: String = "",
     val districtName: String = "",
     val coordinateVerified: Boolean = false,
+    /** 城市当地时区（对齐南风 cityTimeContext）；空串回退设备默认时区。 */
+    val timeZoneId: String = "",
 ) {
+    val zone: java.time.ZoneId
+        get() = if (timeZoneId.isNotBlank()) {
+            runCatching { java.time.ZoneId.of(timeZoneId) }.getOrDefault(java.time.ZoneId.systemDefault())
+        } else java.time.ZoneId.systemDefault()
+
     fun toJson(): JSONObject = JSONObject()
         .put("id", id).put("name", name)
         .put("longitude", longitude).put("latitude", latitude)
@@ -35,6 +42,7 @@ data class City(
         .put("isBookmarked", isBookmarked)
         .put("cityName", cityName).put("districtName", districtName)
         .put("coordinateVerified", coordinateVerified)
+        .put("timeZoneId", timeZoneId)
 
     companion object {
         fun fromJson(o: JSONObject) = City(
@@ -48,6 +56,7 @@ data class City(
             cityName = o.optString("cityName"),
             districtName = o.optString("districtName"),
             coordinateVerified = o.optBoolean("coordinateVerified"),
+            timeZoneId = o.optString("timeZoneId"),
         )
     }
 }

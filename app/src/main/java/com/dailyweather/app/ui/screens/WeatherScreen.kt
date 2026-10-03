@@ -97,6 +97,7 @@ fun WeatherScreen(
         ?: cities.firstOrNull { it.isCurrentLocation }
         ?: cities.firstOrNull()
     val snapshot = snapshots[vm.selectedCityId] ?: snapshots[city?.id]
+    val cityZone = city?.zone ?: java.time.ZoneId.systemDefault()
     val cards by vm.homeCards.collectAsState()
     var source by remember { mutableStateOf("") }
     androidx.compose.runtime.LaunchedEffect(vm.selectedCityId) { source = vm.sourceOf(vm.selectedCityId) }
@@ -158,8 +159,8 @@ fun WeatherScreen(
                         ) {
                             cards.forEach { card ->
                                 when (card) {
-                                    HomeCardId.HOURLY -> HourlyCard(snap, blueTheme)
-                                    HomeCardId.DAILY -> DailyCard(snap, blueTheme)
+                                    HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone)
+                                    HomeCardId.DAILY -> DailyCard(snap, blueTheme, cityZone)
                                     HomeCardId.RADAR -> RadarCard(snap)
                                     HomeCardId.LIFE -> LifeAdviceCard(snap)
                                     HomeCardId.AQI -> AqiCard(snap)
@@ -274,7 +275,7 @@ private fun HeroSection(snapshot: WeatherSnapshot) {
 
 /** 小时卡：[实测] 卡高 99dp、列宽 51dp；降水概率单独占一行，无降水也占位，好让温度行对齐。 */
 @Composable
-private fun HourlyCard(snapshot: WeatherSnapshot, blueTheme: Boolean) {
+private fun HourlyCard(snapshot: WeatherSnapshot, blueTheme: Boolean, zone: java.time.ZoneId) {
     val sky = LocalSky.current
     if (snapshot.hourly.isEmpty()) return
     GlassCard(
@@ -286,21 +287,22 @@ private fun HourlyCard(snapshot: WeatherSnapshot, blueTheme: Boolean) {
             contentPadding = PaddingValues(horizontal = 12.dp),
         ) {
             itemsIndexed(snapshot.hourly.take(24)) { index, point ->
-                val hour = Calendar.getInstance().apply { timeInMillis = point.time }
+                val hour = Calendar.getInstance(java.util.TimeZone.getTimeZone(zone))
+                    .apply { timeInMillis = point.time }
                     .get(Calendar.HOUR_OF_DAY)
                 Column(
                     modifier = Modifier.width(Tokens.HourlyCellWidth),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Text(
-                        text = hourlyLabel(index, point.time),
+                        text = hourlyLabel(index, point.time, zone),
                         color = sky.textSecondary,
                         fontSize = 13.sp,
                         modifier = Modifier.padding(top = 11.dp),
                     )
                     Spacer(Modifier.height(9.dp))
                     WeatherBitmapIcon(
-                        assetName = SkyconMap.asset(point.skycon, isNightHour(point.time)),
+                        assetName = SkyconMap.asset(point.skycon, isNightHour(point.time, zone)),
                         blueTheme = blueTheme,
                         modifier = Modifier.size(27.dp),
                     )
@@ -327,7 +329,7 @@ private fun HourlyCard(snapshot: WeatherSnapshot, blueTheme: Boolean) {
 
 /** 7 日卡：[实测] 行高 48dp，温度条 4dp 且渐变锚在整条轨道上。 */
 @Composable
-private fun DailyCard(snapshot: WeatherSnapshot, blueTheme: Boolean) {
+private fun DailyCard(snapshot: WeatherSnapshot, blueTheme: Boolean, zone: java.time.ZoneId) {
     val days = snapshot.daily.take(5)
     if (days.isEmpty()) return
     val gMin = days.minOf { it.tempMin }
@@ -336,7 +338,7 @@ private fun DailyCard(snapshot: WeatherSnapshot, blueTheme: Boolean) {
 
     GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(10.dp)) {
         days.forEachIndexed { index, day ->
-            DayRow(day, index, blueTheme, gMin, span, snapshot.currentTemp)
+            DayRow(day, index, blueTheme, gMin, span, snapshot.currentTemp, zone)
         }
     }
 }
@@ -349,10 +351,11 @@ private fun DayRow(
     globalMin: Double,
     span: Double,
     currentTemp: Double,
+    zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
 ) {
     val sky = LocalSky.current
     val date = runCatching { LocalDate.parse(day.date.take(10)) }.getOrNull()
-    val offset = date?.let { java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), it).toInt() }
+    val offset = date?.let { java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(zone), it).toInt() }
     val label = when {
         offset == -1 -> "昨天"
         offset == null || offset == 0 -> "今天"
@@ -654,10 +657,9 @@ private fun EmptyState(onOpenSearch: () -> Unit, message: String?) {
 private val WEEKDAYS = listOf("周日", "周一", "周二", "周三", "周四", "周五", "周六")
 
 /** 跨零点后那一格照南风写「明天」，其余仍是钟点；再往后才是周几。 */
-private fun hourlyLabel(index: Int, epochMs: Long): String {
+private fun hourlyLabel(index: Int, epochMs: Long, zone: java.time.ZoneId): String {
     if (index == 0) return "现在"
     val instant = java.time.Instant.ofEpochMilli(epochMs)
-    val zone = java.time.ZoneId.systemDefault()
     val day = java.time.LocalDate.ofInstant(instant, zone)
     val time = java.time.LocalTime.ofInstant(instant, zone)
     val clock = "%02d:00".format(time.hour)
@@ -668,8 +670,8 @@ private fun hourlyLabel(index: Int, epochMs: Long): String {
     }
 }
 
-private fun isNightHour(epochMs: Long): Boolean {
-    val h = java.time.LocalTime.ofInstant(java.time.Instant.ofEpochMilli(epochMs), java.time.ZoneId.systemDefault()).hour
+private fun isNightHour(epochMs: Long, zone: java.time.ZoneId): Boolean {
+    val h = java.time.LocalTime.ofInstant(java.time.Instant.ofEpochMilli(epochMs), zone).hour
     return h !in 6..18
 }
 
