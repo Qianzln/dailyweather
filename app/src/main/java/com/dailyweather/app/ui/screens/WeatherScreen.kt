@@ -35,13 +35,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.animation.togetherWith
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -121,6 +126,12 @@ fun WeatherScreen(
         LocalWeatherEffectDrawEnabled provides (motion && !powerSave),
         LocalEffectQuality provides if (powerSave) EffectQuality.Low else EffectQuality.High,
     ) {
+        // 下拉刷新（material3）：刷新走当前城市 refreshCurrent，定位仍走右上按钮。
+        androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+            isRefreshing = vm.refreshing,
+            onRefresh = { vm.refreshCurrent() },
+            modifier = Modifier.fillMaxSize(),
+        ) {
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedSkyGradient(scene, Modifier.matchParentSize())
             // 天气切换时的交叉淡入淡出（对齐南风 effectTimeline：约 900ms 过渡），
@@ -182,17 +193,20 @@ fun WeatherScreen(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = Tokens.ScreenMargin),
                             verticalArrangement = Arrangement.spacedBy(Tokens.CardGap),
                         ) {
-                            cards.forEach { card ->
-                                when (card) {
-                                    HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone) { onOpenDetail(com.dailyweather.app.DetailKind.HOURLY) }
-                                    HomeCardId.DAILY -> DailyCard(snap, blueTheme, cityZone)
-                                    HomeCardId.PRECIP -> PrecipCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.MINUTELY) }
-                                    HomeCardId.RADAR -> RadarCard(snap)
-                                    HomeCardId.LIFE -> LifeAdviceCard(snap)
-                                    HomeCardId.AQI -> AqiCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.AIR_QUALITY) }
-                                    HomeCardId.SUN -> SunCard(snap, cityZone)
-                                    HomeCardId.DETAIL -> DetailCard(snap)
-                                    else -> Unit
+                            cards.forEachIndexed { index, card ->
+                                // 错峰入场：卡片按序淡入 + 轻微上移，数据/城市切换时也有过渡感。
+                                CardEnter(index) {
+                                    when (card) {
+                                        HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone) { onOpenDetail(com.dailyweather.app.DetailKind.HOURLY) }
+                                        HomeCardId.DAILY -> DailyCard(snap, blueTheme, cityZone)
+                                        HomeCardId.PRECIP -> PrecipCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.MINUTELY) }
+                                        HomeCardId.RADAR -> RadarCard(snap)
+                                        HomeCardId.LIFE -> LifeAdviceCard(snap)
+                                        HomeCardId.AQI -> AqiCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.AIR_QUALITY) }
+                                        HomeCardId.SUN -> SunCard(snap, cityZone)
+                                        HomeCardId.DETAIL -> DetailCard(snap)
+                                        else -> Unit
+                                    }
                                 }
                             }
                             vm.message?.let { msg ->
@@ -235,7 +249,30 @@ fun WeatherScreen(
                 }
             }
         }
+        } // PullToRefreshBox
     }
+}
+
+/** 卡片错峰入场：淡入 + 轻微上移，每张错开 60ms（学报告整体过渡取向）。 */
+@Composable
+private fun CardEnter(index: Int, content: @Composable () -> Unit) {
+    val alpha = remember { androidx.compose.animation.core.Animatable(0f) }
+    val shift = remember { androidx.compose.animation.core.Animatable(26f) }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(index * 60L)
+        launch {
+            alpha.animateTo(1f, androidx.compose.animation.core.tween(450))
+        }
+        launch {
+            shift.animateTo(0f, androidx.compose.animation.core.tween(450))
+        }
+    }
+    Box(
+        Modifier.graphicsLayer {
+            this.alpha = alpha.value
+            translationY = shift.value
+        },
+    ) { content() }
 }
 
 @Composable
@@ -262,15 +299,31 @@ private fun HeroSection(snapshot: WeatherSnapshot) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(verticalAlignment = Alignment.Top) {
-            Text(
-                text = Units.tempValue(snapshot.currentTemp).roundToInt().toString(),
-                style = TextStyle(
-                    fontSize = Tokens.HeroTempSize,
-                    lineHeight = 96.sp,
-                    fontWeight = FontWeight.Medium,
-                    brush = Brush.verticalGradient(listOf(Tokens.HeroGradientTop, Tokens.HeroGradientBottom)),
-                ),
-            )
+            // 温度变化时数字上滑淡入（对齐南风的 Hero 数字过渡），不是瞬间跳变。
+            val tempText = Units.tempValue(snapshot.currentTemp).roundToInt().toString()
+            androidx.compose.animation.AnimatedContent(
+                targetState = tempText,
+                transitionSpec = {
+                    (androidx.compose.animation.slideInVertically(
+                        animationSpec = androidx.compose.animation.core.tween(450),
+                        initialOffsetY = { it / 3 },
+                    ) + androidx.compose.animation.fadeIn())
+                        .togetherWith(androidx.compose.animation.fadeOut(
+                            animationSpec = androidx.compose.animation.core.tween(250),
+                        ))
+                },
+                label = "heroTemp",
+            ) { text ->
+                Text(
+                    text = text,
+                    style = TextStyle(
+                        fontSize = Tokens.HeroTempSize,
+                        lineHeight = 96.sp,
+                        fontWeight = FontWeight.Medium,
+                        brush = Brush.verticalGradient(listOf(Tokens.HeroGradientTop, Tokens.HeroGradientBottom)),
+                    ),
+                )
+            }
             Text(
                 text = "°",
                 color = Tokens.HeroGradientTop,
@@ -308,10 +361,11 @@ private fun HourlyCard(snapshot: WeatherSnapshot, blueTheme: Boolean, zone: java
         modifier = Modifier.fillMaxWidth().height(Tokens.HourlyCardHeight).clickable(onClick = onClick),
         contentPadding = PaddingValues(0.dp),
     ) {
-        LazyRow(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 12.dp),
-        ) {
+        Box {
+            LazyRow(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 12.dp),
+            ) {
             itemsIndexed(snapshot.hourly.take(24)) { index, point ->
                 val hour = Calendar.getInstance(java.util.TimeZone.getTimeZone(zone))
                     .apply { timeInMillis = point.time }
@@ -348,6 +402,25 @@ private fun HourlyCard(snapshot: WeatherSnapshot, blueTheme: Boolean, zone: java
                         fontWeight = FontWeight.Medium,
                     )
                 }
+            }
+            }
+            // 内容可滚动时两端渐隐提示（DstIn 只作用于本层，需离屏合成）。
+            Canvas(
+                Modifier.matchParentSize()
+                    .graphicsLayer { compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.Offscreen },
+            ) {
+                val f = 16.dp.toPx()
+                drawRect(
+                    brush = Brush.horizontalGradient(listOf(Color.Black, Color.Transparent), 0f, f),
+                    size = Size(f, size.height),
+                    blendMode = BlendMode.DstIn,
+                )
+                drawRect(
+                    brush = Brush.horizontalGradient(listOf(Color.Transparent, Color.Black), size.width - f, size.width),
+                    topLeft = Offset(size.width - f, 0f),
+                    size = Size(f, size.height),
+                    blendMode = BlendMode.DstIn,
+                )
             }
         }
     }

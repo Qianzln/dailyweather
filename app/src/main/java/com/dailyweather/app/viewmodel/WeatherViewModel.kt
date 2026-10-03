@@ -60,8 +60,12 @@ class WeatherViewModel(private val container: AppContainer) {
         }
         scope.launch {
             container.settings.locationEnabled.collect { enabled ->
-                if (enabled && container.cityRepository.currentLocationCity() == null) {
-                    locateAndRefresh()
+                // 运行时联动：关定位 → 移除"当前定位"城市（停止定位刷新）；
+                // 开定位且尚无定位城市 → 立即定位一次。
+                if (enabled) {
+                    if (container.cityRepository.currentLocationCity() == null) locateAndRefresh()
+                } else if (container.cityRepository.currentLocationCity() != null) {
+                    container.cityRepository.remove("current")
                 }
             }
         }
@@ -149,6 +153,11 @@ class WeatherViewModel(private val container: AppContainer) {
 
     fun removeCity(cityId: String) {
         scope.launch { container.cityRepository.remove(cityId) }
+    }
+
+    /** 拖拽排序落库（CityListScreen 手柄拖动时逐格调用）。 */
+    fun reorderCities(orderedIds: List<String>) {
+        scope.launch { container.cityRepository.reorder(orderedIds) }
     }
 
     fun toggleBookmark(cityId: String) {

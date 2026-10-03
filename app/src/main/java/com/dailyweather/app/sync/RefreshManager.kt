@@ -84,10 +84,10 @@ class RefreshManager(
         if (LocationCoordinator.isPlaceholder(fix.longitude, fix.latitude)) {
             return Outcome.Failed(null, "定位仍是占位坐标")
         }
-        // 命名：定位尽量越细越好——优先区县（对齐南风「雨花台区」），无区县退市级；
-        // 四级名（市/区/乡镇/社区）存进 cityName/districtName，详情页可再展开。
+        // 命名：定位优先到最细——小区/社区/POI（南风同款"越细越好"），逐级退到乡镇/区县/市。
         val place = amapGeo.regeoName(fix.latitude, fix.longitude)
-        val displayName = place?.district?.ifBlank { null }
+        val displayName = place?.fine?.ifBlank { null }
+            ?: place?.district?.ifBlank { null }
             ?: place?.city
             ?: "我的位置"
         val city = cityRepository.upsertCurrentLocation(

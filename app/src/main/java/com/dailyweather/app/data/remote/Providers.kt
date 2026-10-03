@@ -117,6 +117,28 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
 
         val daily = buildDaily(root.optJSONObject("forecastDaily") ?: JSONObject())
         if (daily.isEmpty()) throw IllegalStateException("小米 daily 为空")
+        // 昨天实况补进日卡首行（对齐南风"昨天 10月2日"）。
+        val yesterday = root.optJSONObject("yesterday")?.let { y ->
+            val date = y.optString("date", "").take(10)
+            if (date.length == 10) {
+                val code = y.optString("weatherEnd", "")
+                WeatherSnapshot.DailyPoint(
+                    date = date,
+                    skycon = weatherCodeToSkycon(code, isNight = false),
+                    tempMin = y.optString("tempMin", "").toDoubleOrNull() ?: 0.0,
+                    tempMax = y.optString("tempMax", "").toDoubleOrNull() ?: 0.0,
+                    windSpeed = y.optString("windSpeedEnd", "").toDoubleOrNull() ?: 0.0,
+                    windDirection = y.optString("windDircEnd", "").toDoubleOrNull()?.toInt() ?: 0,
+                    sunrise = hourOf(y.optString("sunRise", "")),
+                    sunset = hourOf(y.optString("sunSet", "")),
+                    uvIndex = 0,
+                    aqiAvg = y.optString("aqi", "").toIntOrNull() ?: 0,
+                    precipitation = 0.0,
+                    precipitationProbability = 0.0,
+                )
+            } else null
+        }
+        val dailyWithYesterday = if (yesterday != null) listOf(yesterday) + daily else daily
         val hourly = buildHourly(root.optJSONObject("forecastHourly") ?: JSONObject(), nowEpoch)
 
         val realtime = WeatherSnapshot.Realtime(
@@ -164,7 +186,7 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
             hourly = hourly.mapIndexed { i, p ->
                 p.copy(aqi = hourlyAqi?.optInt(i, 0) ?: 0)
             },
-            daily = daily,
+            daily = dailyWithYesterday,
             alerts = emptyList(),
         )
     }
