@@ -130,6 +130,16 @@ class WeatherViewModel(private val container: AppContainer) {
 
     fun cityFor(cityId: String?): City? = cityId?.let { id -> cities.value.firstOrNull { it.id == id } }
 
+    // ---- 语音播报 ----
+    /** 播报当前天气（温度/现象/昼夜）。设置里「开启语音播报」开启后由刷新调用。 */
+    fun speakWeather() {
+        val snap = snapshotFor(selectedCityId) ?: return
+        val desc = com.dailyweather.app.ui.components.SkyconMap.desc(snap.currentSkycon)
+        val temp = snap.currentTemp.toInt()
+        val text = "当前${temp}度，$desc。"
+        container.ttsSpeaker.speak(text)
+    }
+
     // ---- 雷达帧加载 ----
     /** 雷达帧序列（按时间升序，用于轮播）。 */
     var radarFrames by mutableStateOf<List<Pair<Long, ByteArray>>>(emptyList())
@@ -201,9 +211,17 @@ class WeatherViewModel(private val container: AppContainer) {
             when (outcome) {
                 is RefreshManager.Outcome.Failed -> message = outcome.reason
                 is RefreshManager.Outcome.Skipped -> {}
-                is RefreshManager.Outcome.Success -> message = null
+                is RefreshManager.Outcome.Success -> {
+                    message = null
+                    maybeSpeakAfterRefresh()
+                }
             }
         }
+    }
+
+    /** 语音播报开启时，刷新成功自动播报当前天气。 */
+    private suspend fun maybeSpeakAfterRefresh() {
+        if (container.settings.speechEnabled.first()) speakWeather()
     }
 
     fun locateAndRefresh() {

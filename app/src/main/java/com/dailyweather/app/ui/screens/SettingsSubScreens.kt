@@ -309,10 +309,12 @@ fun SpeechSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
 
     SettingsScaffold("语音播报", onBack) {
         GroupCard {
-            SwitchRow("开启语音播报", speech, divider = false,
+            SwitchRow("开启语音播报", speech, divider = true,
                 onToggle = { vm.setSetting(WeatherViewModel.SettingKey.SPEECH, it) })
+            // 试听：立即播报当前城市天气。
+            NavRow("试听播报", trailing = "播放当前天气", onClick = { vm.speakWeather() }, divider = false)
         }
-        Footnote("播报内容：当前温度、天气现象、未来降水与预警。")
+        Footnote("播报内容：当前温度、天气现象、未来降水与预警。\n开启后每次刷新天气会自动播报。")
     }
 }
 
