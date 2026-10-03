@@ -112,15 +112,21 @@ object CaiyunParser {
             val temps = h.optJSONArray("temperature") ?: JSONArray()
             val skycons = h.optJSONArray("skycon") ?: JSONArray()
             val probs = h.optJSONArray("probability")
+            // 共享 key 的综合响应没有独立 probability 数组时，逐小时降水数组里
+            // 每项自带 probability（0–100）——这是小时条降水百分比的真正来源。
+            val precip = h.optJSONArray("precipitation")
             buildList {
                 for (i in 0 until temps.length()) {
                     val t = temps.optJSONObject(i) ?: continue
+                    val prob = precip?.optJSONObject(i)?.optDouble("probability", 0.0)
+                        ?: probs?.optJSONObject(i)?.optDouble("value", 0.0)
+                        ?: 0.0
                     add(
                         WeatherSnapshot.HourlyPoint(
                             time = parseIsoToEpoch(t.optString("datetime")),
                             temperature = t.optDouble("value", 0.0),
                             skycon = skycons.optJSONObject(i)?.optString("value", "") ?: "",
-                            precipitationProbability = probs?.optJSONObject(i)?.optDouble("value", 0.0) ?: 0.0,
+                            precipitationProbability = prob,
                         )
                     )
                 }

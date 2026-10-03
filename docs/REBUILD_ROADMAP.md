@@ -8,13 +8,19 @@
 
 1. ~~彩云 token~~：共享签名已通；个人 token（BYOK）只需填 `keys.properties: caiyun_token`
    （可解锁 dailysteps>3 的更多天）
-2. **城市时区显示**：小时条按设备时区格式化，模拟器 UTC 下与北京时间错位——
-   引入按城市的时区格式化（对齐南风 cityTimeContext）
-3. **AQI 深化**：彩云综合响应已带 air_quality 全污染物（pm10/o3/no2/so2/co），
-   扩展 AQI 卡片；`/weather/xiaomi` 亦带 6 项污染物可交叉
-4. **预警全量**：alert.content 已入库，按类别/发布时间做去重推送（对接 UrgentNotificationWorker）
-5. **minutely/短临**：云代理路由需加 `hourly=precipitation` 等字段白名单与
-   `/weather/caiyun-minutely`（或直接放宽 hourly/daily 字段列表透传）
+2. ~~**城市时区显示**~~（2026-10-03 完成）：`City.timeZoneId` + `zone`（空回退设备时区）；
+   小时条/日卡/场景相位/小米源昼夜判定全部按城市当地时间。搜索的中国城市固定
+   `Asia/Shanghai`，定位城市按中国范围框判定
+3. ~~**AQI 深化**~~（2026-10-03 完成）：`Realtime` 增加 pm10/o3/no2/so2/co，彩云/小米
+   双源解析 + SnapshotCodec 持久化 + AQI 卡六项污染物网格
+4. ~~**预警全量**~~（2026-10-03 完成）：UrgentNotificationWorker 对接 RefreshManager
+   刷新成功回调（unique work），按 城市+标题+pubTime 在 DataStore 账本去重，
+   已取消预警不推，单轮最多 3 条
+5. **minutely/短临**（部分完成）：小时条降水概率改从 `hourly.precipitation[].probability`
+   取数（共享 key 综合响应的真实来源）；云函数新增 `/weather/caiyun-minutely` 路由
+   （`/minutely.json`，BYOK 可用）。注意：**共享 key 不含分钟级降水数据**
+   （`/minutely.json` 只回 `{"primary":0}`），分钟级曲线卡要等 BYOK 个人 token；
+   彩云上游 404 会以 Flask HTML 透传，排查路由问题时注意与平台 404 区分
 
 ## P1 存储与 DI 换装（拓扑不变）
 
