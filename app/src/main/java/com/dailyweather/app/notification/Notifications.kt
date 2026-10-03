@@ -18,6 +18,9 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import com.dailyweather.app.DailyWeatherApp
 import com.dailyweather.app.MainActivity
 import com.dailyweather.app.R
@@ -172,7 +175,7 @@ class DailyWeatherNotificationWorker(
     }
 }
 
-/** 预警通知（数据源预警字段变化时提醒）。 */
+/** 预警通知（按 城市+标题+发布时间 去重：同一条预警只推一次）。 */
 class UrgentNotificationWorker(
     context: Context,
     params: WorkerParameters,
@@ -181,16 +184,24 @@ class UrgentNotificationWorker(
     override suspend fun doWork(): Result {
         val app = applicationContext as DailyWeatherApp
         val container = app.container
-        val primary = container.cityRepository.currentLocationCity()
+        val primary = inputData.getString(KEY_CITY_ID)?.let { container.cityRepository.byId(it) }
+            ?: container.cityRepository.currentLocationCity()
             ?: container.cityRepository.cities.first().firstOrNull()
             ?: return Result.success()
         val snap = container.weatherRepository.cached(primary.id)
         val alerts = snap?.alerts.orEmpty()
-        if (alerts.isNotEmpty() && NotificationChannels.enabled(applicationContext, NotificationChannels.CHANNEL_URGENT)) {
-            val a = alerts.first()
-            val nm = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            // 已取消/解除的预警不推；来源没给状态的（旧缓存）照推。
+            .filter { a -> a.title.isNotBlank() && !a.status.contains("cancel", true) && "取消" !in a.status }
+        if (alerts.isEmpty() || !NotificationChannels.enabled(applicationContext, NotificationChannels.CHANNEL_URGENT)) {
+            return Result.success()
+        }
+        val seen = AlertDedup.seenKeys(applicationContext)
+        val fresh = alerts.filter { alertKey(primary.id, it) !in seen }
+        if (fresh.isEmpty()) return Result.success()
+        val nm = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        fresh.take(MAX_PER_ROUND).forEachIndexed { i, a ->
             nm.notify(
-                1004,
+                NOTIF_ID_BASE + i,
                 NotificationCompat.Builder(applicationContext, NotificationChannels.CHANNEL_URGENT)
                     .setSmallIcon(R.drawable.ic_widget_thermometer)
                     .setContentTitle(a.title.ifBlank { "气象预警" })
@@ -201,7 +212,39 @@ class UrgentNotificationWorker(
                     .build(),
             )
         }
+        // 当前全量都记为已见：漏掉的老预警不再补推，只推真正新增的。
+        AlertDedup.markSeen(applicationContext, alerts.map { alertKey(primary.id, it) }.toSet())
+        Log.i(TAG, "预警推送: fresh=${fresh.size} 共${alerts.size}")
         return Result.success()
+    }
+
+    private fun alertKey(cityId: String, a: com.dailyweather.app.data.model.WeatherSnapshot.AlertItem): String =
+        "$cityId|${a.title}|${a.pubTime}"
+
+    companion object {
+        const val KEY_CITY_ID = "cityId"
+        const val NOTIF_ID_BASE = 1004
+        const val MAX_PER_ROUND = 3
+        private const val TAG = "UrgentAlert"
+    }
+}
+
+/** 预警去重账本：DataStore 里记已推过的 城市|标题|发布时间 集合。 */
+object AlertDedup {
+
+    private const val MAX_KEYS = 100
+    private val KEY_SEEN = stringSetPreferencesKey("seen_keys")
+
+    private val Context.alertDedupStore by preferencesDataStore(name = "alert_dedup")
+
+    suspend fun seenKeys(context: Context): Set<String> =
+        context.alertDedupStore.data.first()[KEY_SEEN] ?: emptySet()
+
+    suspend fun markSeen(context: Context, keys: Set<String>) {
+        context.alertDedupStore.edit { p ->
+            val merged = (p[KEY_SEEN] ?: emptySet()) + keys
+            p[KEY_SEEN] = if (merged.size > MAX_KEYS) merged.drop(merged.size - MAX_KEYS).toSet() else merged
+        }
     }
 }
 

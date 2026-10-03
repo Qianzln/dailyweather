@@ -26,6 +26,8 @@ class RefreshManager(
     private val settings: SettingsStore,
     private val locationCoordinator: LocationCoordinator,
     private val amapGeo: com.dailyweather.app.data.remote.AmapGeo,
+    /** 刷新成功后的副作用（预警去重推送等）；不参与刷新结果判定。 */
+    private val onRefreshSuccess: suspend (cityId: String) -> Unit = {},
 ) {
 
     private val cityMutexes = ConcurrentHashMap<String, Mutex>()
@@ -58,6 +60,7 @@ class RefreshManager(
                 lastAttempt[city.id] = now
                 Log.i(TAG, "city_mutex_acquired: cityId=${city.id}, reason=$reason")
                 weatherRepository.refresh(city)
+                onRefreshSuccess(city.id)
                 Outcome.Success(city.id)
             }
         } catch (e: DataSourceNotConfiguredException) {

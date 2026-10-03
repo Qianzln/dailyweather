@@ -47,6 +47,18 @@ class AppContainer(context: Context) {
 
     val refreshManager = RefreshManager(
         weatherRepository, cityRepository, settings, locationCoordinator, amapGeo,
+        onRefreshSuccess = { cityId ->
+            // 每次刷新成功后检查预警：UrgentNotificationWorker 内部按 城市+标题+发布时间 去重。
+            androidx.work.WorkManager.getInstance(appContext).enqueueUniqueWork(
+                "urgent_alert_check",
+                androidx.work.ExistingWorkPolicy.REPLACE,
+                androidx.work.OneTimeWorkRequestBuilder<com.dailyweather.app.notification.UrgentNotificationWorker>()
+                    .setInputData(androidx.work.workDataOf(
+                        com.dailyweather.app.notification.UrgentNotificationWorker.KEY_CITY_ID to cityId,
+                    ))
+                    .build(),
+            )
+        },
     )
 
     /** 高德行政区划搜索（经代理）；失败/未配置由调用方回落内置城市表。 */
