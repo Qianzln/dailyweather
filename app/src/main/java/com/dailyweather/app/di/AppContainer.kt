@@ -73,14 +73,59 @@ class AppContainer(context: Context) {
             runCatching { amapGeo.searchDistrict(keyword) }.getOrNull()
         } else null
 
-    /** 应用更新检查（经代理读 GitHub 版本元数据）。返回最新版本号，检测失败返回 null。 */
-    suspend fun checkLatestVersion(): String? {
-        if (!proxyConfigured) return null
-        return runCatching {
-            val body = proxy.get("/weather/app/latest")
-            val root = org.json.JSONObject(body)
-            // 云函数透传 GitHub releases/latest 的 tag_name 等，只取版本号。
-            root.optString("tag_name").ifBlank { root.optString("version").ifBlank { "" } }
-        }.getOrNull()?.takeIf { it.isNotBlank() }
+    /** 应用更新检查：直连本项目自己的 GitHub 仓库（[RELEASE_REPO]）读 releases/latest。
+     *  不再走共享云函数 /weather/app/latest —— 那会读到微风的版本，与每日天气无关。
+     *  仓库已设为 public，匿名即可读（GitHub 限流 60/h，检查更新属低频）。 */
+    suspend fun checkLatestUpdate(): UpdateInfo? =
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching {
+                val conn = java.net.URL("https://api.github.com/repos/${RELEASE_REPO}/releases/latest")
+                    .openConnection() as java.net.HttpURLConnection
+                conn.requestMethod = "GET"
+                conn.connectTimeout = 15_000
+                conn.readTimeout = 20_000
+                conn.setRequestProperty("User-Agent", "dailyweather-app")
+                if (conn.responseCode != 200) { conn.disconnect(); return@runCatching null }
+                val root = org.json.JSONObject(conn.inputStream.bufferedReader().readText())
+                conn.disconnect()
+                val version = root.optString("tag_name").trim().removePrefix("v")
+                val assets = root.optJSONArray("assets")
+                val apkUrl = if (assets != null) {
+                    (0 until assets.length()).firstOrNull {
+                        assets.optJSONObject(it)?.optString("name", "")?.endsWith(".apk") == true
+                    }?.let { assets.optJSONObject(it)?.optString("browser_download_url") }
+                } else null
+                UpdateInfo(version, apkUrl)
+            }.getOrNull()?.takeIf { it.version.isNotBlank() }
+        }
+
+    /** 在 app 内下载更新 APK 到应用私有目录（供后续 ACTION_VIEW 安装），返回文件；失败返回 null。
+     *  仅允许下载 GitHub 官方域名，拒绝任何其它 host（防 SSRF）。 */
+    suspend fun downloadUpdateApk(info: UpdateInfo): java.io.File? =
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            val urlStr = info.apkUrl ?: return@withContext null
+            runCatching {
+                val host = java.net.URI(urlStr).host?.lowercase() ?: ""
+                if (!host.endsWith("github.com") && !host.endsWith("githubusercontent.com")) {
+                    return@runCatching null
+                }
+                val conn = java.net.URL(urlStr).openConnection() as java.net.HttpURLConnection
+                conn.connectTimeout = 20_000
+                conn.readTimeout = 60_000
+                if (conn.responseCode != 200) { conn.disconnect(); return@runCatching null }
+                val dir = appContext.getExternalFilesDir(null) ?: appContext.cacheDir
+                val dest = java.io.File(dir, "dailyweather-update.apk")
+                conn.inputStream.use { ins -> dest.outputStream().use { ins.copyTo(it) } }
+                conn.disconnect()
+                dest
+            }.getOrNull()
+        }
+
+    companion object {
+        /** 本 App 自己的 GitHub 仓库（private→public 后可匿名读 release）。 */
+        const val RELEASE_REPO = "Qianzln/dailyweather"
     }
 }
+
+/** 一次"检查更新"的结果：最新版本号 + 该版本 APK 的下载直链（可能为 null）。 */
+data class UpdateInfo(val version: String, val apkUrl: String?)

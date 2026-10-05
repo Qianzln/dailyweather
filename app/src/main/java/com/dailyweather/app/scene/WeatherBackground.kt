@@ -143,6 +143,8 @@ fun TopProgressiveGlass(
 ) {
     val strength = (scrollState.value / 260f).coerceIn(0f, 1f)
     if (strength <= 0.02f) return
+    // 玻璃带底边渐隐目标色取当前天空底色：把 blur 的硬矩形底边（"方形框"）融进天空。
+    val sky = com.dailyweather.app.ui.theme.LocalSky.current
     Box(modifier) {
         Box(
             Modifier
@@ -151,9 +153,29 @@ fun TopProgressiveGlass(
                 .graphicsLayer { this.alpha = strength }
                 .drawBackdrop(
                     backdrop,
-                    shape = { androidx.compose.ui.graphics.RectangleShape },
-                    effects = { blur(22f) },
+                    // 底部两角圆角 + 小半径 blur：大半径(22f)在矩形 mask 四边产生的高斯截断
+                    // 会露出可见的方形轮廓；改 13f + 圆角后边缘伪影大幅减弱。
+                    shape = {
+                        androidx.compose.foundation.shape.RoundedCornerShape(
+                            topStart = 0.dp,
+                            topEnd = 0.dp,
+                            bottomStart = 24.dp,
+                            bottomEnd = 24.dp,
+                        )
+                    },
+                    effects = { blur(13f) },
                 ),
         )
+        // 底部 35% 高度向天空色渐隐：遮住 blur 硬底边，消除"方形框"。
+        androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(bandHeight)) {
+            val fade = size.height * 0.35f
+            drawRect(
+                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                    colors = listOf(androidx.compose.ui.graphics.Color.Transparent, sky.skyBottom),
+                    startY = size.height - fade,
+                    endY = size.height,
+                ),
+            )
+        }
     }
 }

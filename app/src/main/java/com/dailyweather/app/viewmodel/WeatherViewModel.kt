@@ -40,28 +40,95 @@ class WeatherViewModel(private val container: AppContainer) {
     var locatingFirstTime by mutableStateOf(false)
         private set
 
-    // ---- 检查更新 ----
+    // ---- 检查更新（走本 App 自己的 GitHub 仓库，不混入其它项目）----
     /** 检查更新结果：null=检测中/未知；非空字符串=提示文案。 */
     var updateMessage by mutableStateOf<String?>(null)
         private set
     var updateChecking by mutableStateOf(false)
         private set
 
-    /** 检测最新版本，经云代理读 GitHub 元数据，与当前 Compare。 */
+    /** 本次检测到的最新版本（含 APK 直链），供"下载并安装"使用。 */
+    var updateInfo: com.dailyweather.app.di.UpdateInfo? = null
+        private set
+    /** 远端确实比本地新（才应显示"下载并安装"）。 */
+    var updateHasNewer by mutableStateOf(false)
+        private set
+    var updateDownloading by mutableStateOf(false)
+        private set
+    var updateInstallHint by mutableStateOf<String?>(null)
+        private set
+
+    /** 检测最新版本（直连本项目 GitHub 仓库），与当前 BuildConfig 版本号比对。 */
     fun checkUpdate() {
         if (updateChecking) return
         updateChecking = true
         updateMessage = null
         scope.launch {
-            val latest = container.checkLatestVersion()
+            val info = container.checkLatestUpdate()
             updateChecking = false
-            updateMessage = if (latest == null) {
-                "暂时无法连接更新服务"
-            } else if (latest.removePrefix("v").removePrefix("V") != BuildConfig.VERSION_NAME.removePrefix("v")) {
-                "发现新版本 v$latest"
+            if (info == null) {
+                updateMessage = "暂时无法连接更新服务（需联网读取 GitHub 仓库）"
             } else {
-                "已是最新版本"
+                updateInfo = info
+                val cur = BuildConfig.VERSION_NAME.removePrefix("v")
+                val hasNewer = compareVersions(info.version, cur) > 0
+                updateHasNewer = hasNewer
+                updateMessage = if (hasNewer) {
+                    "发现新版本 v${info.version}（当前 v$cur）"
+                } else {
+                    "已是最新版本 v$cur"
+                }
             }
+        }
+    }
+
+    /** 语义版本比较（仅数字段）：a>b 返回正，a==b 返回 0，a<b 返回负。 */
+    private fun compareVersions(a: String, b: String): Int {
+        val pa = a.split(".").map { it.takeWhile { c -> c.isDigit() }.toIntOrNull() ?: 0 }
+        val pb = b.split(".").map { it.takeWhile { c -> c.isDigit() }.toIntOrNull() ?: 0 }
+        val n = maxOf(pa.size, pb.size)
+        for (i in 0 until n) {
+            val x = pa.getOrElse(i) { 0 }
+            val y = pb.getOrElse(i) { 0 }
+            if (x != y) return x.compareTo(y)
+        }
+        return 0
+    }
+
+    /** 在 app 内下载更新 APK 并拉起系统安装器（不跳浏览器）。 */
+    fun installUpdate() {
+        val info = updateInfo ?: return
+        if (updateDownloading) return
+        updateDownloading = true
+        updateInstallHint = "正在下载 v${info.version} …"
+        scope.launch {
+            val apk = container.downloadUpdateApk(info)
+            if (apk == null) {
+                updateDownloading = false
+                updateInstallHint = "下载失败，请检查网络后重试"
+                return@launch
+            }
+            val ctx = container.appContext
+            val pm = ctx.packageManager
+            val canInstall = android.os.Build.VERSION.SDK_INT < 26 || pm.canRequestPackageInstalls()
+            if (!canInstall) {
+                updateDownloading = false
+                updateInstallHint = "需授予「允许安装未知应用」权限后重试"
+                val open = android.content.Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                    android.net.Uri.parse("package:" + ctx.packageName))
+                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                runCatching { ctx.startActivity(open) }
+                return@launch
+            }
+            val uri = androidx.core.content.FileProvider.getUriForFile(
+                ctx, "${ctx.packageName}.fileprovider", apk)
+            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
+                .setDataAndType(uri, "application/vnd.android.package-archive")
+                .addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    or android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            updateDownloading = false
+            updateInstallHint = "已下载，正在打开安装器…"
+            runCatching { ctx.startActivity(intent) }
         }
     }
 
@@ -91,12 +158,22 @@ class WeatherViewModel(private val container: AppContainer) {
         }
         scope.launch {
             container.settings.locationEnabled.collect { enabled ->
-                // 运行时联动：关定位 → 移除"当前定位"城市（停止定位刷新）；
-                // 开定位且尚无定位城市 → 立即定位一次。
                 if (enabled) {
                     if (container.cityRepository.currentLocationCity() == null) locateAndRefresh()
-                } else if (container.cityRepository.currentLocationCity() != null) {
-                    container.cityRepository.remove("current")
+                    // 持续位移监听：真实位置移动超过阈值（默认 500m）就重新逆地理命名并刷新天气，
+                    // 让"定位"随移动自动更新，而非只在启动/手动刷新时定一次位。
+                    if (container.locationCoordinator.hasPermission()) {
+                        container.locationCoordinator.startMoveWatcher(onMove = { _ ->
+                            scope.launch {
+                                container.refreshManager.refreshCurrentLocation("location-moved")
+                            }
+                        })
+                    }
+                } else {
+                    container.locationCoordinator.stopMoveWatcher()
+                    if (container.cityRepository.currentLocationCity() != null) {
+                        container.cityRepository.remove("current")
+                    }
                 }
             }
         }

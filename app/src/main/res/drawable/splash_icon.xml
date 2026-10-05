@@ -1,31 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Splash 屏图标：与 App 启动图标同构图（白云 + 左上黄太阳，透明底） -->
+<!-- Splash 屏图标：与 App 安装图标同构图（v4 比例：太阳放大、云朵收敛） -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="200dp"
     android:height="200dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- 太阳光晕（云左上） -->
-    <path
-        android:fillColor="#FFE9A8"
-        android:pathData="M18,32 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+    <group
+        android:scaleX="1.10"
+        android:scaleY="1.10"
+        android:pivotX="54"
+        android:pivotY="54">
 
-    <!-- 太阳核心 -->
-    <path
-        android:fillColor="#FFD54F"
-        android:pathData="M22,32 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" />
+        <!-- 太阳光晕（左上，放大） -->
+        <path
+            android:fillColor="#FFE9A8"
+            android:pathData="M14,32 a18,18 0 1,0 36,0 a18,18 0 1,0 -36,0" />
 
-    <!-- 云朵主体（白色） -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="
-            M25,58 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0
-            M36,48 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0
-            M52,52 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0
-            M61,62 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0
-            M41,64 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0
-            M32,66 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0
-        " />
+        <!-- 太阳核心（放大） -->
+        <path
+            android:fillColor="#FFD54F"
+            android:pathData="M19,32 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0" />
+
+        <!-- 云朵（白色，5 圆略小、偏右，托住太阳右下缘） -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="
+                M37,54 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0
+                M53,58 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0
+                M32,62 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0
+                M48,67 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0
+                M30,52 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0
+            " />
+    </group>
 
 </vector>

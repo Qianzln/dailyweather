@@ -70,6 +70,13 @@ fun SettingsScreen(vm: WeatherViewModel, onBack: () -> Unit, onOpenSub: (String)
                 },
                 onClick = { vm.checkUpdate() },
             )
+            if (vm.updateHasNewer) {
+                NavRow(
+                    "下载并安装 v${vm.updateInfo?.version}",
+                    trailing = vm.updateInstallHint ?: if (vm.updateDownloading) "下载中…" else "",
+                    onClick = { vm.installUpdate() },
+                )
+            }
             NavRow("联系作者", onClick = { onOpenSub("联系作者") }, divider = false)
         }
     }

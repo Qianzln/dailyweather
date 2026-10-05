@@ -97,6 +97,55 @@ class LocationCoordinator(
 
     private fun Location.toFix() = Fix(longitude, latitude, accuracy, provider ?: "unknown")
 
+    private var moveWatcher: LocationListener? = null
+    private var watching = false
+
+    /**
+     * 持续位移监听：系统只在移动 [thresholdMeters] 米（默认 500m）时才回调，省电。
+     * 位置跨城/跨区移动时触发 [onMove]，由调用方决定是否重新逆地理 + 刷新天气。
+     * 与单次 [requestFix] 独立——requestFix 是"要一个当前定位"，这个是"位置变了通知我"。
+     */
+    fun startMoveWatcher(onMove: (Fix) -> Unit, thresholdMeters: Double = 500.0) {
+        if (!hasPermission() || watching) return
+        watching = true
+        val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val listener = LocationListener { loc ->
+            val last = lastKnown.get()
+            val fix = loc.toFix()
+            if (last == null || distanceMeters(last, fix) >= thresholdMeters) {
+                lastKnown.set(fix)
+                Log.i(TAG, "位置移动 ${last?.let { distanceMeters(it, fix) }?.toInt() ?: 0}m → 触发刷新")
+                runCatching { onMove(fix) }
+            }
+        }
+        moveWatcher = listener
+        runCatching {
+            val providers = buildList {
+                if (lm.allProviders.contains(LocationManager.PASSIVE_PROVIDER)) add(LocationManager.PASSIVE_PROVIDER)
+                if (lm.allProviders.contains(LocationManager.NETWORK_PROVIDER)) add(LocationManager.NETWORK_PROVIDER)
+                if (lm.allProviders.contains(LocationManager.GPS_PROVIDER)) add(LocationManager.GPS_PROVIDER)
+            }
+            providers.forEach { p ->
+                // minTime 1s + minDistance threshold：让系统只在真实位移时回调，不空转。
+                lm.requestLocationUpdates(p, 1_000L, thresholdMeters.toFloat(), listener, Looper.getMainLooper())
+            }
+            Log.i(TAG, "位移监听已启动，providers=${providers.size}")
+        }.onFailure { Log.w(TAG, "位移监听注册失败 ${it.message}") }
+    }
+
+    fun stopMoveWatcher() {
+        moveWatcher?.let { l ->
+            runCatching {
+                val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                for (p in listOf(LocationManager.PASSIVE_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER)) {
+                    if (lm.allProviders.contains(p)) runCatching { lm.removeUpdates(l) }
+                }
+            }
+        }
+        moveWatcher = null
+        watching = false
+    }
+
     /** 两点距离（米）；用于「距离上次缓存位置仅为 x 米」的短距离短路。 */
     fun distanceMeters(a: Fix, b: Fix): Double {
         val r = 6371000.0
