@@ -32,8 +32,8 @@ android {
         applicationId = "com.dailyweather.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 14
-        versionName = "0.1.15"
+        versionCode = 15
+        versionName = "0.1.16"
         buildConfigField("String", "CAIYUN_TOKEN", "\"${keys.getProperty("caiyun_token", "")}\"")
         buildConfigField("String", "AMAP_KEY", "\"${keys.getProperty("amap_key", "")}\"")
         // CloudBase 云代理（与微风天气同一已打通链路）：彩云/和风/小米/高德唯一出口

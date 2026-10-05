@@ -182,14 +182,14 @@ fun WeatherScreen(
                     Text(
                         text = city?.name ?: "添加城市",
                         color = sky.textPrimary,
-                        fontSize = 14.sp,
+                        fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.align(Alignment.Center)
                             .clip(RoundedCornerShape(16.dp))
                             .background(sky.cardFill.copy(alpha = 0.34f))
                             .clickable(onClick = onOpenCityList)
-                            .padding(horizontal = 14.dp, vertical = 7.dp),
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
                     )
                     Row(
                         modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp),
@@ -205,7 +205,7 @@ fun WeatherScreen(
                 when {
                     snap != null -> {
                         HeroSection(snap)
-                        Spacer(Modifier.height(12.dp))
+                        Spacer(Modifier.height(Tokens.CardGap))
                         Column(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = Tokens.ScreenMargin),
                             verticalArrangement = Arrangement.spacedBy(Tokens.CardGap),
@@ -251,8 +251,8 @@ fun WeatherScreen(
             }
             } // layerBackdrop 采样层
 
-            // 顶部毛玻璃带：滚动时内容（含卡片）穿过状态栏区域被真·模糊（南风同款）。
-            TopProgressiveGlass(backdrop, scrollState, Modifier.matchParentSize())
+            // 顶部毛玻璃带：锚定屏幕顶（含状态栏后）128dp，滚动时内容穿过被真·模糊（南风同款）。
+            TopProgressiveGlass(backdrop, scrollState)
             TopProgressiveScrim(Modifier.matchParentSize())
         }
         } // PullToRefreshBox
@@ -386,7 +386,7 @@ private fun HourlyCard(snapshot: WeatherSnapshot, blueTheme: Boolean, zone: java
                         text = hourlyLabel(index, point.time, zone),
                         color = sky.textSecondary,
                         fontSize = 13.sp,
-                        modifier = Modifier.padding(top = 11.dp),
+                        modifier = Modifier.padding(top = 12.dp),
                     )
                     Spacer(Modifier.height(9.dp))
                     WeatherBitmapIcon(
@@ -443,7 +443,7 @@ private fun DailyCard(snapshot: WeatherSnapshot, blueTheme: Boolean, zone: java.
     val gMax = days.maxOf { it.tempMax }
     val span = (gMax - gMin).coerceAtLeast(1.0)
 
-    GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(10.dp)) {
+    GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = HomeCardPadding) {
         days.forEachIndexed { index, day ->
             DayRow(day, index, blueTheme, gMin, span, snapshot.currentTemp, zone)
         }
@@ -583,9 +583,9 @@ private fun LifeAdviceCard(snapshot: WeatherSnapshot) {
     val advice = remember(snapshot) { LifeAdviceFrom.of(snapshot) }
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 22.dp, bottom = 22.dp),
+        contentPadding = HomeCardPadding,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(22.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
             advice.chunked(3).forEach { row ->
                 Row(modifier = Modifier.fillMaxWidth()) {
                     row.forEach { item ->
@@ -620,7 +620,7 @@ private fun AqiCard(snapshot: WeatherSnapshot, onClick: () -> Unit = {}) {
     val sky = LocalSky.current
     val rt = snapshot.realtime ?: return
     // 南风布局（夜间实图）：左对齐「38 - 优」一行 → 光谱条 → 一句描述，无刻度、无图标。
-    GlassCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+    GlassCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick), contentPadding = HomeCardPadding) {
         Column {
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
@@ -692,7 +692,7 @@ private fun SunCard(snapshot: WeatherSnapshot, zone: java.time.ZoneId) {
     val leftIcon = if (isDay) "sunrise" else "sunset"
     val rightIcon = if (isDay) "sunset" else "sunrise"
 
-    GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+    GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = HomeCardPadding) {
         Column {
             // 顶部标注：图标在外侧、文字在内侧（南风对称布局）
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -781,7 +781,7 @@ private fun PrecipCard(snapshot: WeatherSnapshot, onClick: () -> Unit = {}) {
     val zone = java.time.ZoneId.systemDefault()
     GlassCard(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        contentPadding = PaddingValues(14.dp),
+        contentPadding = HomeCardPadding,
     ) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -902,6 +902,13 @@ private fun EmptyState(onOpenSearch: () -> Unit, message: String?) {
 /** 南风的短写：周四 / 周五，不是 DateTimeFormatter 的「星期四」。 */
 private val WEEKDAYS = listOf("周日", "周一", "周二", "周三", "周四", "周五", "周六")
 
+/**
+ * 首页信息卡统一内边距：左右 14 / 上下 12。
+ * 此前各卡各定（AQI 16、7日 10、日照/降水/详情 14、生活建议 22、小时卡 0），
+ * 卡与卡之间「内容→边缘」的留白 0~22dp 不等，看着就是间隔不一致、底部留白过大。
+ */
+private val HomeCardPadding = PaddingValues(start = 14.dp, top = 12.dp, end = 14.dp, bottom = 12.dp)
+
 /** 跨零点后那一格照南风写「明天」，其余仍是钟点；再往后才是周几。 */
 private fun hourlyLabel(index: Int, epochMs: Long, zone: java.time.ZoneId): String {
     if (index == 0) return "现在"
@@ -941,9 +948,7 @@ private fun DetailCard(snapshot: WeatherSnapshot) {
     )
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            start = 14.dp, end = 14.dp, top = 14.dp, bottom = 14.dp,
-        ),
+        contentPadding = HomeCardPadding,
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             tiles.chunked(3).forEach { row ->

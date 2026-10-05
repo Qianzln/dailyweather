@@ -4,12 +4,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
@@ -131,8 +135,14 @@ fun TopProgressiveScrim(
  * ——滚动时卡片/文字从状态栏区域穿过，它们也被真·模糊成雾状，而不仅是天空。
  * 实现用项目既有依赖 backdrop-android（南风同款库）：
  * - 内容层 `Modifier.layerBackdrop(backdrop)` 捕获绘制内容（含天空+滚动卡片）
- * - 顶部玻璃带 `Modifier.drawBackdrop(backdrop) { blur(22f) }` 采样并模糊
+ * - 顶部玻璃带 `Modifier.drawBackdrop(backdrop) { blur(13f) }` 采样并模糊
  * - 强度随 scrollY 渐入（南风：刚滚动时带子淡、滚深了变实）
+ *
+ * 底边"方框"修复（v0.1.16）：blur 区域有硬底边，此前靠"画 sky.skyBottom 渐隐 35%"
+ * 遮缝——涂色与真实天空（渐变+云 PNG 合成色）永远对不齐，缝还在。改用开源
+ * iOS 风格状态栏模糊的标准解法：把模糊层包进离屏 layer，对其自身做 DstIn
+ * alpha 渐变蒙版（上 55% 实、55%→85% 线性淡到 0）。底边彻底消失，与背后
+ * 任何天空/云色都无缝，不再需要圆角和渐隐涂色。
  */
 @Composable
 fun TopProgressiveGlass(
@@ -143,39 +153,38 @@ fun TopProgressiveGlass(
 ) {
     val strength = (scrollState.value / 260f).coerceIn(0f, 1f)
     if (strength <= 0.02f) return
-    // 玻璃带底边渐隐目标色取当前天空底色：把 blur 的硬矩形底边（"方形框"）融进天空。
-    val sky = com.dailyweather.app.ui.theme.LocalSky.current
-    Box(modifier) {
+    Box(modifier = modifier.fillMaxWidth().height(bandHeight)) {
+        // 关键：blur、DstIn 蒙版、离屏 layer 三者必须落在**同一个节点**上，
+        // 顺序（内→外）：drawBackdrop(画模糊) → drawWithContent(DstIn 蒙版)
+        // → graphicsLayer(Offscreen 隔离)。这样 DstIn 擦除只发生在离屏层内部，
+        // 擦掉的区域真正透明、透出背后的天空，而不是黑底。
         Box(
             Modifier
-                .fillMaxWidth()
-                .height(bandHeight)
-                .graphicsLayer { this.alpha = strength }
+                .matchParentSize()
                 .drawBackdrop(
                     backdrop,
-                    // 底部两角圆角 + 小半径 blur：大半径(22f)在矩形 mask 四边产生的高斯截断
-                    // 会露出可见的方形轮廓；改 13f + 圆角后边缘伪影大幅减弱。
-                    shape = {
-                        androidx.compose.foundation.shape.RoundedCornerShape(
-                            topStart = 0.dp,
-                            topEnd = 0.dp,
-                            bottomStart = 24.dp,
-                            bottomEnd = 24.dp,
-                        )
-                    },
+                    shape = { RoundedCornerShape(0.dp) },
                     effects = { blur(13f) },
-                ),
+                )
+                .drawWithContent {
+                    drawContent()
+                    // DstIn 蒙版：只取源 alpha（白=保留，透明=擦除到"真透明"）。
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            0f to Color.White,
+                            0.55f to Color.White,
+                            0.85f to Color.Transparent,
+                            1f to Color.Transparent,
+                            startY = 0f,
+                            endY = size.height,
+                        ),
+                        blendMode = BlendMode.DstIn,
+                    )
+                }
+                .graphicsLayer {
+                    compositingStrategy = CompositingStrategy.Offscreen
+                    alpha = strength
+                },
         )
-        // 底部 35% 高度向天空色渐隐：遮住 blur 硬底边，消除"方形框"。
-        androidx.compose.foundation.Canvas(Modifier.fillMaxWidth().height(bandHeight)) {
-            val fade = size.height * 0.35f
-            drawRect(
-                brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                    colors = listOf(androidx.compose.ui.graphics.Color.Transparent, sky.skyBottom),
-                    startY = size.height - fade,
-                    endY = size.height,
-                ),
-            )
-        }
     }
 }
