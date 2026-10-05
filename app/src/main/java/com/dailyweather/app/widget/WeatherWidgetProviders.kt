@@ -33,3 +33,6 @@ class WeatherWidgetIOSProvider : BaseWidgetProvider()
 class WeatherWidgetHourlyProvider : BaseWidgetProvider()
 
 class WeatherWidgetWeekProvider : BaseWidgetProvider()
+
+/** AQI 光谱组件（南风 widget_aqi，4×1）。 */
+class WeatherWidgetAqiProvider : BaseWidgetProvider()

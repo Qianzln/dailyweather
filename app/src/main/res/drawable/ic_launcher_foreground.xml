@@ -1,11 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  每日天气 App 图标 v3：纯浅蓝底 + 白云 + 左上黄太阳（对齐南风构图）
+  云为多圆叠加的蓬松造型，云顶遮住太阳右下缘（南风的"云含日"关系）
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp" android:height="108dp"
-    android:viewportWidth="108" android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M44,58a10,10 0 0,1 0.9,-19.97A14,14 0 0,1 71.6,42.1A8.5,8.5 0 0,1 70,59H44z" />
-    <path
-        android:fillColor="#B3FFFFFF"
-        android:pathData="M34,66h40a2,2 0 0,1 0,4H34a2,2 0 0,1 0,-4zM38,74h32a2,2 0 0,1 0,4H38a2,2 0 0,1 0,-4z" />
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- 主体放大 1.18 倍：云撑满图标（南风的"云占满"观感） -->
+    <group
+        android:scaleX="1.18"
+        android:scaleY="1.18"
+        android:pivotX="54"
+        android:pivotY="54">
+
+        <!-- 太阳光晕（云左上） -->
+        <path
+            android:fillColor="#FFE9A8"
+            android:pathData="M18,32 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0" />
+
+        <!-- 太阳核心 -->
+        <path
+            android:fillColor="#FFD54F"
+            android:pathData="M22,32 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" />
+
+        <!-- 云朵主体（白色，多圆叠加蓬松造型） -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="
+                M25,58 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0
+                M36,48 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0
+                M52,52 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0
+                M61,62 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0
+                M41,64 a15,15 0 1,0 30,0 a15,15 0 1,0 -30,0
+                M32,66 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0
+            " />
+    </group>
+
 </vector>

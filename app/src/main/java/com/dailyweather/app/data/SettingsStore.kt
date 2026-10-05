@@ -74,25 +74,18 @@ class SettingsStore(private val context: Context) {
 
     suspend fun setBool(keyName: String, v: Boolean) = ds.edit { it[booleanPreferencesKey(keyName)] = v }
 
-    /**
-     * 主页可见卡片（按用户排序）。
-     *
-     * 会员锁定的卡片未登录一律不显示——南风截图里它们就是灰态带锁且关着的，
-     * 首页也确实没有空气质量/日出日落/气象详情那几张卡。
-     */
+    /** 主页可见卡片（按用户排序）。所有卡片默认全部可见，无会员限制。 */
     val homeCardsFlow: Flow<List<HomeCardId>> = ds.data.map { p ->
         val saved = p[stringPreferencesKey(SettingsKeys.CARD_ORDER)]
             ?.split(",")?.mapNotNull { runCatching { HomeCardId.valueOf(it) }.getOrNull() }
             .orEmpty()
         val ordered = (saved + HomeCards.defaultOrder).distinct()
         ordered.filter { id ->
-            if (id in HomeCards.membershipLocked) return@filter false
             val key = when (id) {
                 HomeCardId.AQI -> SettingsKeys.SHOW_AQI
                 HomeCardId.HOURLY -> SettingsKeys.SHOW_HOURLY48
                 HomeCardId.SUN -> SettingsKeys.SHOW_SUN
                 HomeCardId.DETAIL -> SettingsKeys.SHOW_DETAIL
-                HomeCardId.RADAR -> SettingsKeys.SHOW_RADAR
                 HomeCardId.LIFE -> SettingsKeys.SHOW_LIFE
                 else -> null
             } ?: return@filter true

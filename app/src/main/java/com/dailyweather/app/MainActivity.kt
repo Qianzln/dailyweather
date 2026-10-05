@@ -8,11 +8,12 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.dailyweather.app.di.AppContainer
 import com.dailyweather.app.ui.screens.AirQualityDetailScreen
@@ -29,17 +31,27 @@ import com.dailyweather.app.ui.screens.HourlyDetailScreen
 import com.dailyweather.app.ui.screens.MinutelyPrecipScreen
 import com.dailyweather.app.ui.screens.SettingsScreen
 import com.dailyweather.app.ui.screens.SettingsSubScreen
+import com.dailyweather.app.ui.screens.TyphoonDetailScreen
 import com.dailyweather.app.ui.screens.WeatherScreen
 import com.dailyweather.app.ui.theme.DailyWeatherTheme
 import com.dailyweather.app.viewmodel.WeatherViewModel
 
-/** 单 Activity + Compose 宿主（对齐南风 MainActivity；导航 = v3.35 简洁 slide/fade 基线）。 */
+/** 单 Activity + Compose 宿主。
+ *
+ * 导航动画（对齐南风 v4.3.51 手势/点击过渡）：
+ * - 前进（入栈）：新页从右侧滑入（320dp 全宽，300ms），旧页 fadeOut。
+ * - 返回（出栈）：旧页从左侧滑回，新页 fade。
+ * - Hero 温度数字切换用滑入+淡入（已在 WeatherScreen 内完成）。
+ * - 卡片错峰入场 60ms 间隔（已在 WeatherScreen 内完成）。
+ */
 class MainActivity : ComponentActivity() {
 
     private val locationPermission =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // SplashScreen：必须在 super.onCreate 之前安装（API<31 兼容路径依赖此次安装）。
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
         // 天空底色恒为深蓝，状态栏/导航栏图标强制浅色（深色图标在蓝底上不可读）
@@ -74,11 +86,16 @@ private sealed interface Screen {
     data class Detail(val kind: DetailKind) : Screen
 }
 
-enum class DetailKind { HOURLY, AIR_QUALITY, MINUTELY }
+enum class DetailKind { HOURLY, AIR_QUALITY, MINUTELY, TYPHOON }
 
 @Composable
 private fun AppNavigation(vm: WeatherViewModel, blueTheme: Boolean, onLocate: () -> Unit) {
     var stack by remember { mutableStateOf(listOf<Screen>(Screen.Weather)) }
+    // 记录前一次栈深度，用于判断前进/后退方向。
+    var prevStackSize by remember { mutableStateOf(1) }
+    val isForward = stack.size > prevStackSize
+    prevStackSize = stack.size
+
     val current = stack.last()
     val pop: () -> Unit = { if (stack.size > 1) stack = stack.dropLast(1) }
     BackHandler(enabled = stack.size > 1) { pop() }
@@ -86,9 +103,15 @@ private fun AppNavigation(vm: WeatherViewModel, blueTheme: Boolean, onLocate: ()
     AnimatedContent(
         targetState = current,
         transitionSpec = {
-            // v3.35 基线：进入从底部轻滑入 + fade，退出 fade
-            (slideInVertically(initialOffsetY = { it / 8 }) + fadeIn())
-                .togetherWith(fadeOut())
+            // 前进：新页从右侧滑入 + fade，旧页淡出
+            // 返回：旧页滑回左侧，新页淡入
+            val durationMs = 300
+            val enter: androidx.compose.animation.EnterTransition = if (isForward) {
+                slideInHorizontally(initialOffsetX = { it }) + fadeIn()
+            } else {
+                slideInHorizontally(initialOffsetX = { -it }) + fadeIn()
+            }
+            enter.togetherWith(fadeOut())
         },
         label = "nav",
     ) { screen ->
@@ -127,6 +150,7 @@ private fun AppNavigation(vm: WeatherViewModel, blueTheme: Boolean, onLocate: ()
                     DetailKind.HOURLY -> HourlyDetailScreen(snapshot = snap ?: return@AnimatedContent, zone = zone, onBack = pop)
                     DetailKind.AIR_QUALITY -> AirQualityDetailScreen(snapshot = snap ?: return@AnimatedContent, onBack = pop)
                     DetailKind.MINUTELY -> MinutelyPrecipScreen(snapshot = snap ?: return@AnimatedContent, onBack = pop)
+                    DetailKind.TYPHOON -> TyphoonDetailScreen(vm = vm, snapshot = snap, onBack = pop)
                 }
             }
         }

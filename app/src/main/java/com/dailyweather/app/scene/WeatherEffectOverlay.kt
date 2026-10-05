@@ -1,17 +1,18 @@
 package com.dailyweather.app.scene
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -24,119 +25,37 @@ import kotlin.math.sin
 import kotlin.math.tan
 
 /**
- * 天气前景效果层 —— 对应南风的 `WeatherEffectOverlay.kt`。
+ * 天气前景效果层的绘制原语 —— 1:1 南风架构。
  *
- * ## 为什么是三个 Canvas 而不是一个
+ * ## 南风的真实结构（逆向确认）
  *
- * 南风的 `WeatherEffectFps(precip=…)` 说明它的云与降水**不在同一个帧率上**。
- * 若画在同一个 Canvas 里，只要有一层想跑 60fps，整个 Canvas 就得 60fps 重绘。
- * 拆成三层后每层读自己的时钟，各自失效、各自限帧，"分图层帧率"才真的成立。
+ * 南风的天气动画是**混合方案**：
+ * - 天空背景 + 云层：预渲染 PNG（`weather_sky_*` 帧序列 + `weather_cloud_*` 精灵），
+ *   由 [SpriteSkyBackground] 与 [drawSpriteCloudLayer] 1:1 复刻；
+ * - 降水粒子（雨丝/流星/雪花）与辉光：**代码运行时生成位图**（逆向报告 02 章：
+ *   "雨、雪、辉光等天气粒子全部由代码运行时生成位图，一张外部图片都没有"），
+ *   雨丝贴唯一的例外素材 `weather_rain_streak_mgl`（20×68 灰度+alpha）。
  *
- * ## 与南风的代码量分配对照
+ * 组件装配（每天气一个 Effect 组件）见 [WeatherEffectHost]（WeatherEffects.kt）。
+ * 本文件只留下**原语**：雨/雪/星/太阳/风/雾/雷各画法，彼此独立可被任意 Effect 组合。
  *
- * 它是 晴 ~88 行 / 多云 ~90 行 / 雪 ~83 行，而 **阴 ~275 行、雨 ~326 行**。
- * 本仓把"晴 / 多云 / 阴"的差异收进 [cloudFieldsFor] 的云场表（是数据不是代码），
- * 于是代码量分布变成：**雨最重，氛围层次之，晴最轻** —— 观感取向一致，
- * 但新增"多云的第 N 层"不必再写一个 Effect 函数。
+ * ## 图层与帧率
+ *
+ * 南风的 `WeatherEffectFps(precip=…)` 说明云与降水**不在同一帧率**：
+ * 云是低频大面积位移（30fps 足够），雨是高频小面积位移（45+ 才不跳）。
+ * 三层各自读自己的时钟（[rememberEffectClock]），分图层限帧。
  */
-@Composable
-fun WeatherEffectOverlay(
-    state: WeatherSceneState,
-    modifier: Modifier = Modifier,
-    band: CloudBand = DefaultCloudBand,
-) {
-    val drawEnabled = LocalWeatherEffectDrawEnabled.current
-    val quality = LocalEffectQuality.current
-    if (!drawEnabled || quality.particleScale <= 0f) return
-
-    val context = LocalContext.current
-    val fields = remember(state.kind, state.wind) { cloudFieldsFor(state) }
-    val rig = state.rig
-
-    // 物种是固定的四个，无条件取；烘焙结果按 CloudBakeKey 缓存，未用到的物种不会进绘制路径。
-    val sprites: Map<CloudSpecies, CloudSpriteSet> = mapOf(
-        CloudSpecies.CUMULUS to rememberCloudSpriteSet(context, CloudSpecies.CUMULUS, rig),
-        CloudSpecies.STRATUS to rememberCloudSpriteSet(context, CloudSpecies.STRATUS, rig),
-        CloudSpecies.PHOTO_CUMULUS to rememberCloudSpriteSet(context, CloudSpecies.PHOTO_CUMULUS, rig),
-        CloudSpecies.PHOTO_WISP to rememberCloudSpriteSet(context, CloudSpecies.PHOTO_WISP, rig),
-        CloudSpecies.PHOTO_BANK to rememberCloudSpriteSet(context, CloudSpecies.PHOTO_BANK, rig),
-    )
-    val streak = remember { CloudSpriteCache.raw(context, R.drawable.weather_rain_streak_mgl) }
-
-    val cloudClock = rememberEffectClock(quality.fps.cloud)
-    val precipClock = rememberEffectClock(quality.fps.precip)
-    val ambientClock = rememberEffectClock(quality.fps.ambient)
-
-    // ① 云层
-    Canvas(modifier) {
-        drawCloudFields(fields, sprites, cloudClock.floatValue, band, quality, state.photoTint)
-    }
-
-    // ② 降水层
-    val precip = state.kind.precipitation()
-    if (precip != PrecipKind.NONE && quality.fps.precip > 0) {
-        val intensity = if (state.intensity > 0f) state.intensity else state.kind.defaultIntensity()
-        Canvas(modifier) {
-            drawPrecipitation(precip, intensity, state.wind, state.isNight, precipClock.floatValue, quality, streak)
-        }
-    }
-
-    // ③ 氛围层：晴夜的星、雾天的霾带、雷暴的闪光
-    if (quality.fps.ambient > 0) {
-        Canvas(modifier) {
-            drawAmbience(state, sprites, ambientClock.floatValue, quality)
-        }
-    }
-}
-
-private fun DrawScope.drawCloudFields(
-    fields: List<CloudFieldSpec>,
-    sprites: Map<CloudSpecies, CloudSpriteSet>,
-    t: Float,
-    band: CloudBand,
-    quality: EffectQuality,
-    tint: Color,
-) {
-    for (field in fields) {
-        if (!quality.drawPhotoForeground && field.species.isPhoto) continue
-        val set = sprites[field.species] ?: continue
-        if (!set.ready) continue
-
-        val count = scaledCount(field.count, quality)
-        for (i in 0 until count) {
-            val img = set.at(i + field.seed)
-            val jitter = hash01(field.seed * 31 + i)
-            // 漂移：分数坐标循环，跨屏宽行为一致。1.3 的系数让云在屏外也有分布，
-            // 不至于出现"每隔一段时间整屏空一次"的呼吸感。
-            val drift = (t * field.driftSpeed + jitter * 1.3f) % 1.3f
-            val xFraction = drift - 0.15f
-            val yFraction = band.topFraction + (band.bottomFraction - band.topFraction) *
-                lerpF(field.yFractionRange.start, field.yFractionRange.endInclusive, jitter)
-
-            val w = field.widthFraction * size.width
-            val h = w * (img.height.toFloat() / img.width.toFloat())
-            drawImage(
-                image = img,
-                dstOffset = Offset((xFraction * size.width - w / 2f), yFraction * size.height - h / 2f)
-                    .let { androidx.compose.ui.unit.IntOffset(it.x.toInt(), it.y.toInt()) },
-                dstSize = IntSize(w.toInt(), h.toInt()),
-                alpha = field.alpha * edgeFade(xFraction),
-                colorFilter = if (field.species.isMask) null else ColorFilter.tint(tint, BlendMode.Modulate),
-            )
-        }
-    }
-}
 
 internal enum class PrecipKind { NONE, RAIN, SNOW, SLEET }
 
-private fun WeatherKind.precipitation(): PrecipKind = when (this) {
+internal fun WeatherKind.precipitation(): PrecipKind = when (this) {
     WeatherKind.RAIN, WeatherKind.THUNDER -> PrecipKind.RAIN
     WeatherKind.SNOW -> PrecipKind.SNOW
     WeatherKind.SLEET -> PrecipKind.SLEET
     else -> PrecipKind.NONE
 }
 
-private fun WeatherKind.defaultIntensity(): Float = when (this) {
+internal fun WeatherKind.defaultIntensity(): Float = when (this) {
     WeatherKind.RAIN, WeatherKind.THUNDER -> 0.55f
     WeatherKind.SNOW, WeatherKind.SLEET -> 0.40f
     else -> 0f
@@ -156,14 +75,14 @@ private fun WeatherKind.defaultIntensity(): Float = when (this) {
  * 远景稀疏、更长更快、更淡，雨的"层次感"来自近景雨丝 + 远景流星的视差。
  * 雪花是 24 帧程序化自旋（`ParticleSprites.snowflakeFrames`），帧循环即自旋。
  */
-private fun DrawScope.drawPrecipitation(
+internal fun DrawScope.drawPrecipitation(
     kind: PrecipKind,
     intensity: Float,
     wind: Float,
     night: Boolean,
     t: Float,
     quality: EffectQuality,
-    streak: ImageBitmap?,
+    streak: Bitmap?,
 ) {
     val base = if (kind == PrecipKind.RAIN) 90 else 70
     val count = (base * intensity.coerceIn(0.1f, 1f) * quality.particleScale).toInt().coerceAtLeast(8)
@@ -190,7 +109,7 @@ private fun DrawScope.drawPrecipitation(
                     dstOffset = androidx.compose.ui.unit.IntOffset(
                         (x * size.width - wPx / 2f).toInt(), (fall * size.height - len / 2f).toInt(),
                     ),
-                    dstSize = IntSize(wPx.toInt().coerceAtLeast(1), len.toInt()),
+                    dstSize = androidx.compose.ui.unit.IntSize(wPx.toInt().coerceAtLeast(1), len.toInt()),
                     alpha = (0.10f + 0.12f * r2) * edgeFade(x),
                     colorFilter = ColorFilter.tint(tint, BlendMode.SrcIn),
                 )
@@ -221,7 +140,7 @@ private fun DrawScope.drawPrecipitation(
                 dstOffset = androidx.compose.ui.unit.IntOffset(
                     (x * size.width - sizePx / 2f).toInt(), (fall * size.height - sizePx / 2f).toInt(),
                 ),
-                dstSize = IntSize(sizePx.toInt().coerceAtLeast(1), sizePx.toInt().coerceAtLeast(1)),
+                dstSize = androidx.compose.ui.unit.IntSize(sizePx.toInt().coerceAtLeast(1), sizePx.toInt().coerceAtLeast(1)),
                 alpha = (0.5f + 0.4f * r2) * edgeFade(x),
             )
         }
@@ -248,9 +167,9 @@ private fun DrawScope.drawPrecipitation(
             val cy = fall * size.height
             rotate(degrees = tiltDeg, pivot = Offset(cx, cy)) {
                 drawImage(
-                    image = streak,
+                    image = streak.asImageBitmap(),
                     dstOffset = androidx.compose.ui.unit.IntOffset((cx - wPx / 2f).toInt(), (cy - len / 2f).toInt()),
-                    dstSize = IntSize(wPx.toInt().coerceAtLeast(1), len.toInt()),
+                    dstSize = androidx.compose.ui.unit.IntSize(wPx.toInt().coerceAtLeast(1), len.toInt()),
                     alpha = (0.16f + 0.24f * r3) * edgeFade(x),
                     colorFilter = ColorFilter.tint(tint, BlendMode.SrcIn),
                 )
@@ -265,9 +184,9 @@ private fun DrawScope.drawPrecipitation(
     }
 }
 
-private fun DrawScope.drawAmbience(
+internal fun DrawScope.drawAmbience(
     state: WeatherSceneState,
-    sprites: Map<CloudSpecies, CloudSpriteSet>,
+    wispBitmap: Bitmap?,
     t: Float,
     quality: EffectQuality,
 ) {
@@ -281,7 +200,7 @@ private fun DrawScope.drawAmbience(
                 drawSun(state, quality)
             }
         }
-        WeatherKind.FOG -> drawFogBands(sprites, t, quality)
+        WeatherKind.FOG -> drawFogBands(wispBitmap, t, quality)
         WeatherKind.WIND -> drawWindLines(state.wind, t, quality)
         WeatherKind.THUNDER -> drawThunder(t, state, quality)
         else -> Unit
@@ -292,8 +211,11 @@ private fun DrawScope.drawAmbience(
  * 太阳：位置由 [WeatherSceneState.sunProgress]（日出 0 → 日落 1）决定，
  * 走一条上拱的弧线；辉光精灵 tint 暖白打底，核心亮盘在上。
  * 夜间/缺日出日落数据时 sunProgress 为 null，不画。
+ *
+ * 朝晚霞增强：morning/evening phase 时，太阳靠近地平线（progress < 0.2 或 > 0.8），
+ * 放大光晕并注入暖橙色 tint，形成霞光效果（对齐南风 SunGlow 逻辑）。
  */
-private fun DrawScope.drawSun(state: WeatherSceneState, quality: EffectQuality) {
+internal fun DrawScope.drawSun(state: WeatherSceneState, quality: EffectQuality) {
     val progress = state.sunProgress ?: return
     val glow = ParticleSprites.glowSprite() ?: return
     // 弧线：x 从屏宽 12% 到 88%，y 在中午(0.5)升到最高。
@@ -301,28 +223,51 @@ private fun DrawScope.drawSun(state: WeatherSceneState, quality: EffectQuality) 
     val y = size.height * (0.50f - 0.30f * sin(PI.toFloat() * progress))
     val coreR = size.width * 0.038f
     val glowSize = coreR * 7f
+    // 朝晚霞判定：日出前20%或日落前20%时段内，太阳靠近地平线，霞光增强。
+    val isGlowPhase = state.phase == SkyPhase.MORNING || state.phase == SkyPhase.EVENING
+    val (tints, glowAlpha) = if (isGlowPhase) {
+        // 朝晚霞：暖橙色 tint，光晕更大更亮。
+        listOf(Color(0xAAFF9944), Color(0x66FFB366)) to 0.75f
+    } else {
+        // 正午：正常暖白 tint。
+        listOf(Color(0x55FFD98A), Color(0x33FFE9C0)) to 0.5f
+    }
     // 低档质量光晕只画一层小的，省一次大纹理采样。
     val glowLayers = if (quality.particleScale >= 0.7f) 2 else 1
-    val tints = listOf(Color(0x55FFD98A), Color(0x33FFE9C0))
     for (i in 0 until glowLayers) {
-        val s = glowSize * (1f + i * 0.55f)
+        val s = glowSize * (1f + i * 0.55f) * (if (isGlowPhase) 1.5f else 1f)
         drawImage(
             image = glow,
             dstOffset = androidx.compose.ui.unit.IntOffset((x - s / 2f).toInt(), (y - s / 2f).toInt()),
-            dstSize = IntSize(s.toInt(), s.toInt()),
-            alpha = 0.5f,
+            dstSize = androidx.compose.ui.unit.IntSize(s.toInt(), s.toInt()),
+            alpha = glowAlpha,
             colorFilter = ColorFilter.tint(tints[i], BlendMode.SrcIn),
         )
     }
     drawCircle(Color(0xCCFFF3CE), radius = coreR, center = Offset(x, y))
     drawCircle(Color(0xFFFFFFFF).copy(alpha = 0.85f), radius = coreR * 0.62f, center = Offset(x, y))
+    // 朝晚霞额外添加一道地平线暖色光晕（对齐南风 HorizonGlow）。
+    if (isGlowPhase) {
+        val horizonY = size.height * 0.88f
+        val horizonGlowR = size.width * 0.35f
+        drawCircle(
+            color = Color(0xCCFF8C42),
+            radius = horizonGlowR,
+            center = Offset(size.width * 0.5f, horizonY),
+        )
+        drawCircle(
+            color = Color(0x44FFB366),
+            radius = horizonGlowR * 1.5f,
+            center = Offset(size.width * 0.5f, horizonY),
+        )
+    }
 }
 
 /**
  * 晴夜流星：约每 9 秒一颗（确定性伪随机，同周期同轨迹，可复现）。
  * 斜向划过，头亮尾淡，生命末期整体淡出。
  */
-private fun DrawScope.drawShootingStars(t: Float, quality: EffectQuality) {
+internal fun DrawScope.drawShootingStars(t: Float, quality: EffectQuality) {
     val cycle = 9f
     val index = floor(t / cycle)
     val phase = (t % cycle) / cycle
@@ -356,7 +301,7 @@ private fun DrawScope.drawShootingStars(t: Float, quality: EffectQuality) {
  * 风线：横向掠过的细长气流痕，速度与长度随风强走。
  * 对应南风 R2 风特效的最小可行版：风天"看得见风在跑"。
  */
-private fun DrawScope.drawWindLines(wind: Float, t: Float, quality: EffectQuality) {
+internal fun DrawScope.drawWindLines(wind: Float, t: Float, quality: EffectQuality) {
     val count = scaledCount((6 + (wind * 8).toInt()), quality, min = 3)
     val speed = 0.10f + wind * 0.30f
     for (i in 0 until count) {
@@ -377,7 +322,7 @@ private fun DrawScope.drawWindLines(wind: Float, t: Float, quality: EffectQualit
 }
 
 /** 晴夜的星星：对应南风的 `Star(x=…)` 与 `twinkleSpeed` / `twinkleOffset`。 */
-private fun DrawScope.drawStars(t: Float, quality: EffectQuality) {
+internal fun DrawScope.drawStars(t: Float, quality: EffectQuality) {
     val count = (46 * quality.particleScale).toInt().coerceAtLeast(10)
     for (i in 0 until count) {
         val r1 = hash01(i * 23 + 3)
@@ -393,21 +338,20 @@ private fun DrawScope.drawStars(t: Float, quality: EffectQuality) {
 }
 
 /**
- * 雾带：对应南风的 `FogBank(xFraction=…)` 与 `FogWispShadeDay/Night`。
+ * 雾带：对应南风的 `FogBank(xFraction=…)`。
  *
- * 不额外出素材 —— 直接拿烘焙后的层云物种，压低 alpha、放大尺度、放慢漂移。
- * 这正是"物种 × 光照档"这套结构的收益：雾是**同一种形状换一套光**。
+ * 1:1 精灵化后直接贴 WISP 薄云精灵：压低 alpha、放大尺度、放慢漂移。
+ * 雾在素材体系里就是"同一种形状换一套参数"。
  */
-private fun DrawScope.drawFogBands(
-    sprites: Map<CloudSpecies, CloudSpriteSet>,
+internal fun DrawScope.drawFogBands(
+    wispBitmap: Bitmap?,
     t: Float,
     quality: EffectQuality,
 ) {
-    val set = sprites[CloudSpecies.STRATUS] ?: return
-    if (!set.ready) return
+    if (wispBitmap == null) return
+    val img = wispBitmap.asImageBitmap()
     val count = scaledCount(4, quality)
     for (i in 0 until count) {
-        val img = set.at(i)
         val r = hash01(i * 41 + 17)
         val x = ((t * 0.006f + r) % 1.3f) - 0.15f
         val y = 0.42f + r * 0.34f
@@ -416,7 +360,7 @@ private fun DrawScope.drawFogBands(
         drawImage(
             image = img,
             dstOffset = androidx.compose.ui.unit.IntOffset((x * size.width - w / 2f).toInt(), (y * size.height - h / 2f).toInt()),
-            dstSize = IntSize(w.toInt(), h.toInt()),
+            dstSize = androidx.compose.ui.unit.IntSize(w.toInt(), h.toInt()),
             alpha = 0.22f + 0.16f * r,
         )
     }
@@ -427,7 +371,7 @@ private fun DrawScope.drawFogBands(
  * 折线按"周期序号"确定性生成（同周期同形状，可复现）：主干 8 段从云底劈下，
  * 带 1–2 条分支；辉光宽线打底、核心细线提亮，配合整屏闪光的双闪包络。
  */
-private fun DrawScope.drawThunder(t: Float, state: WeatherSceneState, quality: EffectQuality) {
+internal fun DrawScope.drawThunder(t: Float, state: WeatherSceneState, quality: EffectQuality) {
     val period = (7f - 4f * state.intensity).coerceAtLeast(2.5f)
     val index = floor(t / period).toInt()
     val phase = (t % period) / period
@@ -443,8 +387,8 @@ private fun DrawScope.drawThunder(t: Float, state: WeatherSceneState, quality: E
     val seed = index * 131 + 17
     val x0 = size.width * (0.18f + 0.64f * hash01(seed))
     val segments = 8
-    var px = x0
-    var py = size.height * 0.06f
+    val px = x0
+    val py = size.height * 0.06f
     val strokeGlow = size.width * 0.012f
     val strokeCore = size.width * 0.0035f
     val points = mutableListOf(Offset(px, py))
@@ -463,8 +407,6 @@ private fun DrawScope.drawThunder(t: Float, state: WeatherSceneState, quality: E
                 ),
             )
         }
-        px = nx
-        py = ny
     }
     val path = androidx.compose.ui.graphics.Path().apply {
         moveTo(points.first().x, points.first().y)
@@ -482,7 +424,7 @@ private fun DrawScope.drawThunder(t: Float, state: WeatherSceneState, quality: E
         drawImage(
             image = glow,
             dstOffset = androidx.compose.ui.unit.IntOffset((x0 - s / 2f).toInt(), (y0 - s / 2f).toInt()),
-            dstSize = IntSize(s.toInt(), s.toInt()),
+            dstSize = androidx.compose.ui.unit.IntSize(s.toInt(), s.toInt()),
             alpha = flash * 0.8f,
             colorFilter = ColorFilter.tint(Color(0x66CFE4FF), BlendMode.SrcIn),
         )

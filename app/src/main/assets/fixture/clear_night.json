@@ -1,5 +1,5 @@
 {
-  "skycon": "CLEAR_NIGHT", "temp": 17.0, "feels": 16.0, "humidity": 0.55, "wind": 4.0, "windDir": 90,
+  "skycon": "CLEAR_NIGHT", "hour": 23, "temp": 17.0, "feels": 16.0, "humidity": 0.55, "wind": 4.0, "windDir": 90,
   "aqi": 28, "pm25": 9, "uv": 0.0, "minutely": "", "forecastKey": "未来24小时晴", "airDesc": "优",
   "hourly": [
     {"m":0,"t":17,"s":"CLEAR_NIGHT","p":0},{"m":1,"t":16,"s":"CLEAR_NIGHT","p":0},{"m":2,"t":16,"s":"CLEAR_NIGHT","p":0},

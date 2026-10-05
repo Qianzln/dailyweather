@@ -1,0 +1,19 @@
+{
+  "name": "dailyweather",
+  "version": "1.0.0",
+  "description": "对标南风天气（SkyPulse v4.3.36）的一比一架构复刻。技术解析报告见 `D:\\01 项目\\100 个人文件\\天气\\SkyPulse_v4.3.36_南风天气_完整解析报告.md`。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "canvas": "^3.2.3"
+  }
+}

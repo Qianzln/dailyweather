@@ -1,0 +1,17 @@
+{
+  "skycon": "MODERATE_SNOW", "temp": -2.0, "feels": -8.0, "humidity": 0.72, "wind": 18.0, "windDir": 340,
+  "aqi": 45, "pm25": 20, "uv": 1.0, "minutely": "未来两小时有小到中雪", "forecastKey": "未来24小时雪", "airDesc": "优",
+  "hourly": [
+    {"m":0,"t":-2,"s":"MODERATE_SNOW","p":80},{"m":1,"t":-2,"s":"LIGHT_SNOW","p":65},{"m":2,"t":-3,"s":"LIGHT_SNOW","p":60},
+    {"m":3,"t":-3,"s":"CLOUDY","p":30},{"m":4,"t":-4,"s":"CLEAR_NIGHT","p":10},{"m":5,"t":-5,"s":"CLEAR_NIGHT","p":0},
+    {"m":6,"t":-4,"s":"CLOUDY","p":20},{"m":7,"t":-3,"s":"LIGHT_SNOW","p":50}
+  ],
+  "daily": [
+    {"d":0,"min":-6,"max":-1,"s":"MODERATE_SNOW","p":80},{"d":1,"min":-8,"max":-2,"s":"LIGHT_SNOW","p":60},
+    {"d":2,"min":-9,"max":-1,"s":"CLOUDY","p":25},{"d":3,"min":-7,"max":1,"s":"PARTLY_CLOUDY_DAY","p":10},
+    {"d":4,"min":-5,"max":2,"s":"CLEAR_DAY","p":0}
+  ],
+  "alerts": [
+    {"title":"道路结冰橙色预警","status":"预警中","desc":"地表温度低于0℃，可能出现对交通有较大影响的道路结冰。"}
+  ]
+}

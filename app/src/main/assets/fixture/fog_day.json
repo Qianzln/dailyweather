@@ -1,5 +1,5 @@
 {
-  "skycon": "FOG", "temp": 9.0, "feels": 8.0, "humidity": 0.95, "wind": 2.0, "windDir": 0,
+  "skycon": "FOG", "hour": 14, "temp": 9.0, "feels": 8.0, "humidity": 0.95, "wind": 2.0, "windDir": 0,
   "aqi": 156, "pm25": 118, "uv": 1.0, "minutely": "", "forecastKey": "未来24小时雾", "airDesc": "中度污染",
   "hourly": [
     {"m":0,"t":9,"s":"FOG","p":10},{"m":1,"t":9,"s":"FOG","p":10},{"m":2,"t":10,"s":"MODERATE_HAZE","p":10},

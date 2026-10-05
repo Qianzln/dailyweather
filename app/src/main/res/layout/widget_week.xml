@@ -105,36 +105,43 @@
 
                 <LinearLayout style="@style/WidgetWeekCell">
                     <TextView android:id="@+id/widget_week_day_1" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_lunar_1" style="@style/WidgetWeekLunar" />
                     <TextView android:id="@+id/widget_week_label_1" style="@style/WidgetWeekLabel" />
                 </LinearLayout>
 
                 <LinearLayout style="@style/WidgetWeekCell">
                     <TextView android:id="@+id/widget_week_day_2" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_lunar_2" style="@style/WidgetWeekLunar" />
                     <TextView android:id="@+id/widget_week_label_2" style="@style/WidgetWeekLabel" />
                 </LinearLayout>
 
                 <LinearLayout style="@style/WidgetWeekCell">
                     <TextView android:id="@+id/widget_week_day_3" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_lunar_3" style="@style/WidgetWeekLunar" />
                     <TextView android:id="@+id/widget_week_label_3" style="@style/WidgetWeekLabel" />
                 </LinearLayout>
 
                 <LinearLayout style="@style/WidgetWeekCell">
                     <TextView android:id="@+id/widget_week_day_4" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_lunar_4" style="@style/WidgetWeekLunar" />
                     <TextView android:id="@+id/widget_week_label_4" style="@style/WidgetWeekLabel" />
                 </LinearLayout>
 
                 <LinearLayout style="@style/WidgetWeekCell">
                     <TextView android:id="@+id/widget_week_day_5" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_lunar_5" style="@style/WidgetWeekLunar" />
                     <TextView android:id="@+id/widget_week_label_5" style="@style/WidgetWeekLabel" />
                 </LinearLayout>
 
                 <LinearLayout style="@style/WidgetWeekCell">
                     <TextView android:id="@+id/widget_week_day_6" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_lunar_6" style="@style/WidgetWeekLunar" />
                     <TextView android:id="@+id/widget_week_label_6" style="@style/WidgetWeekLabel" />
                 </LinearLayout>
 
                 <LinearLayout style="@style/WidgetWeekCell">
                     <TextView android:id="@+id/widget_week_day_7" style="@style/WidgetWeekDay" />
+                    <TextView android:id="@+id/widget_week_lunar_7" style="@style/WidgetWeekLunar" />
                     <TextView android:id="@+id/widget_week_label_7" style="@style/WidgetWeekLabel" />
                 </LinearLayout>
             </LinearLayout>

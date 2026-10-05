@@ -46,13 +46,11 @@ import com.dailyweather.app.viewmodel.WeatherViewModel
  *
  * 度量以 [Tokens] 为准（南风 v4.3.36 真机截图量出）：页面底 #F7F7F9、白卡圆角 28dp、
  * 行高 61dp、组标题 12sp #8E8E93、行标题 16sp #1C1C1E、开关绿 #62C06B、单选勾蓝 #2E7CD6。
- * 会员项一律灰态带锁、不可点——截图里它们就是那样，首页也确实没有那些卡。
  */
 
 @Composable
 fun SettingsScreen(vm: WeatherViewModel, onBack: () -> Unit, onOpenSub: (String) -> Unit) {
     SettingsScaffold("设置", onBack) {
-        AccountCard { onOpenSub("账号与会员") }
         GroupCard {
             NavRow("通知设置", onClick = { onOpenSub("通知设置") })
             NavRow("外观设置", onClick = { onOpenSub("外观设置") })
@@ -63,7 +61,6 @@ fun SettingsScreen(vm: WeatherViewModel, onBack: () -> Unit, onOpenSub: (String)
         }
         GroupCard {
             NavRow("了解天气图标", onClick = { onOpenSub("了解天气图标") })
-            // 检查更新：点击触发检测，trailing 显示检测中/结果。
             NavRow(
                 "检查更新",
                 trailing = when {
@@ -181,31 +178,23 @@ internal fun SwitchRow(
     title: String,
     checked: Boolean,
     divider: Boolean = true,
-    locked: Boolean = false,
     onToggle: (Boolean) -> Unit = {},
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().height(Tokens.SettingsRowHeight)
-            .clickable(enabled = !locked) { onToggle(!checked) }
+            .clickable { onToggle(!checked) }
             .padding(horizontal = 18.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             title,
-            color = if (locked) Tokens.RowSecondaryColor else Tokens.RowTitleColor,
+            color = Tokens.RowTitleColor,
             fontSize = Tokens.RowTitleSize,
             modifier = Modifier.weight(1f),
         )
-        if (locked) {
-            rememberLucide("lock")?.let {
-                Icon(it, contentDescription = "需会员", tint = Tokens.RowSecondaryColor, modifier = Modifier.size(17.dp))
-            }
-            Spacer(Modifier.width(10.dp))
-        }
         Switch(
             checked = checked,
-            onCheckedChange = if (locked) null else { v: Boolean -> onToggle(v) },
-            enabled = !locked,
+            onCheckedChange = { v -> onToggle(v) },
             colors = SwitchDefaults.colors(
                 checkedTrackColor = Tokens.SwitchOnGreen,
                 uncheckedTrackColor = Tokens.SwitchOffTrack,
@@ -229,26 +218,21 @@ internal fun RadioRow(
     title: String,
     selected: Boolean,
     divider: Boolean = true,
-    locked: Boolean = false,
     onSelect: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier.fillMaxWidth().height(Tokens.SettingsRowHeight)
-            .clickable(enabled = !locked, onClick = onSelect)
+            .clickable(onClick = onSelect)
             .padding(horizontal = 18.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             title,
-            color = if (locked) Tokens.RowSecondaryColor else Tokens.RowTitleColor,
+            color = Tokens.RowTitleColor,
             fontSize = Tokens.RowTitleSize,
             modifier = Modifier.weight(1f),
         )
-        if (locked) {
-            rememberLucide("lock")?.let {
-                Icon(it, contentDescription = "需会员", tint = Tokens.RowSecondaryColor, modifier = Modifier.size(17.dp))
-            }
-        } else if (selected) {
+        if (selected) {
             rememberLucide("check")?.let {
                 Icon(it, contentDescription = null, tint = Tokens.AccountBlue, modifier = Modifier.size(22.dp))
             }
@@ -271,37 +255,6 @@ internal fun Footnote(text: String) {
         text, color = Tokens.RowSecondaryColor, fontSize = 12.sp, lineHeight = 18.sp,
         modifier = Modifier.padding(horizontal = 8.dp),
     )
-}
-
-@Composable
-private fun AccountCard(onClick: () -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth()
-            .clip(RoundedCornerShape(Tokens.SettingsCardRadius))
-            .background(Tokens.GroupCardBackground)
-            .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(
-            modifier = Modifier.size(46.dp).background(Color(0xFFEAF3FE), CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            rememberLucide("account-avatar")?.let {
-                Icon(it, contentDescription = null, tint = Tokens.AccountBlue, modifier = Modifier.size(28.dp))
-            }
-        }
-        Spacer(Modifier.width(14.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text("账号与会员", color = Tokens.RowTitleColor, fontSize = 17.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(2.dp))
-            Text("去登录 · 解锁更多功能", color = Tokens.AccountBlue, fontSize = 12.sp)
-        }
-        Box(
-            modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(Color(0xFFEAF3FE))
-                .padding(horizontal = 14.dp, vertical = 7.dp),
-        ) { Text("去登录", color = Tokens.AccountBlue, fontSize = 13.sp, fontWeight = FontWeight.Medium) }
-    }
 }
 
 /**

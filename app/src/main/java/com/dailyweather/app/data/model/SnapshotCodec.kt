@@ -42,8 +42,7 @@ object SnapshotCodec {
             snapshot.hourly.forEach { h ->
                 put(JSONObject().put("time", h.time).put("temperature", h.temperature)
                     .put("skycon", h.skycon).put("precipitationProbability", h.precipitationProbability)
-                    .put("precipitationMm", h.precipitationMm).put("aqi", h.aqi)
-                    .put("precipitationMm", h.precipitationMm))
+                    .put("precipitationMm", h.precipitationMm).put("aqi", h.aqi))
             }
         })
         .put("daily", JSONArray().apply {
@@ -61,6 +60,30 @@ object SnapshotCodec {
                 put(JSONObject().put("title", a.title).put("status", a.status)
                     .put("description", a.description).put("source", a.source)
                     .put("pubTime", a.pubTime))
+            }
+        })
+        .put("typhoons", JSONArray().apply {
+            snapshot.typhoons.forEach { t ->
+                val pathArr = JSONArray().apply {
+                    t.path.forEach { p ->
+                        put(JSONObject()
+                            .put("time", p.time)
+                            .put("lat", p.lat)
+                            .put("lon", p.lon)
+                            .put("wind", p.windSpeedKmh)
+                            .put("pressure", p.pressureHpa))
+                    }
+                }
+                put(JSONObject()
+                    .put("typhoonId", t.typhoonId)
+                    .put("name", t.name)
+                    .put("lat", t.currentLat)
+                    .put("lon", t.currentLon)
+                    .put("windSpeed", t.windSpeedKmh)
+                    .put("pressure", t.pressureHpa)
+                    .put("moveSpeed", t.moveSpeedKmh)
+                    .put("moveDirection", t.moveDirection)
+                    .put("path", pathArr))
             }
         })
 
@@ -149,6 +172,40 @@ object SnapshotCodec {
                             description = a.optString("description"),
                             source = a.optString("source"),
                             pubTime = a.optLong("pubTime"),
+                        )
+                    )
+                }
+            },
+            typhoons = buildList {
+                val tArr = root.optJSONArray("typhoons") ?: return@buildList
+                for (i in 0 until tArr.length()) {
+                    val t = tArr.optJSONObject(i) ?: continue
+                    val pathArr = t.optJSONArray("path") ?: JSONArray()
+                    val path = buildList {
+                        for (j in 0 until pathArr.length()) {
+                            val p = pathArr.optJSONObject(j) ?: continue
+                            add(
+                                WeatherSnapshot.TyphoonPoint(
+                                    time = p.optLong("time", 0L),
+                                    lat = p.optDouble("lat", 0.0),
+                                    lon = p.optDouble("lon", 0.0),
+                                    windSpeedKmh = p.optDouble("wind", 0.0),
+                                    pressureHpa = p.optDouble("pressure", 0.0),
+                                )
+                            )
+                        }
+                    }
+                    add(
+                        WeatherSnapshot.Typhoon(
+                            typhoonId = t.optString("typhoonId", ""),
+                            name = t.optString("name", ""),
+                            currentLat = t.optDouble("lat", 0.0),
+                            currentLon = t.optDouble("lon", 0.0),
+                            windSpeedKmh = t.optDouble("windSpeed", 0.0),
+                            pressureHpa = t.optDouble("pressure", 0.0),
+                            moveSpeedKmh = t.optDouble("moveSpeed", 0.0),
+                            moveDirection = t.optInt("moveDirection", 0),
+                            path = path,
                         )
                     )
                 }

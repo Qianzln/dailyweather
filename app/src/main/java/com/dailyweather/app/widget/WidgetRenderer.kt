@@ -99,6 +99,64 @@ object WidgetRenderer {
         return views
     }
 
+    /** AQI 组件（南风 widget_aqi 双图法：数值/等级全部渲染进位图，布局只有两个 ImageView）。
+     *  前景位图：半透明深色底 + 左侧数值大字/等级 + 右侧五段光谱（绿→黄→橙→红→紫）+ 白点指针。 */
+    fun aqi(context: Context, city: City?, snap: WeatherSnapshot?, blue: Boolean): RemoteViews {
+        val views = RemoteViews(context.packageName, R.layout.widget_aqi)
+        views.setImageViewBitmap(R.id.widget_aqi_bg, backgroundBitmap(isDayNow()))
+        views.setOnClickPendingIntent(R.id.widget_aqi_root, openAppIntent(context))
+        views.setImageViewBitmap(R.id.widget_aqi_spectrum, aqiSpectrumBitmap(snap?.realtime?.aqi ?: 0))
+        return views
+    }
+
+    /** AQI 光谱前景位图。aqi=0 时画占位（数值 "—"）。 */
+    fun aqiSpectrumBitmap(aqi: Int): Bitmap {
+        val w = 420; val h = 120
+        val bmp = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bmp)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        canvas.drawColor(Color.argb(110, 0, 0, 0))
+
+        val sx = 156f; val sw = w - sx - 24f; val sy = 56f; val sh = 18f
+        val bands = intArrayOf(
+            0xFF4CD964.toInt(), 0xFFFFCC00.toInt(), 0xFFFF9500.toInt(),
+            0xFFFF3B30.toInt(), 0xFFAF52DE.toInt(),
+        )
+        val seg = sw / bands.size
+        for (i in bands.indices) {
+            paint.color = bands[i]
+            canvas.drawRoundRect(sx + i * seg, sy, sx + (i + 1) * seg - 2f, sy + sh, 8f, 8f, paint)
+        }
+
+        // 指针：AQI 0-300 线性映射到光谱条。
+        val t = (aqi.coerceIn(0, 300)) / 300f
+        paint.color = Color.WHITE
+        canvas.drawCircle(sx + t * sw, sy + sh / 2f, 9f, paint)
+
+        paint.color = Color.WHITE
+        if (aqi > 0) {
+            paint.textSize = 46f
+            paint.isFakeBoldText = true
+            canvas.drawText("$aqi", 22f, 58f, paint)
+            paint.textSize = 18f
+            paint.isFakeBoldText = false
+            canvas.drawText(aqiLevel(aqi), 25f, 90f, paint)
+        } else {
+            paint.textSize = 22f
+            canvas.drawText("AQI —", 30f, 74f, paint)
+        }
+        return bmp
+    }
+
+    private fun aqiLevel(aqi: Int): String = when {
+        aqi <= 50 -> "优"
+        aqi <= 100 -> "良"
+        aqi <= 150 -> "轻度污染"
+        aqi <= 200 -> "中度污染"
+        aqi <= 300 -> "重度污染"
+        else -> "严重污染"
+    }
+
     fun twoByOne(context: Context, city: City?, snap: WeatherSnapshot?, blue: Boolean): RemoteViews {
         val views = RemoteViews(context.packageName, R.layout.widget_2x1)
         views.setImageViewBitmap(R.id.widget_bg, backgroundBitmap(isDayNow()))
@@ -236,8 +294,9 @@ object WidgetRenderer {
         val views = RemoteViews(context.packageName, R.layout.widget_week)
         views.setImageViewBitmap(R.id.widget_week_bg, backgroundBitmap(isDayNow()))
         views.setOnClickPendingIntent(R.id.widget_root, openAppIntent(context))
-        val lunar = Lunar.lunarText(Calendar.getInstance()) ?: ""
-        views.setTextViewText(R.id.widget_week_lunar, lunar)
+        // 顶部农历（今天）
+        val lunarToday = Lunar.lunarText(Calendar.getInstance()) ?: ""
+        views.setTextViewText(R.id.widget_week_lunar, lunarToday)
         val days = snap?.daily.orEmpty().take(7)
         days.forEachIndexed { i, d ->
             val dayId = when (i) {
@@ -250,8 +309,24 @@ object WidgetRenderer {
                 3 -> R.id.widget_week_label_4; 4 -> R.id.widget_week_label_5; 5 -> R.id.widget_week_label_6
                 else -> R.id.widget_week_label_7
             }
+            // 逐日农历
+            val lunarDayId = when (i) {
+                0 -> R.id.widget_week_lunar_1; 1 -> R.id.widget_week_lunar_2; 2 -> R.id.widget_week_lunar_3
+                3 -> R.id.widget_week_lunar_4; 4 -> R.id.widget_week_lunar_5; 5 -> R.id.widget_week_lunar_6
+                else -> R.id.widget_week_lunar_7
+            }
             views.setTextViewText(dayId, dayLabel(d.date))
             views.setTextViewText(labelId, "${d.tempMin.toInt()}/${d.tempMax.toInt()}°")
+            // 解析日期并计算农历
+            val solarDate = runCatching { SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(d.date) }.getOrNull()
+            if (solarDate != null) {
+                val cal = Calendar.getInstance()
+                cal.time = solarDate
+                val lunar = Lunar.lunarText(cal)
+                views.setTextViewText(lunarDayId, lunar ?: "")
+            } else {
+                views.setTextViewText(lunarDayId, "")
+            }
         }
         return views
     }

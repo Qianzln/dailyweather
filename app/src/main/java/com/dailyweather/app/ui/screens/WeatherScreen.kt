@@ -16,10 +16,13 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import com.kyant.backdrop.backdrops.layerBackdrop
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
@@ -56,6 +59,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -70,8 +74,10 @@ import com.dailyweather.app.scene.SceneBridge
 import com.dailyweather.app.scene.LocalEffectQuality
 import com.dailyweather.app.scene.LocalWeatherEffectDrawEnabled
 import com.dailyweather.app.scene.EffectQuality
+import com.dailyweather.app.scene.TopProgressiveGlass
 import com.dailyweather.app.scene.TopProgressiveScrim
-import com.dailyweather.app.scene.WeatherEffectOverlay
+import com.dailyweather.app.scene.WeatherEffectFps
+import com.dailyweather.app.scene.WeatherEffectHost
 import com.dailyweather.app.ui.components.GlassCard
 import com.dailyweather.app.ui.components.SkyconMap
 import com.dailyweather.app.ui.components.WeatherBitmapIcon
@@ -81,6 +87,7 @@ import com.dailyweather.app.ui.theme.LocalSky
 import com.dailyweather.app.ui.theme.SkyPalette
 import com.dailyweather.app.ui.theme.Tokens
 import com.dailyweather.app.viewmodel.WeatherViewModel
+import com.dailyweather.app.util.Lunar
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
@@ -122,6 +129,12 @@ fun WeatherScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
     val powerManager = context.getSystemService(android.content.Context.POWER_SERVICE) as android.os.PowerManager
     val powerSave = powerManager.isPowerSaveMode
+    // 高刷适配（120/144/165Hz）：动效时钟跟随设备刷新率，云/雨不再被锁低帧。
+    val view = androidx.compose.ui.platform.LocalView.current
+    val refreshRate = remember { view.display?.refreshRate?.toInt()?.coerceAtLeast(60) ?: 60 }
+    val effectQuality = remember(refreshRate, powerSave) {
+        if (powerSave) EffectQuality.Low else EffectQuality.High.copy(fps = WeatherEffectFps.refreshFor(refreshRate))
+    }
     val scene = remember(snapshot, cityZone) { SceneBridge.stateFor(snapshot, cityZone) }
     val sky = SkyPalette.of(scene)
 
@@ -129,7 +142,7 @@ fun WeatherScreen(
         LocalSky provides sky,
         // 「天气动效」开关 + 省电模式 → 整个粒子层的绘制开关。
         LocalWeatherEffectDrawEnabled provides (motion && !powerSave),
-        LocalEffectQuality provides if (powerSave) EffectQuality.Low else EffectQuality.High,
+        LocalEffectQuality provides effectQuality,
     ) {
         // 下拉刷新（material3）：刷新走当前城市 refreshCurrent，定位仍走右上按钮。
         androidx.compose.material3.pulltorefresh.PullToRefreshBox(
@@ -138,54 +151,53 @@ fun WeatherScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            AnimatedSkyGradient(scene, Modifier.matchParentSize())
-            // 天气切换时的交叉淡入淡出（对齐南风 effectTimeline：约 900ms 过渡），
-            // 新旧两层粒子互相淡入淡出，而不是"雨突然停了"。
-            androidx.compose.animation.Crossfade(
-                targetState = scene.kind to scene.phase,
-                animationSpec = androidx.compose.animation.core.tween(900),
-                label = "weatherEffectCrossfade",
-                modifier = Modifier.matchParentSize(),
-            ) { key ->
-                val (kind, phase) = key
-                val faded = scene.copy(kind = kind, phase = phase)
-                WeatherEffectOverlay(faded, Modifier.matchParentSize())
-            }
-            TopProgressiveScrim(Modifier.matchParentSize())
+            // 顶部毛玻璃的背板：采样"天空+特效+滚动内容"，玻璃带模糊其覆盖区域的
+            // 全部内容（南风同款 backdrop-android：卡片穿过状态栏区域时也被真模糊）。
+            val backdrop = com.kyant.backdrop.backdrops.rememberLayerBackdrop()
+            val scrollState = rememberScrollState()
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(WindowInsets.statusBars.asPaddingValues())
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
+            Box(modifier = Modifier.matchParentSize().layerBackdrop(backdrop)) {
+                AnimatedSkyGradient(scene, Modifier.matchParentSize())
+                // 天气切换时的交叉淡入淡出（对齐南风 effectTimeline：约 900ms 过渡），
+                // 新旧两层粒子互相淡入淡出，而不是"雨突然停了"。
+                androidx.compose.animation.Crossfade(
+                    targetState = scene.kind to scene.phase,
+                    animationSpec = androidx.compose.animation.core.tween(900),
+                    label = "weatherEffectCrossfade",
+                    modifier = Modifier.matchParentSize(),
+                ) { key ->
+                    val (kind, phase) = key
+                    val faded = scene.copy(kind = kind, phase = phase)
+                    WeatherEffectHost(faded, Modifier.matchParentSize())
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(WindowInsets.statusBars.asPaddingValues())
+                        .verticalScroll(scrollState),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
                 Box(modifier = Modifier.fillMaxWidth().height(46.dp)) {
                     Text(
                         text = city?.name ?: "添加城市",
-                        color = sky.textSecondary,
+                        color = sky.textPrimary,
                         fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.align(Alignment.Center)
-                            .clip(RoundedCornerShape(14.dp))
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(sky.cardFill.copy(alpha = 0.34f))
                             .clickable(onClick = onOpenCityList)
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                            .padding(horizontal = 14.dp, vertical = 7.dp),
                     )
                     Row(
                         modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        if (vm.refreshing) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                color = sky.textSecondary,
-                                strokeWidth = 2.dp,
-                            )
-                        } else {
-                            HeaderIcon("refresh-cw", sky.textSecondary, onClick = onLocate)
-                        }
-                        HeaderIcon("more-horizontal", sky.textSecondary, onClick = onOpenSettings)
+                        // 右上角只保留设置入口；定位走「点击重试」占位态与下拉刷新。
+                        HeaderIcon("more-horizontal", sky.textPrimary, onClick = onOpenSettings)
                     }
                 }
 
@@ -193,7 +205,7 @@ fun WeatherScreen(
                 when {
                     snap != null -> {
                         HeroSection(snap)
-                        Spacer(Modifier.height(14.dp))
+                        Spacer(Modifier.height(12.dp))
                         Column(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = Tokens.ScreenMargin),
                             verticalArrangement = Arrangement.spacedBy(Tokens.CardGap),
@@ -205,7 +217,6 @@ fun WeatherScreen(
                                         HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone) { onOpenDetail(com.dailyweather.app.DetailKind.HOURLY) }
                                         HomeCardId.DAILY -> DailyCard(snap, blueTheme, cityZone)
                                         HomeCardId.PRECIP -> PrecipCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.MINUTELY) }
-                                        HomeCardId.RADAR -> RadarCard(snap, vm)
                                         HomeCardId.LIFE -> LifeAdviceCard(snap)
                                         HomeCardId.AQI -> AqiCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.AIR_QUALITY) }
                                         HomeCardId.SUN -> SunCard(snap, cityZone)
@@ -238,21 +249,11 @@ fun WeatherScreen(
                     else -> EmptyState(onOpenSearch, vm.message)
                 }
             }
-            Box(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp)
-                    .size(52.dp)
-                    .clip(CircleShape)
-                    .background(Color(0x29FFFFFF))
-                    .border(1.dp, Color(0x4DFFFFFF), CircleShape)
-                    .clickable(onClick = onOpenSettings),
-                contentAlignment = Alignment.Center,
-            ) {
-                rememberLucide("more-horizontal")?.let {
-                    Icon(it, contentDescription = "更多", tint = sky.textPrimary, modifier = Modifier.size(20.dp))
-                }
-            }
+            } // layerBackdrop 采样层
+
+            // 顶部毛玻璃带：滚动时内容（含卡片）穿过状态栏区域被真·模糊（南风同款）。
+            TopProgressiveGlass(backdrop, scrollState, Modifier.matchParentSize())
+            TopProgressiveScrim(Modifier.matchParentSize())
         }
         } // PullToRefreshBox
     }
@@ -282,10 +283,11 @@ private fun CardEnter(index: Int, content: @Composable () -> Unit) {
 
 @Composable
 private fun HeaderIcon(name: String, tint: Color, onClick: () -> Unit) {
+    val sky = LocalSky.current
     val icon = rememberLucide(name)
     Box(
         modifier = Modifier.size(30.dp).clip(CircleShape)
-            .background(Color.White.copy(alpha = 0.14f))
+            .background(sky.cardFill.copy(alpha = 0.30f))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -300,10 +302,11 @@ private fun HeroSection(snapshot: WeatherSnapshot) {
     val today = snapshot.daily.firstOrNull { it.date.take(10) == LocalDate.now().toString() }
         ?: snapshot.daily.firstOrNull()
     Column(
-        modifier = Modifier.fillMaxWidth().padding(top = 26.dp),
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(verticalAlignment = Alignment.Top) {
+        // Alignment.Bottom + 两者 lineHeight 一致 → 行盒底对齐 → 基线对齐
+        Row(verticalAlignment = Alignment.Bottom) {
             // 温度变化时数字上滑淡入（对齐南风的 Hero 数字过渡），不是瞬间跳变。
             val tempText = Units.tempValue(snapshot.currentTemp).roundToInt().toString()
             androidx.compose.animation.AnimatedContent(
@@ -323,7 +326,7 @@ private fun HeroSection(snapshot: WeatherSnapshot) {
                     text = text,
                     style = TextStyle(
                         fontSize = Tokens.HeroTempSize,
-                        lineHeight = 96.sp,
+                        lineHeight = Tokens.HeroTempSize,
                         fontWeight = FontWeight.Medium,
                         brush = Brush.verticalGradient(listOf(Tokens.HeroGradientTop, Tokens.HeroGradientBottom)),
                     ),
@@ -333,11 +336,12 @@ private fun HeroSection(snapshot: WeatherSnapshot) {
                 text = "°",
                 color = Tokens.HeroGradientTop,
                 fontSize = Tokens.HeroDegreeSize,
+                lineHeight = Tokens.HeroTempSize,
                 fontWeight = FontWeight.Light,
-                modifier = Modifier.padding(top = 12.dp, start = 2.dp),
+                modifier = Modifier.padding(start = 2.dp),
             )
         }
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(6.dp))
         Text(
             text = buildString {
                 append(SkyconMap.desc(snapshot.currentSkycon))
@@ -350,10 +354,9 @@ private fun HeroSection(snapshot: WeatherSnapshot) {
             fontWeight = FontWeight.Medium,
         )
         if (snapshot.forecastKey.isNotBlank()) {
-            Spacer(Modifier.height(8.dp))
-            Text(snapshot.forecastKey, color = Tokens.TextTertiary, fontSize = 13.sp)
+            Spacer(Modifier.height(6.dp))
+            Text(snapshot.forecastKey, color = sky.textSecondary.copy(alpha = 0.72f), fontSize = 12.sp)
         }
-        Spacer(Modifier.height(26.dp))
     }
 }
 
@@ -464,8 +467,7 @@ private fun DayRow(
         offset == -1 -> "昨天"
         offset == null || offset == 0 -> "今天"
         offset == 1 -> "明天"
-        date != null -> WEEKDAYS[date.dayOfWeek.value - 1]
-        else -> day.date
+        else -> WEEKDAYS[date!!.dayOfWeek.value - 1]
     }
     Row(
         modifier = Modifier.fillMaxWidth().height(48.dp),
@@ -478,17 +480,40 @@ private fun DayRow(
                 color = Tokens.TextTertiary,
                 fontSize = 11.sp,
             )
+            // 农历：仅显示 ±3 天内，避免信息过载。
+            val lunarStr = if ((offset ?: 99) in -3..3) {
+                date?.let { d ->
+                    val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone(zone))
+                    cal.time = java.util.Date(d.atStartOfDay(zone).toInstant().toEpochMilli())
+                    Lunar.lunarText(cal)
+                }
+            } else null
+            if (lunarStr != null) {
+                Spacer(Modifier.height(1.dp))
+                Text(
+                    text = lunarStr,
+                    color = Tokens.TextTertiary.copy(alpha = 0.75f),
+                    fontSize = 9.sp,
+                )
+            }
         }
-        Column(modifier = Modifier.width(48.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        // 天气图标列：图标中心与温度文字中心同一水平线（48dp 垂直中心），
+        // 降水率挂在图标正下方——对齐南风"图标与温度行对齐、降水率占位"的布局。
+        // （此前 Column 整体居中，图标中心比温度中心高约 8dp，视觉上"图标浮在上面"。）
+        Box(
+            modifier = Modifier.width(48.dp).height(48.dp),
+            contentAlignment = Alignment.Center,
+        ) {
             WeatherBitmapIcon(
                 assetName = SkyconMap.asset(day.skycon),
                 blueTheme = blueTheme,
                 modifier = Modifier.size(24.dp),
             )
             Text(
-                text = if (day.precipitationProbability >= 10) "${day.precipitationProbability.roundToInt()}%" else " ",
+                text = if (day.precipitationProbability >= 10) "${day.precipitationProbability.roundToInt()}%" else "",
                 color = Tokens.PrecipCyan,
                 fontSize = 10.sp,
+                modifier = Modifier.align(Alignment.Center).offset(y = 19.dp),
             )
         }
         Text(
@@ -499,10 +524,15 @@ private fun DayRow(
             modifier = Modifier.width(38.dp),
         )
         Box(modifier = Modifier.weight(1f).height(Tokens.TempBarHeight)) {
-            // 南风区间条用固定黄色渐变（BarStart→BarEnd），不做冷暖着色。
+            // 南风实图（夜间版）：区间条按全局温度刻度冷暖着色——冷端青绿→暖端黄，
+            // 轨道保持灰白，只有填充段带色（昨天 18°~19° 的短条几乎无色即由此来）。
+            val cold = Color(0xFF5FD0C8)
+            val warm = Color(0xFFF7D154)
+            val tMin = ((day.tempMin - globalMin) / span).toFloat().coerceIn(0f, 1f)
+            val tMax = ((day.tempMax - globalMin) / span).toFloat().coerceIn(0f, 1f)
             TempBar(
                 day, globalMin, span, if (offset == 0) currentTemp else null,
-                Tokens.BarStart, Tokens.BarEnd,
+                lerp(cold, warm, tMin), lerp(cold, warm, tMax),
             )
         }
         Text(
@@ -543,85 +573,6 @@ private fun TempBar(
             drawCircle(Color.White, radius = barH * 0.95f, center = Offset(marker * track, barH / 2f))
             drawCircle(endColor, radius = barH * 0.55f, center = Offset(marker * track, barH / 2f))
         }
-    }
-}
-
-/**
- * 台风雷达卡：左侧标题 + 短临描述，右侧真实雷达帧缩略图（云代理 /weather/radar/frame）。
- * 缩略图帧按 10 分钟滚动动画（meta.frameIntervalSec），点击可触发重新加载。
- */
-@Composable
-private fun RadarCard(snapshot: WeatherSnapshot, vm: WeatherViewModel) {
-    val sky = LocalSky.current
-    val frames = vm.radarFrames
-    val radarError = vm.radarError
-    // 轮播：每隔 frameIntervalSec 切到下一帧（帧数据就在本地，只换索引不重拉）。
-    var frameIndex by remember { mutableIntStateOf(0) }
-    LaunchedEffect(frames.size, vm.radarRefreshKey) {
-        if (frames.isEmpty()) { vm.loadRadar(); return@LaunchedEffect }
-        frameIndex = 0
-        while (true) {
-            delay((vm.radarIntervalSec * 1000L).coerceAtLeast(3_000))
-            if (frames.size > 1) frameIndex = (frameIndex + 1) % frames.size
-        }
-    }
-    val current = frames.getOrNull(frameIndex)
-    GlassCard(
-        modifier = Modifier.fillMaxWidth().height(Tokens.RadarCardHeight).clickable { vm.loadRadar() },
-        contentPadding = PaddingValues(16.dp),
-    ) {
-        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("台风雷达", color = sky.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
-                Spacer(Modifier.height(11.dp))
-                Text(
-                    text = radarError ?: (current?.first?.let { "雷达 ${frameLabel(it)}" } ?: snapshot.minutelyDesc.ifBlank { "雷达数据加载中..." }),
-                    color = Tokens.TextSecondary,
-                    fontSize = 12.sp,
-                    maxLines = 2,
-                )
-            }
-            Spacer(Modifier.width(12.dp))
-            RadarThumb(
-                image = current?.second,
-                modifier = Modifier
-                    .width(Tokens.RadarThumbWidth)
-                    .height(Tokens.RadarThumbHeight)
-                    .clip(RoundedCornerShape(Tokens.RadarThumbRadius)),
-            )
-        }
-    }
-}
-
-/** unix 秒 → "HH:mm"。 */
-private fun frameLabel(epochSec: Long): String {
-    val c = java.util.Calendar.getInstance()
-    c.timeInMillis = epochSec * 1000
-    return "%02d:%02d".format(c.get(java.util.Calendar.HOUR_OF_DAY), c.get(java.util.Calendar.MINUTE))
-}
-
-@Composable
-private fun RadarThumb(image: ByteArray?, modifier: Modifier = Modifier) {
-    if (image == null) {
-        // 加载中：程序化网格占位（保留原观感，避免突然空白）。
-        Canvas(modifier = modifier.background(Color(0x5540576A))) {
-            val grid = Color.White.copy(alpha = 0.10f)
-            val w = size.width; val h = size.height
-            for (i in 1..3) {
-                drawLine(grid, Offset(w * i / 4f, 0f), Offset(w * i / 4f, h), 1.dp.toPx())
-                drawLine(grid, Offset(0f, h * i / 4f), Offset(w, h * i / 4f), 1.dp.toPx())
-            }
-        }
-        return
-    }
-    // 真帧：解码 PNG 位图。
-    val bmp = remember(image) { android.graphics.BitmapFactory.decodeByteArray(image, 0, image.size) }
-    val cb = remember(bmp) { bmp?.asImageBitmap() }
-    if (cb != null) {
-        Image(cb, contentDescription = "雷达回波", modifier = modifier, contentScale = ContentScale.Crop)
-    } else {
-        // 解码失败兜底网格背景。
-        Box(modifier = modifier.background(Color(0x5540576A)))
     }
 }
 
@@ -668,36 +619,26 @@ private fun LifeAdviceCard(snapshot: WeatherSnapshot) {
 private fun AqiCard(snapshot: WeatherSnapshot, onClick: () -> Unit = {}) {
     val sky = LocalSky.current
     val rt = snapshot.realtime ?: return
+    // 南风布局（夜间实图）：左对齐「38 - 优」一行 → 光谱条 → 一句描述，无刻度、无图标。
     GlassCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     text = if (rt.aqi > 0) rt.aqi.toString() else "—",
                     color = sky.textPrimary,
-                    fontSize = 34.sp,
-                    fontWeight = FontWeight.Light,
-                    modifier = Modifier.width(72.dp),
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
                 )
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = SkyconMap.aqiLevel(rt.aqi),
-                        color = sky.textPrimary,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                    Text(
-                        text = rt.airQualityDesc.ifBlank { "PM2.5 ${rt.pm25.roundToInt()} · 空气数据待接入" },
-                        color = Tokens.TextTertiary,
-                        fontSize = 12.sp,
-                    )
-                }
-                rememberLucide("leaf")?.let {
-                    Icon(it, contentDescription = null, tint = Color(0xFF8FD08F), modifier = Modifier.size(20.dp))
-                }
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    text = "-  " + SkyconMap.aqiLevel(rt.aqi),
+                    color = sky.textPrimary,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Medium,
+                )
             }
-            // AQI 光谱条（对应南风 AqiSpectrumBar）：绿→黄→橙→红→紫，0–300 刻度。
             if (rt.aqi > 0) {
-                Spacer(Modifier.height(12.dp))
+                Spacer(Modifier.height(14.dp))
                 SpectrumBar(
                     progress = (rt.aqi / 300.0).coerceIn(0.0, 1.0).toFloat(),
                     colors = listOf(
@@ -706,40 +647,15 @@ private fun AqiCard(snapshot: WeatherSnapshot, onClick: () -> Unit = {}) {
                     ),
                     modifier = Modifier.fillMaxWidth().height(5.dp),
                 )
-                Spacer(Modifier.height(4.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    listOf("0", "50", "100", "150", "200", "300").forEach {
-                        Text(
-                            it, color = Tokens.TextTertiary, fontSize = 9.sp,
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
-                }
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    text = "当前空气质量指数 AQI 为${rt.aqi}。",
+                    color = Tokens.TextTertiary,
+                    fontSize = 12.sp,
+                )
             }
-            // 全污染物一行（彩云/小米都带六项；0 = 上游没给，如实显示「—」）。
-            val pollutants = listOf(
-                "PM2.5" to rt.pm25, "PM10" to rt.pm10, "O₃" to rt.o3,
-                "NO₂" to rt.no2, "SO₂" to rt.so2, "CO" to rt.co,
-            )
-            if (pollutants.any { it.second > 0.0 }) {
-                Spacer(Modifier.height(10.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    pollutants.forEach { (label, value) ->
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            Text(
-                                text = if (value > 0.0) "${value.roundToInt()}" else "—",
-                                color = sky.textPrimary,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Medium,
-                            )
-                            Text(label, color = Tokens.TextTertiary, fontSize = 10.sp)
-                        }
-                    }
-                }
-            }
+            // 六项污染物（PM2.5/PM10/O₃/NO₂/SO₂/CO）不再上首页，
+            // 点击本卡进入空气质量详情页查看（AirQualityDetailScreen 已有国标限值横条）。
         }
     }
 }
@@ -749,80 +665,104 @@ private fun SunCard(snapshot: WeatherSnapshot, zone: java.time.ZoneId) {
     val sky = LocalSky.current
     val today = snapshot.daily.firstOrNull() ?: return
     if (today.sunrise.isBlank() && today.sunset.isBlank()) return
-    // 日照进度：日出 0 → 日落 1；夜间为 null（太阳画到地平线下）。
-    val progress = remember(snapshot.fetchedAt) {
+    // 日照进度：日出 0 → 日落 1；夜间为 null。
+    val sunProgress = remember(snapshot.fetchedAt) {
         SceneBridge.sunProgressOf(snapshot, zone, System.currentTimeMillis())
     }
+    // 夜间进度（南风夜间实图）：日落 → 次日日出，月亮骑在夜间时刻的位置上。
+    val rise = minutesOf(today.sunrise)
+    val set = minutesOf(today.sunset)
+    val nightProgress = remember(snapshot.fetchedAt) {
+        if (rise == null || set == null || set <= rise) return@remember null
+        val now = java.time.LocalTime.ofInstant(
+            java.time.Instant.ofEpochMilli(System.currentTimeMillis()), zone,
+        )
+        val nowMin = now.hour * 60 + now.minute
+        val span = 1440 - set + rise
+        (((nowMin - set + 1440) % 1440).toFloat() / span).takeIf { it in 0f..1f }
+    }
+    // 线的语义（南风）：左端=当前时段起点，右端=终点；已走部分暗线、未来亮线。
+    // 白天：日出→日落，太阳在进度处；夜间：日落→日出，月牙在进度处。
+    val isDay = sunProgress != null
+    val leftLabel = if (isDay) "日出" else "日落"
+    val rightLabel = if (isDay) "日落" else "日出"
+    val leftTime = (if (isDay) today.sunrise else today.sunset).take(5)
+    val rightTime = (if (isDay) today.sunset else today.sunrise).take(5)
+    val frac = sunProgress ?: nightProgress ?: 0.5f
+    val leftIcon = if (isDay) "sunrise" else "sunset"
+    val rightIcon = if (isDay) "sunset" else "sunrise"
+
     GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
         Column {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        rememberLucide("sunrise")?.let {
-                            Icon(it, contentDescription = null, tint = Tokens.BarEnd, modifier = Modifier.size(14.dp))
-                        }
-                        Spacer(Modifier.width(5.dp))
-                        Text("日出", color = Tokens.TextTertiary, fontSize = 12.sp)
+            // 顶部标注：图标在外侧、文字在内侧（南风对称布局）
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    rememberLucide(leftIcon)?.let {
+                        Icon(it, contentDescription = null, tint = Tokens.TextTertiary, modifier = Modifier.size(14.dp))
                     }
-                    Text(today.sunrise.take(5), color = sky.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.width(5.dp))
+                    Text(leftLabel, color = Tokens.TextTertiary, fontSize = 12.sp)
                 }
                 Spacer(Modifier.weight(1f))
-                Column(horizontalAlignment = Alignment.End) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        rememberLucide("sunset")?.let {
-                            Icon(it, contentDescription = null, tint = Tokens.BarEnd, modifier = Modifier.size(14.dp))
-                        }
-                        Spacer(Modifier.width(5.dp))
-                        Text("日落", color = Tokens.TextTertiary, fontSize = 12.sp)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(rightLabel, color = Tokens.TextTertiary, fontSize = 12.sp)
+                    Spacer(Modifier.width(5.dp))
+                    rememberLucide(rightIcon)?.let {
+                        Icon(it, contentDescription = null, tint = Tokens.TextTertiary, modifier = Modifier.size(14.dp))
                     }
-                    Text(today.sunset.take(5), color = sky.textPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                }
+            }
+            Spacer(Modifier.height(10.dp))
+            // 白色细线：已过段暗、未来段亮；太阳/月牙骑在分界处（无圆底托，南风就是裸图标）。
+            Canvas(modifier = Modifier.fillMaxWidth().height(30.dp)) {
+                val lineY = size.height / 2f
+                val lineH = 3.dp.toPx()
+                val inset = 4.dp.toPx()
+                val x0 = inset
+                val x1 = size.width - inset
+                val cx = x0 + (x1 - x0) * frac
+                drawRoundRect(
+                    color = Color.White.copy(alpha = 0.28f),
+                    topLeft = Offset(x0, lineY - lineH / 2f),
+                    size = Size(cx - x0, lineH),
+                    cornerRadius = CornerRadius(lineH / 2f, lineH / 2f),
+                )
+                drawRoundRect(
+                    color = Color.White.copy(alpha = 0.90f),
+                    topLeft = Offset(cx, lineY - lineH / 2f),
+                    size = Size(x1 - cx, lineH),
+                    cornerRadius = CornerRadius(lineH / 2f, lineH / 2f),
+                )
+                if (isDay) {
+                    // 太阳：暖白亮核
+                    drawCircle(Color(0x55FFD98A), radius = 12.dp.toPx(), center = Offset(cx, lineY))
+                    drawCircle(Color(0xFFFFE9A8), radius = 5.5.dp.toPx(), center = Offset(cx, lineY))
+                    drawCircle(Color(0xFFFFFFFF), radius = 3.2.dp.toPx(), center = Offset(cx, lineY))
+                } else {
+                    // 月牙：白圆 + 偏移暗圆遮出弧；伴两颗小星
+                    drawCircle(Color(0xFFF2F6FC), radius = 8.dp.toPx(), center = Offset(cx, lineY))
+                    drawCircle(Color(0xFF16294A), radius = 6.6.dp.toPx(), center = Offset(cx + 3.4.dp.toPx(), lineY - 2.2.dp.toPx()))
+                    drawCircle(Color.White.copy(alpha = 0.95f), radius = 1.4.dp.toPx(), center = Offset(cx + 9.dp.toPx(), lineY - 7.dp.toPx()))
+                    drawCircle(Color.White.copy(alpha = 0.75f), radius = 0.9.dp.toPx(), center = Offset(cx + 12.dp.toPx(), lineY - 2.dp.toPx()))
                 }
             }
             Spacer(Modifier.height(6.dp))
-            // 太阳弧线（对应南风 HorizontalSunProgress）：白天太阳在弧上，夜间藏到地平线下。
-            Canvas(modifier = Modifier.fillMaxWidth().height(72.dp)) {
-                val w = size.width
-                val h = size.height
-                val horizon = h * 0.88f
-                // 半径取宽高较小约束，保证弧顶不裁出画布。
-                val r = minOf(w * 0.42f, h * 0.74f)
-                val cx = w / 2f
-                // 地平线（虚线效果用细实线代替）
-                drawLine(
-                    color = Tokens.TextTertiary.copy(alpha = 0.4f),
-                    start = Offset(0f, horizon), end = Offset(w, horizon),
-                    strokeWidth = 1f,
-                )
-                // 弧轨道
-                val arcTop = androidx.compose.ui.geometry.Rect(
-                    cx - r, horizon - r, cx + r, horizon + r,
-                )
-                drawArc(
-                    color = Tokens.TextTertiary.copy(alpha = 0.35f),
-                    startAngle = 180f, sweepAngle = 180f, useCenter = false,
-                    topLeft = arcTop.topLeft, size = arcTop.size,
-                    style = Stroke(width = 1.5f, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(4f, 6f))),
-                )
-                val p = progress
-                if (p != null) {
-                    // 太阳在弧上：progress 0 → 180°，1 → 0°。
-                    val angle = 180f * (1f - p)
-                    val rad = angle * PI.toFloat() / 180f
-                    val sx = cx + cos(rad) * r
-                    val sy = horizon - sin(rad) * r
-                    drawCircle(Color(0x55FFD98A), radius = 16f, center = Offset(sx, sy))
-                    drawCircle(Color(0xFFFFD35C), radius = 7f, center = Offset(sx, sy))
-                    drawCircle(Color(0xFFFFF3CE), radius = 4.2f, center = Offset(sx, sy))
-                } else {
-                    // 夜间：月亮弧点画在地平线下方中央。
-                    drawCircle(
-                        Color(0xFF9FB6D8).copy(alpha = 0.8f), radius = 5f,
-                        center = Offset(cx, horizon + 6f),
-                    )
-                }
+            // 时间数字放线下（南风布局，空间感更舒展）
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Text(leftTime, color = sky.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.weight(1f))
+                Text(rightTime, color = sky.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.Medium)
             }
         }
     }
+}
+
+/** "HH:mm" → 当天第几分钟；解析失败返回 null。 */
+private fun minutesOf(s: String): Int? {
+    val parts = s.take(5).split(":")
+    val h = parts.getOrNull(0)?.toIntOrNull() ?: return null
+    val m = parts.getOrNull(1)?.toIntOrNull() ?: return null
+    return h * 60 + m
 }
 
 /**
@@ -1002,10 +942,10 @@ private fun DetailCard(snapshot: WeatherSnapshot) {
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            start = 16.dp, end = 16.dp, top = 18.dp, bottom = 18.dp,
+            start = 14.dp, end = 14.dp, top = 14.dp, bottom = 14.dp,
         ),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             tiles.chunked(3).forEach { row ->
                 Row(modifier = Modifier.fillMaxWidth()) {
                     row.forEach { (pair, icon) ->
@@ -1015,40 +955,19 @@ private fun DetailCard(snapshot: WeatherSnapshot) {
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             rememberLucide(icon)?.let {
-                                Icon(it, contentDescription = null, tint = sky.textSecondary, modifier = Modifier.size(20.dp))
+                                Icon(it, contentDescription = null, tint = sky.textSecondary, modifier = Modifier.size(18.dp))
                             }
-                            Spacer(Modifier.height(7.dp))
-                            Text(value, color = sky.textPrimary, fontSize = 17.sp, fontWeight = FontWeight.Medium)
-                            Spacer(Modifier.height(2.dp))
+                            Spacer(Modifier.height(6.dp))
+                            // 值行固定高度垂直居中：三列基线一致（长文本自动缩号不破行高）。
+                            Text(
+                                value,
+                                color = sky.textPrimary,
+                                fontSize = if (value.length > 5) 14.sp else 17.sp,
+                                fontWeight = FontWeight.Medium,
+                                maxLines = 1,
+                                modifier = Modifier.height(22.dp).wrapContentHeight(align = Alignment.CenterVertically),
+                            )
                             Text(label, color = Tokens.TextTertiary, fontSize = 12.sp)
-                            // 迷你可视化：风罗盘针 / 气压刻度 / 紫外线光谱（对应南风
-                            // WindCompass / PressureGauge / UvSpectrumBar 的格内缩版）。
-                            when (icon) {
-                                "wind-ios" -> if (rt.windSpeed > 0) {
-                                    WindNeedle(
-                                        directionDeg = rt.windDirection,
-                                        modifier = Modifier.padding(top = 6.dp).size(26.dp),
-                                    )
-                                }
-                                "pressure-ios" -> if (rt.pressureHpa > 0) {
-                                    SpectrumBar(
-                                        progress = ((rt.pressureHpa - 970.0) / 80.0).coerceIn(0.0, 1.0).toFloat(),
-                                        colors = listOf(Color(0xFF5B8CFF), Color(0xFF4ADE80), Color(0xFFFBBF24)),
-                                        modifier = Modifier.padding(top = 10.dp).width(52.dp).height(4.dp),
-                                    )
-                                }
-                                "uv-sun-ios" -> if (rt.uvIndex > 0) {
-                                    SpectrumBar(
-                                        progress = (rt.uvIndex / 11.0).coerceIn(0.0, 1.0).toFloat(),
-                                        colors = listOf(
-                                            Color(0xFF4ADE80), Color(0xFFFBBF24), Color(0xFFFB923C),
-                                            Color(0xFFF87171), Color(0xFFA78BFA),
-                                        ),
-                                        modifier = Modifier.padding(top = 10.dp).width(52.dp).height(4.dp),
-                                    )
-                                }
-                                else -> Unit
-                            }
                         }
                     }
                     repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
@@ -1077,39 +996,5 @@ internal fun SpectrumBar(
         val x = (w * progress).coerceIn(h, w - h)
         drawCircle(Color.White, radius = h * 0.75f, center = Offset(x, h / 2f))
         drawCircle(Color(0xFF3A4254), radius = h * 0.34f, center = Offset(x, h / 2f))
-    }
-}
-
-/** 风向罗盘：圆圈 + 指针指向风的来向（windDirection，0=北）。 */
-@Composable
-private fun WindNeedle(directionDeg: Int, modifier: Modifier = Modifier) {
-    Canvas(modifier) {
-        val c = center
-        val r = size.minDimension / 2f
-        drawCircle(color = Color.White.copy(alpha = 0.25f), radius = r, center = c, style = Stroke(1.5f))
-        drawCircle(color = Color.White.copy(alpha = 0.4f), radius = r * 0.10f, center = c)
-        // N 刻度点
-        drawCircle(
-            color = Color.White.copy(alpha = 0.8f), radius = 1.6f,
-            center = Offset(c.x, c.y - r + 2f),
-        )
-        val a = (directionDeg.toFloat() - 90f) * PI.toFloat() / 180f
-        drawLine(
-            color = Color.White,
-            start = Offset(c.x + cos(a) * r * 0.18f, c.y + sin(a) * r * 0.18f),
-            end = Offset(c.x + cos(a) * r * 0.78f, c.y + sin(a) * r * 0.78f),
-            strokeWidth = 2.2f,
-            cap = StrokeCap.Round,
-        )
-        // 箭头尖
-        val tip = Offset(c.x + cos(a) * r * 0.78f, c.y + sin(a) * r * 0.78f)
-        val leftA = a + PI.toFloat() * 0.85f
-        drawLine(
-            color = Color.White,
-            start = tip,
-            end = Offset(tip.x + cos(leftA) * r * 0.22f, tip.y + sin(leftA) * r * 0.22f),
-            strokeWidth = 2.2f,
-            cap = StrokeCap.Round,
-        )
     }
 }

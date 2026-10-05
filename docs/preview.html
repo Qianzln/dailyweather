@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>每日天气 · UI 预览</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --card-fill:rgba(36,54,72,0.76);
+  --text-primary:#F4F5F7;--text-secondary:rgba(255,255,255,0.85);--text-tertiary:rgba(255,255,255,0.42);
+  --bar-start:#D3D278;--bar-end:#FCCB52;--precip-cyan:#55BDD6;--bar-track:rgba(255,255,255,0.10);
+  --card-radius:22px;--cell-w:52px;
+}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#08090e;color:var(--text-primary);min-height:100vh}
+.scene-bar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(0,0,0,0.78);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);display:flex;gap:6px;padding:10px 16px;overflow-x:auto;scrollbar-width:none}
+.scene-bar::-webkit-scrollbar{display:none}
+.scene-btn{flex-shrink:0;padding:7px 15px;border-radius:20px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.80);font-size:13px;cursor:pointer;transition:all 0.2s ease;font-family:inherit;white-space:nowrap}
+.scene-btn:hover{background:rgba(255,255,255,0.16);color:#fff}
+.scene-btn.active{background:rgba(255,255,255,0.22);color:#fff;font-weight:500}
+.phone-wrap{max-width:430px;margin:0 auto;min-height:100vh;position:relative;overflow:hidden}
+.sky-bg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;transition:background 0.9s ease}
+.sky-clear-day{background:linear-gradient(180deg,#1a6fc4 0%,#4a9fd8 28%,#87ceeb 55%,#c8e6f5 100%)}
+.sky-clear-night{background:linear-gradient(180deg,#080f1e 0%,#142238 40%,#1e3048 70%,#2a3f58 100%)}
+.sky-cloudy{background:linear-gradient(180deg,#4a5568 0%,#6b7f96 35%,#9fb0c0 70%,#c4d0db 100%)}
+.sky-rain{background:linear-gradient(180deg,#2d3748 0%,#4a5568 30%,#718096 60%,#a3b5c6 100%)}
+.sky-snow{background:linear-gradient(180deg,#7a8ea0 0%,#a8b8c8 35%,#d0dae4 70%,#eaf0f5 100%)}
+.sky-fog{background:linear-gradient(180deg,#8a9aaa 0%,#aab8c4 40%,#c8d4de 80%,#dde6ed 100%)}
+.sky-thunder{background:linear-gradient(180deg,#1a2028 0%,#2d3748 30%,#4a5568 60%,#718096 100%)}
+.scroll-area{position:relative;z-index:1;padding-top:72px;overflow-y:auto;height:100vh;scroll-behavior:smooth}
+.scroll-area::-webkit-scrollbar{width:0}
+.status-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 20px 4px;font-size:13px;color:rgba(255,255,255,0.88);font-weight:500}
+.city-row{display:flex;justify-content:space-between;align-items:center;padding:6px 20px 0}
+.city-badge{font-size:13px;color:var(--text-secondary);padding:5px 13px;border-radius:14px;background:rgba(255,255,255,0.10);cursor:pointer;user-select:none}
+.header-icons{display:flex;gap:10px}
+.hdr-icon{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background 0.15s}
+.hdr-icon:hover{background:rgba(255,255,255,0.26)}
+.hdr-icon svg{width:15px;height:15px;fill:var(--text-secondary)}
+.hero{text-align:center;padding:30px 0 26px;position:relative}
+.hero-temp-wrap{display:flex;justify-content:center;align-items:flex-start;position:relative}
+.hero-temp-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);font-size:96px;font-weight:500;line-height:1;color:rgba(255,255,255,0.10);filter:blur(6px);pointer-events:none}
+.hero-temp-main{font-size:96px;font-weight:500;line-height:1;background:linear-gradient(180deg,#F4F5F7 0%,#9AA1A8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;position:relative}
+.hero-degree{font-size:42px;font-weight:300;color:#F4F5F7;padding-top:14px;margin-left:2px}
+.hero-desc{font-size:17px;font-weight:500;color:var(--text-secondary);margin-top:12px}
+.hero-sub{font-size:12px;color:var(--text-tertiary);margin-top:4px}
+.card{margin:0 16px 10px;border-radius:var(--card-radius);padding:16px;position:relative;overflow:hidden;background:var(--card-fill);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.card-hr{height:99px;padding:0!important}
+.hourly-scroll{display:flex;overflow-x:auto;padding:0 12px;scrollbar-width:none;gap:0}
+.hourly-scroll::-webkit-scrollbar{display:none}
+.hourly-cell{width:var(--cell-w);display:flex;flex-direction:column;align-items:center;padding-top:11px;position:relative}
+.hourly-cell.now{background:rgba(255,255,255,0.06);border-radius:var(--card-radius)}
+.hourly-label{font-size:12px;color:var(--text-secondary);font-weight:400}
+.hourly-cell.now .hourly-label{color:#fff;font-weight:600}
+.hourly-icon{width:27px;height:27px;margin:9px 0 2px;display:flex;align-items:center;justify-content:center}
+.hourly-icon img{width:100%;height:100%;object-fit:contain}
+.hourly-prob{font-size:10px;color:var(--precip-cyan);font-weight:500;height:14px}
+.hourly-temp{font-size:15px;color:var(--text-primary);font-weight:500}
+.hourly-cell.now .hourly-temp{font-weight:600}
+.hourly-mask{position:absolute;top:0;bottom:0;width:16px;z-index:2;pointer-events:none}
+.hourly-mask-l{left:0;background:linear-gradient(90deg,var(--card-fill),transparent)}
+.hourly-mask-r{right:0;background:linear-gradient(-90deg,var(--card-fill),transparent)}
+.day-row{display:flex;align-items:center;height:48px;padding:4px 0}
+.day-date{width:53px;text-align:center}
+.day-label{font-size:14px;font-weight:500;color:var(--text-primary)}
+.day-row.today .day-label{color:var(--bar-end);font-weight:600;font-size:15px}
+.day-sublabel{font-size:10px;color:var(--text-tertiary);margin-top:2px}
+.day-icon{width:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.day-icon-img{width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.day-icon-img img{width:100%;height:100%;object-fit:contain}
+.day-prob{font-size:10px;color:var(--precip-cyan)}
+.day-uv{font-size:9px;font-weight:500;margin-top:1px}
+.day-temp-low{width:36px;font-size:14px;color:rgba(255,255,255,0.55);text-align:right}
+.day-temp-bar{flex:1;height:4px;margin:0 6px;position:relative}
+.temp-track{position:absolute;inset:0;background:var(--bar-track);border-radius:2px}
+.temp-fill{position:absolute;height:100%;border-radius:2px;background:linear-gradient(90deg,var(--bar-start),var(--bar-end))}
+.temp-marker{position:absolute;top:50%;width:8px;height:8px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 4px rgba(0,0,0,0.4)}
+.day-temp-high{width:36px;font-size:14px;color:var(--text-primary);padding-left:4px}
+.aqi-row{display:flex;align-items:center}
+.aqi-circle{position:relative;width:76px;height:76px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.aqi-glow-bg{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,0.06) 0%,transparent 70%)}
+.aqi-num{font-size:34px;font-weight:300;color:var(--text-primary);z-index:1}
+.aqi-info{flex:1;margin:0 10px}
+.aqi-level{font-size:14px;font-weight:500;color:var(--text-primary)}
+.aqi-desc{font-size:11px;color:var(--text-tertiary);margin-top:3px}
+.aqi-leaf{width:20px;height:20px;fill:#8FD08F;opacity:0.9}
+.spectrum-bar{height:5px;border-radius:3px;position:relative;margin:12px 0 4px;background:linear-gradient(90deg,#4ADE80,#FBBF24,#FB923C,#F87171,#A78BFA)}
+.spectrum-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:11px;height:11px;background:#fff;border-radius:50%;box-shadow:0 0 4px rgba(0,0,0,0.35)}
+.spectrum-dot::after{content:'';position:absolute;inset:2px;border-radius:50%;background:var(--card-fill)}
+.spectrum-labels{display:flex;font-size:9px;color:var(--text-tertiary);margin-top:2px}
+.spectrum-labels span{flex:1;text-align:center}
+.sun-row{display:flex;justify-content:space-between;align-items:flex-start}
+.sun-item{display:flex;flex-direction:column;gap:3px}
+.sun-item-right{align-items:flex-end}
+.sun-label{font-size:11px;color:var(--text-tertiary);display:flex;align-items:center;gap:5px}
+.sun-time{font-size:16px;font-weight:500;color:var(--text-primary)}
+.sun-arc{height:72px;margin-top:6px;position:relative}
+.sun-arc svg{width:100%;height:100%}
+.life-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0}
+.life-item{display:flex;flex-direction:column;align-items:center;padding:4px 0;gap:8px}
+.life-icon{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:18px}
+.life-label{font-size:13px;color:var(--text-primary);text-align:center}
+.precip-header{display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.precip-title{font-size:13px;color:var(--text-secondary)}
+.precip-peak{font-size:11px;color:var(--precip-cyan);margin-left:auto}
+.precip-bars{height:72px;position:relative}
+.precip-bar{position:absolute;bottom:0;border-radius:2px 2px 0 0;background:var(--precip-cyan);opacity:0.55}
+.precip-bar.high{opacity:0.85}
+.precip-line{position:absolute;bottom:0;left:0;right:0;height:1px;background:rgba(255,255,255,0.2)}
+.precip-times{display:flex;font-size:10px;color:var(--text-tertiary);margin-top:4px}
+.precip-times span{flex:1}
+.alert-banner{margin:0 16px 10px;border-radius:14px;padding:12px 14px;background:rgba(251,191,36,0.12);border:0.5px solid rgba(251,191,36,0.3);display:flex;align-items:flex-start;gap:10px}
+.alert-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.alert-content{flex:1}
+.alert-title{font-size:13px;font-weight:500;color:var(--bar-end)}
+.alert-desc{font-size:11px;color:rgba(255,255,255,0.60);margin-top:3px;line-height:1.4}
+.source{text-align:center;padding:20px 0 80px;font-size:11px;color:var(--text-tertiary)}
+.source span{color:var(--text-secondary)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.card-enter{animation:fadeUp 0.45s ease both}
+.card-enter:nth-child(1){animation-delay:0ms}.card-enter:nth-child(2){animation-delay:60ms}.card-enter:nth-child(3){animation-delay:120ms}.card-enter:nth-child(4){animation-delay:180ms}.card-enter:nth-child(5){animation-delay:240ms}.card-enter:nth-child(6){animation-delay:300ms}.card-enter:nth-child(7){animation-delay:360ms}
+@keyframes tempSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.hero-temp-main{animation:tempSlide 0.45s ease both}
+@media(max-width:440px){.phone-wrap{max-width:100%}.card{margin:0 12px 10px}.alert-banner{margin:0 12px 10px}}
+.page-footer{text-align:center;padding:24px 16px 40px;font-size:12px;color:rgba(255,255,255,0.30)}
+</style>
+</head>
+<body>
+<div class="scene-bar"><button class="scene-btn" data-scene="clear_day">☀️ 晴天</button>
+    <button class="scene-btn" data-scene="clear_night">🌙 晴夜</button>
+    <button class="scene-btn" data-scene="cloudy_day">☁️ 阴天</button>
+    <button class="scene-btn" data-scene="rain_day">🌧️ 雨天</button>
+    <button class="scene-btn" data-scene="snow_day">🌨️ 雪天</button>
+    <button class="scene-btn" data-scene="fog_day">🌫️ 雾天</button>
+    <button class="scene-btn" data-scene="thunder_day">⛈️ 雷阵雨</button>
+</div>
+<div class="phone-wrap">
+  <div class="sky-bg sky-clear-day" id="skyBg"></div>
+  <div class="scroll-area" id="scrollArea">
+    <div class="status-bar"><span id="clockTime">--:--</span><span>📶 🔋</span></div>
+    <div class="city-row">
+      <div class="city-badge" id="cityBadge">加载中…</div>
+      <div class="header-icons">
+        <div class="hdr-icon" title="定位"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg></div>
+        <div class="hdr-icon" title="设置"><svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></div>
+      </div>
+    </div>
+    <div class="hero">
+      <div class="hero-temp-wrap">
+        <span class="hero-temp-glow" id="heroTempGlow">--</span>
+        <span class="hero-temp-main" id="heroTemp">--</span>
+        <span class="hero-degree">°</span>
+      </div>
+      <div class="hero-desc" id="heroDesc">—</div>
+      <div class="hero-sub" id="heroSub">体感 --°C · —</div>
+    </div>
+    <div id="cardsContainer"></div>
+    <div id="alertsContainer"></div>
+    <div class="source">部分气象数据来自 <span>小米天气</span></div>
+  </div>
+</div>
+<div class="page-footer">每日天气 · 真实数据源 · 视觉对齐南风天气<br>点击顶部场景按钮可切换 7 种天气预览</div>
+<script>
+const ASSET_PATH = 'assets/weather/';
+const SKYCON_DESC  = {"CLEAR_DAY":"晴","CLEAR_NIGHT":"晴夜","PARTLY_CLOUDY_DAY":"多云","PARTLY_CLOUDY_NIGHT":"多云夜","CLOUDY":"阴","OVERCAST":"阴","LIGHT_RAIN":"小雨","MODERATE_RAIN":"中雨","HEAVY_RAIN":"大雨","LIGHT_SNOW":"小雪","MODERATE_SNOW":"中雪","FOG":"雾","MODERATE_HAZE":"中度雾霾","THUNDER_SHOWER":"雷阵雨"};
+const SKY_CLASSES  = {"clear_day":"sky-clear-day","clear_night":"sky-clear-night","cloudy_day":"sky-cloudy","rain_day":"sky-rain","snow_day":"sky-snow","fog_day":"sky-fog","thunder_day":"sky-thunder"};
+const CITY_NAMES   = {"clear_day":"北京市·朝阳区","clear_night":"上海市·浦东新区","cloudy_day":"广州市·天河区","rain_day":"成都市·锦江区","snow_day":"哈尔滨市·南岗区","fog_day":"南京市·玄武区","thunder_day":"武汉市·江岸区"};
+const FIXTURES     = {"clear_day":{"skycon":"CLEAR_DAY","temp":26,"feels":27,"humidity":0.41,"wind":6,"windDir":200,"aqi":35,"pm25":12,"uv":8,"minutely":"","forecastKey":"未来24小时晴","airDesc":"优","hourly":[{"m":0,"t":26,"s":"CLEAR_DAY","p":0},{"m":1,"t":27,"s":"CLEAR_DAY","p":0},{"m":2,"t":27,"s":"CLEAR_DAY","p":0},{"m":3,"t":26,"s":"CLEAR_DAY","p":0},{"m":4,"t":25,"s":"PARTLY_CLOUDY_DAY","p":0},{"m":5,"t":24,"s":"PARTLY_CLOUDY_DAY","p":10},{"m":6,"t":23,"s":"CLEAR_DAY","p":0},{"m":7,"t":22,"s":"CLEAR_NIGHT","p":0}],"daily":[{"d":0,"min":18,"max":28,"s":"CLEAR_DAY","p":0,"uv":8},{"d":1,"min":19,"max":29,"s":"CLEAR_DAY","p":0,"uv":9},{"d":2,"min":19,"max":27,"s":"PARTLY_CLOUDY_DAY","p":10,"uv":6},{"d":3,"min":17,"max":25,"s":"LIGHT_RAIN","p":60,"uv":3},{"d":4,"min":16,"max":24,"s":"CLEAR_DAY","p":0,"uv":8}],"alerts":[]},"clear_night":{"skycon":"CLEAR_NIGHT","temp":17,"feels":16,"humidity":0.55,"wind":4,"windDir":90,"aqi":28,"pm25":9,"uv":0,"minutely":"","forecastKey":"未来24小时晴","airDesc":"优","hourly":[{"m":0,"t":17,"s":"CLEAR_NIGHT","p":0},{"m":1,"t":16,"s":"CLEAR_NIGHT","p":0},{"m":2,"t":16,"s":"CLEAR_NIGHT","p":0},{"m":3,"t":15,"s":"CLEAR_NIGHT","p":0},{"m":4,"t":15,"s":"CLEAR_NIGHT","p":0},{"m":5,"t":16,"s":"CLEAR_NIGHT","p":0},{"m":6,"t":18,"s":"CLEAR_DAY","p":0},{"m":7,"t":20,"s":"CLEAR_DAY","p":0}],"daily":[{"d":0,"min":15,"max":24,"s":"CLEAR_DAY","p":0},{"d":1,"min":16,"max":25,"s":"PARTLY_CLOUDY_DAY","p":10},{"d":2,"min":17,"max":23,"s":"CLOUDY","p":20},{"d":3,"min":15,"max":22,"s":"CLEAR_DAY","p":0},{"d":4,"min":14,"max":23,"s":"CLEAR_DAY","p":0}],"alerts":[]},"cloudy_day":{"skycon":"CLOUDY","temp":13,"feels":12,"humidity":0.62,"wind":11,"windDir":315,"aqi":68,"pm25":30,"uv":2,"minutely":"","forecastKey":"未来24小时阴","airDesc":"良","hourly":[{"m":0,"t":13,"s":"CLOUDY","p":10},{"m":1,"t":13,"s":"CLOUDY","p":10},{"m":2,"t":13,"s":"CLOUDY","p":0},{"m":3,"t":14,"s":"CLOUDY","p":0},{"m":4,"t":14,"s":"CLOUDY","p":0},{"m":5,"t":15,"s":"OVERCAST","p":0},{"m":6,"t":15,"s":"CLOUDY","p":0},{"m":7,"t":14,"s":"CLOUDY","p":10}],"daily":[{"d":0,"min":11,"max":15,"s":"CLOUDY","p":10},{"d":1,"min":12,"max":17,"s":"PARTLY_CLOUDY_DAY","p":0},{"d":2,"min":13,"max":18,"s":"CLOUDY","p":20},{"d":3,"min":12,"max":16,"s":"LIGHT_RAIN","p":55},{"d":4,"min":11,"max":15,"s":"CLOUDY","p":10}],"alerts":[]},"rain_day":{"skycon":"LIGHT_RAIN","hour":22,"temp":21,"feels":20,"humidity":0.78,"wind":9,"windDir":45,"aqi":42,"pm25":18,"uv":1,"pressure":1013,"visibility":12,"minutely":"雨很快就要停一会儿","forecastKey":"未来24小时阴","airDesc":"优","hourly":[{"m":0,"t":21,"s":"LIGHT_RAIN","p":77},{"m":1,"t":21,"s":"LIGHT_RAIN","p":46},{"m":2,"t":21,"s":"CLOUDY","p":0},{"m":3,"t":21,"s":"CLOUDY","p":0},{"m":4,"t":21,"s":"CLOUDY","p":0},{"m":5,"t":21,"s":"CLOUDY","p":0},{"m":6,"t":22,"s":"CLOUDY","p":0},{"m":7,"t":22,"s":"CLOUDY","p":0},{"m":8,"t":22,"s":"PARTLY_CLOUDY_DAY","p":0},{"m":9,"t":22,"s":"PARTLY_CLOUDY_DAY","p":0}],"daily":[{"d":-1,"min":21,"max":24,"s":"MODERATE_RAIN","p":70},{"d":0,"min":21,"max":22,"s":"CLOUDY","p":0},{"d":1,"min":21,"max":23,"s":"LIGHT_RAIN","p":60},{"d":2,"min":18,"max":22,"s":"PARTLY_CLOUDY_DAY","p":0},{"d":3,"min":18,"max":23,"s":"LIGHT_RAIN","p":60},{"d":4,"min":19,"max":24,"s":"CLOUDY","p":20},{"d":5,"min":19,"max":25,"s":"CLEAR_DAY","p":0}],"alerts":[]},"snow_day":{"skycon":"MODERATE_SNOW","temp":-2,"feels":-8,"humidity":0.72,"wind":18,"windDir":340,"aqi":45,"pm25":20,"uv":1,"minutely":"未来两小时有小到中雪","forecastKey":"未来24小时雪","airDesc":"优","hourly":[{"m":0,"t":-2,"s":"MODERATE_SNOW","p":80},{"m":1,"t":-2,"s":"LIGHT_SNOW","p":65},{"m":2,"t":-3,"s":"LIGHT_SNOW","p":60},{"m":3,"t":-3,"s":"CLOUDY","p":30},{"m":4,"t":-4,"s":"CLEAR_NIGHT","p":10},{"m":5,"t":-5,"s":"CLEAR_NIGHT","p":0},{"m":6,"t":-4,"s":"CLOUDY","p":20},{"m":7,"t":-3,"s":"LIGHT_SNOW","p":50}],"daily":[{"d":0,"min":-6,"max":-1,"s":"MODERATE_SNOW","p":80},{"d":1,"min":-8,"max":-2,"s":"LIGHT_SNOW","p":60},{"d":2,"min":-9,"max":-1,"s":"CLOUDY","p":25},{"d":3,"min":-7,"max":1,"s":"PARTLY_CLOUDY_DAY","p":10},{"d":4,"min":-5,"max":2,"s":"CLEAR_DAY","p":0}],"alerts":[{"title":"道路结冰橙色预警","status":"预警中","desc":"地表温度低于0℃，可能出现对交通有较大影响的道路结冰。"}]},"fog_day":{"skycon":"FOG","temp":9,"feels":8,"humidity":0.95,"wind":2,"windDir":0,"aqi":156,"pm25":118,"uv":1,"minutely":"","forecastKey":"未来24小时雾","airDesc":"中度污染","hourly":[{"m":0,"t":9,"s":"FOG","p":10},{"m":1,"t":9,"s":"FOG","p":10},{"m":2,"t":10,"s":"MODERATE_HAZE","p":10},{"m":3,"t":11,"s":"MODERATE_HAZE","p":0},{"m":4,"t":12,"s":"CLOUDY","p":0},{"m":5,"t":13,"s":"CLOUDY","p":0},{"m":6,"t":12,"s":"MODERATE_HAZE","p":10},{"m":7,"t":11,"s":"FOG","p":15}],"daily":[{"d":0,"min":8,"max":13,"s":"FOG","p":10},{"d":1,"min":9,"max":14,"s":"MODERATE_HAZE","p":10},{"d":2,"min":8,"max":15,"s":"CLOUDY","p":20},{"d":3,"min":7,"max":13,"s":"LIGHT_RAIN","p":50},{"d":4,"min":6,"max":12,"s":"CLOUDY","p":15}],"alerts":[]},"thunder_day":{"skycon":"THUNDER_SHOWER","temp":24,"feels":25,"humidity":0.88,"wind":26,"windDir":120,"aqi":55,"pm25":22,"uv":3,"minutely":"未来两小时有中雨","forecastKey":"未来24小时雷阵雨","airDesc":"良","hourly":[{"m":0,"t":24,"s":"THUNDER_SHOWER","p":90},{"m":1,"t":24,"s":"HEAVY_RAIN","p":85},{"m":2,"t":23,"s":"MODERATE_RAIN","p":70},{"m":3,"t":23,"s":"LIGHT_RAIN","p":55},{"m":4,"t":23,"s":"CLOUDY","p":30},{"m":5,"t":24,"s":"PARTLY_CLOUDY_DAY","p":20},{"m":6,"t":25,"s":"CLOUDY","p":25},{"m":7,"t":24,"s":"LIGHT_RAIN","p":45}],"daily":[{"d":0,"min":22,"max":25,"s":"THUNDER_SHOWER","p":90},{"d":1,"min":21,"max":26,"s":"MODERATE_RAIN","p":75},{"d":2,"min":20,"max":25,"s":"LIGHT_RAIN","p":55},{"d":3,"min":20,"max":27,"s":"CLOUDY","p":25},{"d":4,"min":21,"max":28,"s":"PARTLY_CLOUDY_DAY","p":10}],"alerts":[{"title":"雷电黄色预警","status":"预警中","desc":"预计未来6小时本市将发生雷电活动，请减少户外作业。"}]}};
+const LIFE_MAP     = {"CLEAR_DAY":[{"i":"🏃","l":"舒适"},{"i":"🚗","l":"适宜"},{"i":"☀️","l":"晾晒"},{"i":"🚗","l":"行车"},{"i":"🌸","l":"过敏"},{"i":"🏃","l":"运动"}],"CLEAR_NIGHT":[{"i":"🌙","l":"夜间出行"},{"i":"😴","l":"睡眠"},{"i":"🧴","l":"护肤"},{"i":"🏃","l":"夜跑"},{"i":"👕","l":"穿衣"},{"i":"💪","l":"健康"}],"PARTLY_CLOUDY_DAY":[{"i":"☁️","l":"多云"},{"i":"🚗","l":"适宜"},{"i":"😎","l":"防晒"},{"i":"🏃","l":"运动"},{"i":"👕","l":"穿衣"},{"i":"🌸","l":"花粉"}],"CLOUDY":[{"i":"☁️","l":"阴天"},{"i":"🚗","l":"驾驶"},{"i":"👕","l":"穿衣"},{"i":"🏃","l":"运动"},{"i":"😷","l":"健康"},{"i":"☀️","l":"紫外线"}],"OVERCAST":[{"i":"☁️","l":"阴天"},{"i":"🚗","l":"出行"},{"i":"👕","l":"穿衣"},{"i":"🏃","l":"运动"},{"i":"😷","l":"健康"},{"i":"☀️","l":"紫外线"}],"LIGHT_RAIN":[{"i":"☔","l":"带伞"},{"i":"🚗","l":"出行"},{"i":"🚿","l":"洗车"},{"i":"🏃","l":"运动"},{"i":"💊","l":"健康"},{"i":"👕","l":"穿衣"}],"MODERATE_RAIN":[{"i":"☔","l":"带伞"},{"i":"🚗","l":"慢行"},{"i":"🏠","l":"宅家"},{"i":"💧","l":"防潮"},{"i":"🧥","l":"保暖"},{"i":"😷","l":"健康"}],"HEAVY_RAIN":[{"i":"⛈️","l":"避险"},{"i":"🚗","l":"封路"},{"i":"🏠","l":"勿出门"},{"i":"💧","l":"防洪"},{"i":"🧥","l":"保暖"},{"i":"🆘","l":"紧急"}],"THUNDER_SHOWER":[{"i":"⚡","l":"雷电"},{"i":"🏠","l":"避险"},{"i":"🚗","l":"慢行"},{"i":"💧","l":"防洪"},{"i":"🧥","l":"保暖"},{"i":"🆘","l":"紧急"}],"LIGHT_SNOW":[{"i":"⛄","l":"赏雪"},{"i":"🧥","l":"防寒"},{"i":"🚗","l":"慢行"},{"i":"🦵","l":"防滑"},{"i":"🧴","l":"保湿"},{"i":"💪","l":"健康"}],"MODERATE_SNOW":[{"i":"❄️","l":"冰雪"},{"i":"🧥","l":"防寒"},{"i":"🚗","l":"谨慎"},{"i":"🦵","l":"防滑"},{"i":"🤧","l":"感冒"},{"i":"🏠","l":"室内"}],"FOG":[{"i":"😷","l":"戴口罩"},{"i":"🚗","l":"慢行"},{"i":"👁️","l":"护眼"},{"i":"🏃","l":"避晨练"},{"i":"🧥","l":"保暖"},{"i":"💨","l":"呼吸"}],"MODERATE_HAZE":[{"i":"😷","l":"戴口罩"},{"i":"🏃","l":"避户外"},{"i":"🪟","l":"少开窗"},{"i":"🤧","l":"护肺"},{"i":"🚗","l":"慢行"},{"i":"💊","l":"健康"}]};
+function iconAsset(s){return SKYCON_DESC[s]?s:s}
+function fmtHour(ms){const d=new Date(ms);return d.getHours()+':00'}
+function fmtDay(o){const n=new Date(),d=new Date(n.getTime()+o*86400000),w=['日','一','二','三','四','五','六'];if(o===0)return{label:'今天',sub:d.getMonth()+1+'月'+d.getDate()+'日'};if(o===-1)return{label:'昨天',sub:''};if(o===1)return{label:'明天',sub:''};return{label:'周'+w[d.getDay()],sub:d.getMonth()+1+'月'+d.getDate()+'日'}}
+function aqiLevel(a){if(!a)return'—';if(a<=50)return'优';if(a<=100)return'良';if(a<=150)return'轻度污染';if(a<=200)return'中度污染';if(a<=300)return'重度污染';return'严重污染'}
+function aqiColor(a){if(!a)return'#4ADE80';if(a<=50)return'#4ADE80';if(a<=100)return'#FBBF24';if(a<=150)return'#FB923C';if(a<=200)return'#F87171';return'#A78BFA'}
+function uvColor(u){if(!u)return'#4ADE80';if(u<=2)return'#4ADE80';if(u<=5)return'#FBBF24';if(u<=7)return'#FB923C';if(u<=10)return'#F87171';return'#A78BFA'}
+function nowMs(){return Date.now()}
+function renderHourly(h){return h.map((p,i)=>{const now=i===0,m='现在',lb=now?'现在':fmtHour(nowMs()+p.m*3600000),as='assets/weather/'+(p.s==='CLOUDY'?'overcast.png':p.s==='OVERCAST'?'overcast.png':p.s==='LIGHT_RAIN'||p.s==='MODERATE_RAIN'||p.s==='HEAVY_RAIN'?(p.s==='HEAVY_RAIN'?'rain.png':'drizzle.png'):p.s==='FOG'?'fog.png':p.s==='MODERATE_HAZE'?'haze.png':p.s==='THUNDER_SHOWER'?'thunderstorms-rain.png':p.s==='PARTLY_CLOUDY_DAY'||p.s==='PARTLY_CLOUDY_NIGHT'?(p.s.includes('NIGHT')?'partly-cloudy-night.png':'partly-cloudy-day.png'):p.s==='CLEAR_DAY'?'clear-day.png':p.s==='CLEAR_NIGHT'?'clear-night.png':p.s==='LIGHT_SNOW'||p.s==='MODERATE_SNOW'?'snow.png':'overcast.png'),pr=p.p>=10?p.p+'%':'';return'<div class="hourly-cell '+(now?'now':'')+'"><span class="hourly-label">'+lb+'</span><div class="hourly-icon"><img src="'+as+'" alt="" loading="lazy"></div><span class="hourly-prob">'+pr+'</span><span class="hourly-temp">'+p.t+'°</span></div>'}).join('')}
+function renderDaily(d,cT){if(!d.length)return'';const gMin=Math.min(...d.map(x=>x.min)),gMax=Math.max(...d.map(x=>x.max)),span=(gMax-gMin)||1,mPct=((cT-gMin)/span*100).toFixed(1);return d.map(p=>{const{label,sub}=fmtDay(p.d),isT=p.d===0,mP=((p.min-gMin)/span*100).toFixed(1),MP=((p.max-gMin)/span*100).toFixed(1),w=(MP-mP).toFixed(1),as='assets/weather/'+(p.s==='CLOUDY'?'overcast.png':p.s==='OVERCAST'?'overcast.png':p.s==='LIGHT_RAIN'||p.s==='MODERATE_RAIN'||p.s==='HEAVY_RAIN'?(p.s==='HEAVY_RAIN'?'rain.png':'drizzle.png'):p.s==='FOG'?'fog.png':p.s==='MODERATE_HAZE'?'haze.png':p.s==='THUNDER_SHOWER'?'thunderstorms-rain.png':p.s==='PARTLY_CLOUDY_DAY'||p.s==='PARTLY_CLOUDY_NIGHT'?(p.s.includes('NIGHT')?'partly-cloudy-night.png':'partly-cloudy-day.png'):p.s==='CLEAR_DAY'?'clear-day.png':p.s==='CLEAR_NIGHT'?'clear-night.png':p.s==='LIGHT_SNOW'||p.s==='MODERATE_SNOW'?'snow.png':'overcast.png'),pr=p.p>=10?'<div class="day-prob">'+p.p+'%</div>':'',uv=p.uv>0?'<div class="day-uv" style="color:'+uvColor(p.uv)+'">UV'+p.uv+'</div>':'',mk=isT?'<div class="temp-marker" style="left:'+mPct+'%"></div>':'';return'<div class="day-row '+(isT?'today':'')+'"><div class="day-date"><div class="day-label">'+label+'</div>'+(sub?'<div class="day-sublabel">'+sub+'</div>':'')+'</div><div class="day-icon"><div class="day-icon-img"><img src="'+as+'" alt="" loading="lazy"></div>'+pr+uv+'</div><div class="day-temp-low">'+p.min+'°</div><div class="day-temp-bar"><div class="temp-track"></div><div class="temp-fill" style="left:'+mP+'%;width:'+w+'%"></div>'+mk+'</div><div class="day-temp-high">'+p.max+'°</div></div>'}).join('')}
+function renderAQI(aqi,pm25,uv){const lv=aqiLevel(aqi),pct=Math.min(aqi/300*100,100).toFixed(1),c=aqiColor(aqi);return'<div class="aqi-row"><div class="aqi-circle"><div class="aqi-glow-bg"></div><span class="aqi-num" style="color:'+c+'">'+(aqi||'—')+'</span></div><div class="aqi-info"><div class="aqi-level" style="color:'+c+'">'+lv+'</div><div class="aqi-desc">PM2.5 '+pm25+' · 空气数据待接入</div></div><svg class="aqi-leaf" viewBox="0 0 24 24"><path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S3 11.5 3 13.5c0 1.75.87 3.75 1.75 5.5L17 8z"/></svg></div><div class="spectrum-bar"><div class="spectrum-dot" style="left:'+pct+'%"></div></div><div class="spectrum-labels"><span>0</span><span>50</span><span>100</span><span>150</span><span>200</span><span>300</span></div>'}
+function renderSun(f){const sr=f.daily[0]?.sunrise||'06:12',ss=f.daily[0]?.sunset||'18:42',now=Date.now(),s=new Date();s.setHours(...sr.split(':').map(Number));const e=new Date();e.setHours(...ss.split(':').map(Number));const tot=e-s,el=now-s,p=Math.max(0,Math.min(1,el/tot)),isDay=el>=0&&el<=tot,ang=180*(1-p),rad=ang*Math.PI/180,W=300,H=72,cx=W/2,hor=H*0.88,r=Math.min(cx-6,hor*0.95),sx=cx+Math.cos(rad)*r,sy=hor-Math.sin(rad)*r,sun=isDay?'<circle cx="'+sx+'" cy="'+sy+'" r="14" fill="rgba(255,217,138,0.3)"/><circle cx="'+sx+'" cy="'+sy+'" r="7" fill="#FFD35C"/><circle cx="'+sx+'" cy="'+sy+'" r="4" fill="#FFF8E1"/>':'<circle cx="'+cx+'" cy="'+(hor+6)+'" r="4" fill="rgba(159,182,216,0.7)"/>';return'<div class="sun-row"><div class="sun-item"><div class="sun-label"><svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#FCCB52;opacity:0.85"><circle cx="12" cy="12" r="5"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>日出</div><div class="sun-time">'+sr+'</div></div><div class="sun-item sun-item-right"><div class="sun-label">日落<svg viewBox="0 0 24 24" style="width:13px;height:13px;fill:#FCCB52;opacity:0.85"><path d="M17 18H7M12 3v12M7 13l-5 5h10l-5-5z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="sun-time">'+ss+'</div></div></div><div class="sun-arc"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="width:100%;height:100%"><line x1="0" y1="'+hor+'" x2="'+W+'" y2="'+hor+'" stroke="rgba(255,255,255,0.25)" stroke-width="1"/><path d="M 6 '+hor+' A '+r+' '+r+' 0 0 1 '+(W-6)+' '+hor+'" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5" stroke-dasharray="4,5"/>'+sun+'</svg></div>'}
+function renderPrecip(h){const mx=Math.max(...h.map(p=>p.p),1),n=h.length,sw=100/n,bars=h.map((p,i)=>{if(p.p<1)return'';const bh=(p.p/mx*68).toFixed(1),lt=(i*sw+sw*0.225).toFixed(2),wd=(sw*0.55).toFixed(2),cls=p.p>=50?'high':'';return'<div class="precip-bar '+cls+'" style="left:'+lt+'%;width:'+wd+'%;height:'+bh+'px"></div>'}).join('');const pk=Math.max(...h.map(p=>p.p)),fh=h[0]?fmtHour(nowMs()):'--:--',lh=h[h.length-1]?fmtHour(nowMs()+(h.length-1)*3600000):'--:--';return'<div class="precip-header"><svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:rgba(255,255,255,0.85);opacity:0.8"><path d="M12 2v14M8 18l4 4 4-4M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="precip-title">未来 '+h.length+' 小时降水概率</span>'+(pk>0?'<span class="precip-peak">峰值 '+pk+'%</span>':'')+'</div><div class="precip-bars">'+bars+'<div class="precip-line"></div></div><div class="precip-times"><span>'+fh+'</span><span style="text-align:right">'+lh+'</span></div>'}
+function renderLife(sc){const list=LIFE_MAP[sc]||LIFE_MAP['CLEAR_DAY'];return'<div class="life-grid">'+list.map(a=>'<div class="life-item"><div class="life-icon">'+a.i+'</div><div class="life-label">'+a.l+'</div></div>').join('')+'</div>'}
+function renderAlerts(al){if(!al||!al.length)return'';return al.map(a=>'<div class="alert-banner"><span class="alert-icon">⚠️</span><div class="alert-content"><div class="alert-title">'+a.title+'</div><div class="alert-desc">'+a.desc+'</div></div></div>').join('')}
+function switchScene(name){const f=FIXTURES[name];if(!f)return;document.getElementById('skyBg').className='sky-bg '+(SKY_CLASSES[name]||'sky-clear-day');document.querySelectorAll('.scene-btn').forEach(b=>b.classList.remove('active'));const ab=document.querySelector('.scene-btn[data-scene="'+name+'"]');if(ab)ab.classList.add('active');document.getElementById('heroTemp').textContent=f.temp;document.getElementById('heroTempGlow').textContent=f.temp;document.getElementById('heroDesc').textContent=f.skycon.replace(/_/g,' ');document.getElementById('heroSub').textContent='体感 '+f.feels+'°C · '+f.airDesc;document.getElementById('cityBadge').textContent=CITY_NAMES[name]||'当前城市';const c=document.getElementById('cardsContainer');c.innerHTML='<div class="card card-hr card-enter" style="padding:0"><div style="position:relative;height:99px;overflow:hidden"><div class="hourly-scroll">'+renderHourly(f.hourly)+'</div><div class="hourly-mask hourly-mask-l"></div><div class="hourly-mask hourly-mask-r"></div></div></div><div class="card card-enter" style="padding:10px">'+renderDaily(f.daily,f.temp)+'</div><div class="card card-enter">'+renderAQI(f.aqi,f.pm25,f.uv)+'</div><div class="card card-enter" style="padding:14px">'+renderSun(f)+'</div><div class="card card-enter" style="padding:14px">'+renderPrecip(f.hourly)+'</div><div class="card card-enter" style="padding:22px">'+renderLife(f.skycon)+'</div>';document.getElementById('alertsContainer').innerHTML=renderAlerts(f.alerts)}
+(function(){switchScene('clear_day');const n=new Date();document.getElementById('clockTime').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');setInterval(()=>{const n=new Date();document.getElementById('clockTime').textContent=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')},30000)})()
+</script>
+</body>
+</html>

@@ -174,7 +174,7 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
         }?.takeIf { it.precipitation2h.isNotEmpty() }
         val hourlyAqi = root.optJSONObject("forecastHourly")?.optJSONObject("aqi")
             ?.optJSONArray("value")
-        Log.i(TAG, "小米解析完成: skycon=$skycon aqi=$aqi hourly=${hourly.size} daily=${daily.size} minutely=${minutely != null}")
+        Log.i(TAG, "小米解析完成: skycon=$skycon aqi=$aqi hourly=${hourly.size} daily=${daily.size} minutely=${minutely != null} typhoons=${parseTyphoon(root).size}")
         return WeatherSnapshot(
             cityId = cityId,
             fetchedAt = nowEpoch,
@@ -188,7 +188,58 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
             },
             daily = dailyWithYesterday,
             alerts = emptyList(),
+            typhoons = parseTyphoon(root),
         )
+    }
+
+    /** 解析台风列表（小米 wtr-v3 `typhoon.list`）。无台风返回空列表。 */
+    private fun parseTyphoon(root: JSONObject): List<WeatherSnapshot.Typhoon> {
+        val typhoonObj = root.optJSONObject("typhoon") ?: return emptyList()
+        val list = typhoonObj.optJSONArray("list") ?: return emptyList()
+        return buildList {
+            for (i in 0 until list.length()) {
+                val t = list.optJSONObject(i) ?: continue
+                val id = t.optString("typhoonId", "")
+                val name = t.optString("name", "")
+                val pos = t.optJSONObject("position")
+                val lat = pos?.optDouble("lat", 0.0) ?: 0.0
+                val lon = pos?.optDouble("lon", 0.0) ?: 0.0
+                if (lat == 0.0 && lon == 0.0) continue
+                val move = t.optJSONObject("move")
+                val pathArr = t.optJSONArray("path") ?: JSONArray()
+                val path = buildList {
+                    for (j in 0 until pathArr.length()) {
+                        val p = pathArr.optJSONObject(j) ?: continue
+                        val timeStr = p.optString("time", "")
+                        val epoch = runCatching {
+                            java.time.OffsetDateTime.parse(timeStr).toInstant().toEpochMilli()
+                        }.getOrElse { 0L }
+                        add(
+                            WeatherSnapshot.TyphoonPoint(
+                                time = epoch,
+                                lat = p.optDouble("lat", 0.0),
+                                lon = p.optDouble("lon", 0.0),
+                                windSpeedKmh = p.optDouble("wind", 0.0),
+                                pressureHpa = p.optDouble("pressure", 0.0),
+                            )
+                        )
+                    }
+                }
+                add(
+                    WeatherSnapshot.Typhoon(
+                        typhoonId = id,
+                        name = name,
+                        currentLat = lat,
+                        currentLon = lon,
+                        windSpeedKmh = t.optDouble("windSpeed", 0.0),
+                        pressureHpa = t.optDouble("pressure", 0.0),
+                        moveSpeedKmh = move?.optDouble("speed", 0.0) ?: 0.0,
+                        moveDirection = move?.optInt("direction", 0) ?: 0,
+                        path = path,
+                    )
+                )
+            }
+        }
     }
 
     /**
@@ -225,6 +276,8 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
         val temps = dailyRoot.optJSONObject("temperature")?.optJSONArray("value") ?: return emptyList()
         val weathers = dailyRoot.optJSONObject("weather")?.optJSONArray("value") ?: return emptyList()
         val pops = dailyRoot.optJSONObject("precipitationProbability")?.optJSONArray("value") ?: JSONArray()
+        // 逐日UV指数（小米 forecastDaily.uvIndex.value[]）；缺省时保持 0。
+        val uvArr = dailyRoot.optJSONObject("uvIndex")?.optJSONArray("value") ?: JSONArray()
         val n = minOf(7, suns.length(), temps.length(), weathers.length())
         return (0 until n).mapNotNull { i ->
             val sun = suns.optJSONObject(i) ?: return@mapNotNull null
@@ -233,6 +286,7 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
             val t = temps.optJSONObject(i) ?: return@mapNotNull null
             val high = numAt(t, "from") ?: return@mapNotNull null
             val low = numAt(t, "to") ?: return@mapNotNull null
+            val uvIdx = uvArr.optInt(i, 0).takeIf { it > 0 } ?: 0
             WeatherSnapshot.DailyPoint(
                 date = date,
                 skycon = weatherCodeToSkycon(codeAt(weathers, i), isNight = false),
@@ -242,7 +296,7 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
                 windDirection = 0,
                 sunrise = hourOf(sun.optString("from", "")),
                 sunset = hourOf(sun.optString("to", "")),
-                uvIndex = 0,
+                uvIndex = uvIdx,
                 aqiAvg = 0,
                 precipitation = 0.0,
                 precipitationProbability = pops.optString(i, "").toDoubleOrNull() ?: 0.0,

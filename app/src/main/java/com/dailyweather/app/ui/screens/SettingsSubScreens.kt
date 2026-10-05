@@ -35,7 +35,7 @@ import com.dailyweather.app.viewmodel.WeatherViewModel
 
 /**
  * 设置子页。版式与文案照南风 v4.3.36 真机截图：通知页「常驻天气」单独一卡、
- * 两个会员锁行；外观页四组（颜色模式 / 主页卡片显隐 / 卡片排序 / 控件材质）；
+ * 外观页四组（颜色模式 / 主页卡片显隐 / 卡片排序 / 控件材质）；
  * 单位页四组（温度 / 风力 / 气压 / 能见度），单选勾是蓝色不是绿色；
  * 插件页 7 个组件各自带「材质 · 不透明度」并可进详情调整。
  */
@@ -58,15 +58,12 @@ fun NotificationSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
         Footnote("优先显示定位城市。静音更新，后台刷新受系统省电影响。部分系统支持划除通知，重新打开 App 后恢复。")
         GroupCard {
             SwitchRow("早晚天气通知", morning || evening, onToggle = { vm.setDailyBoth(it) })
-            SwitchRow("短临降水提醒", false, locked = true)
-            SwitchRow("晚霞推送提醒", false, locked = true)
             SwitchRow("气象预警推送", urgent, onToggle = { vm.setSetting(WeatherViewModel.SettingKey.URGENT, it) })
             SwitchRow("变温提醒", tempChange, onToggle = { vm.setSetting(WeatherViewModel.SettingKey.TEMP_CHANGE, it) })
             SwitchRow("大风提醒", wind, onToggle = { vm.setSetting(WeatherViewModel.SettingKey.WIND, it) })
             SwitchRow("极端天气提醒", extreme, divider = false,
                 onToggle = { vm.setSetting(WeatherViewModel.SettingKey.EXTREME, it) })
         }
-        Footnote("「短临降水提醒」「晚霞推送提醒」为会员功能，升级后可开启")
     }
 }
 
@@ -74,7 +71,6 @@ fun NotificationSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
 fun AppearanceSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
     val colorMode by vm.stringSetting(SettingsKeys.COLOR_MODE, SettingsKeys.COLOR_MODE_DEFAULT).collectAsState("LIGHT")
     val material by vm.stringSetting(SettingsKeys.CARD_MATERIAL, SettingsKeys.CARD_MATERIAL_DEFAULT).collectAsState("LIQUID")
-    val radar by vm.boolSetting(SettingsKeys.SHOW_RADAR, true).collectAsState(true)
     val life by vm.boolSetting(SettingsKeys.SHOW_LIFE, true).collectAsState(true)
     val aqi by vm.boolSetting(SettingsKeys.SHOW_AQI, true).collectAsState(true)
     val sun by vm.boolSetting(SettingsKeys.SHOW_SUN, true).collectAsState(true)
@@ -99,11 +95,8 @@ fun AppearanceSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
         SectionHeader("主页卡片")
         GroupCard {
             SwitchRow("空气质量", aqi, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_AQI, it) })
-            SwitchRow("分钟级降水", false, locked = true)
-            SwitchRow("48小时预报", false, locked = true)
             SwitchRow("日出日落", sun, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_SUN, it) })
             SwitchRow("气象详情", detail, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_DETAIL, it) })
-            SwitchRow("台风雷达&海洋潮汐", radar, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_RADAR, it) })
             SwitchRow("生活建议", life, divider = false, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_LIFE, it) })
         }
         Footnote("控制主页各卡片的显示与隐藏")
@@ -156,7 +149,7 @@ private fun CardOrderRow(id: HomeCardId, selected: Boolean, onPick: () -> Unit) 
     ) {
         Text(
             id.title,
-            color = if (id in HomeCards.membershipLocked) Tokens.RowSecondaryColor else Tokens.RowTitleColor,
+            color = Tokens.RowTitleColor,
             fontSize = Tokens.RowTitleSize,
             modifier = Modifier.weight(1f),
         )
@@ -211,9 +204,7 @@ fun LocationDisplayScreen(vm: WeatherViewModel, onBack: () -> Unit) {
             RadioRow("展示区/县", level == "DISTRICT") {
                 vm.setStringSetting(SettingsKeys.LOCATION_LEVEL, "DISTRICT")
             }
-            RadioRow("展示附近地标/乡镇/街道", false, divider = false, locked = true)
         }
-        Footnote("「展示附近地标/乡镇/街道」为会员功能，升级后可自由切换")
     }
 }
 

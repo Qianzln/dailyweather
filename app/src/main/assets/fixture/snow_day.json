@@ -1,5 +1,5 @@
 {
-  "skycon": "MODERATE_SNOW", "temp": -2.0, "feels": -8.0, "humidity": 0.72, "wind": 18.0, "windDir": 340,
+  "skycon": "MODERATE_SNOW", "hour": 14, "temp": -2.0, "feels": -8.0, "humidity": 0.72, "wind": 18.0, "windDir": 340,
   "aqi": 45, "pm25": 20, "uv": 1.0, "minutely": "未来两小时有小到中雪", "forecastKey": "未来24小时雪", "airDesc": "优",
   "hourly": [
     {"m":0,"t":-2,"s":"MODERATE_SNOW","p":80},{"m":1,"t":-2,"s":"LIGHT_SNOW","p":65},{"m":2,"t":-3,"s":"LIGHT_SNOW","p":60},

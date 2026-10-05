@@ -28,9 +28,12 @@ class DailyWeatherApp : Application() {
         super.onCreate()
         container = AppContainer(this)
         NotificationChannels.ensureAll(this)
-        // 冷启动预热粒子精灵（对齐南风 SkyPulseApp：辉光/雨滴流星/24 帧雪花），
-        // 后台线程生成，首帧组合时缓存已热，动画零卡顿进入。
+        // 冷启动预热（对齐南风 SkyPulseApp 的"天气资源预热"）：
+        // 1) 程序化粒子（辉光/雨滴流星/24 帧雪花）——后台线程生成位图；
+        // 2) 南风 PNG 精灵（11 张天空帧 + 8 张云精灵）——IO 线程解码进 LruCache。
+        // 首帧组合时缓存已热，主线程只做 cache.get，动画零卡顿进入。
         com.dailyweather.app.scene.ParticleSprites.prewarm(this)
+        com.dailyweather.app.scene.SpriteAssets.prewarm(this)
         scheduleBackgroundWork()
         syncUnits()
         Log.i(TAG, "DailyWeatherApp ready")

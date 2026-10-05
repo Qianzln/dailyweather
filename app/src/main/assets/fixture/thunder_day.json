@@ -1,5 +1,5 @@
 {
-  "skycon": "THUNDER_SHOWER", "temp": 24.0, "feels": 25.0, "humidity": 0.88, "wind": 26.0, "windDir": 120,
+  "skycon": "THUNDER_SHOWER", "hour": 14, "temp": 24.0, "feels": 25.0, "humidity": 0.88, "wind": 26.0, "windDir": 120,
   "aqi": 55, "pm25": 22, "uv": 3.0, "minutely": "未来两小时有中雨", "forecastKey": "未来24小时雷阵雨", "airDesc": "良",
   "hourly": [
     {"m":0,"t":24,"s":"THUNDER_SHOWER","p":90},{"m":1,"t":24,"s":"HEAVY_RAIN","p":85},{"m":2,"t":23,"s":"MODERATE_RAIN","p":70},

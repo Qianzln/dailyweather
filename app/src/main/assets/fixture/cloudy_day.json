@@ -1,5 +1,5 @@
 {
-  "skycon": "CLOUDY", "temp": 13.0, "feels": 12.0, "humidity": 0.62, "wind": 11.0, "windDir": 315,
+  "skycon": "CLOUDY", "hour": 14, "temp": 13.0, "feels": 12.0, "humidity": 0.62, "wind": 11.0, "windDir": 315,
   "aqi": 68, "pm25": 30, "uv": 2.0, "minutely": "", "forecastKey": "未来24小时阴", "airDesc": "良",
   "hourly": [
     {"m":0,"t":13,"s":"CLOUDY","p":10},{"m":1,"t":13,"s":"CLOUDY","p":10},{"m":2,"t":13,"s":"CLOUDY","p":0},

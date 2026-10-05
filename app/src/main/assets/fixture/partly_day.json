@@ -1,5 +1,5 @@
 {
-  "skycon": "PARTLY_CLOUDY_DAY", "temp": 22.0, "feels": 22.0, "humidity": 0.48, "wind": 8.0, "windDir": 270,
+  "skycon": "PARTLY_CLOUDY_DAY", "hour": 14, "temp": 22.0, "feels": 22.0, "humidity": 0.48, "wind": 8.0, "windDir": 270,
   "aqi": 38, "pm25": 14, "uv": 5.0, "minutely": "", "forecastKey": "未来24小时多云", "airDesc": "优",
   "hourly": [
     {"m":0,"t":22,"s":"PARTLY_CLOUDY_DAY","p":0},{"m":1,"t":23,"s":"CLEAR_DAY","p":0},{"m":2,"t":23,"s":"PARTLY_CLOUDY_DAY","p":0},

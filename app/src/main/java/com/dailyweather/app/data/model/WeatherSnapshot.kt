@@ -19,6 +19,8 @@ data class WeatherSnapshot(
     val hourly: List<HourlyPoint>,
     val daily: List<DailyPoint>,
     val alerts: List<AlertItem>,
+    /** 活跃台风列表（小米源提供，无台风时为 null）。 */
+    val typhoons: List<Typhoon> = emptyList(),
 ) {
     /** 内容签名（组件按需渲染用）：取实况温度+天气+小时首点+日卡首点的指纹。
      *  变化时才触发重绘；定位中/无数据返回空签名强制刷新。 */
@@ -90,6 +92,27 @@ data class WeatherSnapshot(
         val description: String,
         val source: String,
         val pubTime: Long,
+    )
+
+    /** 台风信息（小米源提供）。 */
+    data class Typhoon(
+        val typhoonId: String,
+        val name: String,
+        val currentLat: Double,
+        val currentLon: Double,
+        val windSpeedKmh: Double,
+        val pressureHpa: Double,
+        val moveSpeedKmh: Double,
+        val moveDirection: Int,
+        val path: List<TyphoonPoint>,
+    )
+
+    data class TyphoonPoint(
+        val time: Long,
+        val lat: Double,
+        val lon: Double,
+        val windSpeedKmh: Double,
+        val pressureHpa: Double,
     )
 
     val currentSkycon: String get() = realtime?.skycon ?: hourly.firstOrNull()?.skycon ?: "CLEAR_DAY"
@@ -225,6 +248,7 @@ object CaiyunParser {
             hourly = hourly,
             daily = daily,
             alerts = alerts,
+            typhoons = emptyList(),
         )
     }
 

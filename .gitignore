@@ -16,3 +16,9 @@ keystore/
 /release/
 *.apk
 .mimosa/
+
+# 工具链
+node_modules/
+.kotlin/
+# 逆向解包产物（原版 APK 提取，体积大不入库）
+docs/skypulse_4.3.64/res_raw/

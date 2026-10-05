@@ -16,10 +16,19 @@ object Tokens {
     // ---- 首页卡片矩阵 ----
     /** 卡片左右边距：实测卡片占 x48..x1224。 */
     val ScreenMargin = 16.dp
-    /** 卡片间距：实测 25px。 */
-    val CardGap = 8.dp
-    /** 卡片圆角：实测约 66px。 */
+    /** 卡片间距：实测 25px，略增为 10dp 以改善呼吸感。 */
+    val CardGap = 10.dp
+    // ---- 统一圆角系统 ----
+    /** 大卡片圆角：首页主卡片、设置卡 */
     val CardRadius = 22.dp
+    /** 中等圆角：详情卡、雷达卡、AQI 卡 */
+    val MediumRadius = 18.dp
+    /** 小圆角：按钮、胶囊标签、图标底板 */
+    val SmallRadius = 12.dp
+    /** 微型圆角：温度条、光谱条、进度条 */
+    val MiniRadius = 6.dp
+    /** 城市名胶囊圆角 */
+    val PillRadius = 16.dp
     /** [实测] 卡面 = 天空叠 0xB830465A：白天与夜间两组实测值都能由它推出，常数黑叠层推不出。 */
     val CardFill = Color(0xB830465A)
     /** 卡片顶部亮边：实测卡上沿有一条 2–3px 的高光。 */
@@ -47,10 +56,10 @@ object Tokens {
     val BarTrack = Color(0x1AFFFFFF)
 
     // ---- Hero ----
-    /** 实测数字帽高 197px ≈ 66dp，对应字号约 92sp。 */
-    val HeroTempSize = 92.sp
+    /** 实测数字帽高 197px ≈ 66dp，对应字号约 92sp。微调至 96sp 增强存在感。 */
+    val HeroTempSize = 96.sp
     /** 不给行高会按字体默认行距（CJK 约 1.35em）撑开，Hero 与副行之间会出现一大段空白。 */
-    val HeroDegreeSize = 40.sp
+    val HeroDegreeSize = 42.sp
     /** 实测 Hero 是白→灰的竖向渐变填充，不是纯色。 */
     val HeroGradientTop = Color(0xFFF4F5F7)
     val HeroGradientBottom = Color(0xFF9AA1A8)

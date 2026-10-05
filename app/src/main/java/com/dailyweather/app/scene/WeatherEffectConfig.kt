@@ -33,10 +33,19 @@ data class WeatherEffectFps(
     val ambient: Int,
 ) {
     companion object {
-        val Full = WeatherEffectFps(precip = 60, cloud = 30, ambient = 24)
-        val Balanced = WeatherEffectFps(precip = 45, cloud = 24, ambient = 15)
+        // 高刷适配（120/144/165Hz）：Full 档的 precip/cloud 只是"上限"，
+        // 实际运行时由 WeatherScreen 按设备刷新率注入（refreshFor()），
+        // 云不再被锁 30fps —— 那是高刷屏上"云一卡一卡"的根因。
+        val Full = WeatherEffectFps(precip = 120, cloud = 120, ambient = 60)
+        val Balanced = WeatherEffectFps(precip = 90, cloud = 90, ambient = 45)
         val Low = WeatherEffectFps(precip = 30, cloud = 15, ambient = 0)
         val Static = WeatherEffectFps(precip = 0, cloud = 0, ambient = 0)
+
+        /** 设备刷新率 → 动效时钟（precip/cloud 跟满屏，ambient 折半省电）。上限 120。 */
+        fun refreshFor(refreshRateHz: Int): WeatherEffectFps {
+            val r = refreshRateHz.coerceIn(60, 120)
+            return WeatherEffectFps(precip = r, cloud = r, ambient = (r / 2).coerceAtLeast(24))
+        }
     }
 }
 

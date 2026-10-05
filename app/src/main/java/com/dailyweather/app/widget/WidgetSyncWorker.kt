@@ -77,10 +77,11 @@ class WidgetSyncWorker(
 
             val awm = AppWidgetManager.getInstance(context)
             
-            // 小组件（1x1 / 2x1）立即渲染
+            // 小组件（1x1 / 2x1 / AQI 4x1）立即渲染
             val smallProviders = listOf(
                 WeatherWidgetProvider::class.java,
                 WeatherWidget2x1Provider::class.java,
+                WeatherWidgetAqiProvider::class.java,
             )
             smallProviders.forEach { cls ->
                 val ids = awm.getAppWidgetIds(ComponentName(context, cls))
@@ -135,7 +136,7 @@ class WidgetSyncWorker(
                 WeatherWidgetProvider::class.java, WeatherWidget2x1Provider::class.java,
                 WeatherWidget4x2Provider::class.java, WeatherWidgetMediumProvider::class.java,
                 WeatherWidgetIOSProvider::class.java, WeatherWidgetHourlyProvider::class.java,
-                WeatherWidgetWeekProvider::class.java,
+                WeatherWidgetWeekProvider::class.java, WeatherWidgetAqiProvider::class.java,
             ).any { cls -> awm.getAppWidgetIds(ComponentName(context, cls)).isNotEmpty() }
             if (!anyActive) {
                 Log.i(TAG, "cancelIfNoInstances: 无任何活跃 widget，已取消共享任务")
@@ -173,6 +174,7 @@ object WidgetScheduler {
             "WeatherWidgetIOSProvider" -> WidgetRenderer.ios(context, city, snap, blue)
             "WeatherWidgetHourlyProvider" -> WidgetRenderer.hourly(context, city, snap, blue)
             "WeatherWidgetWeekProvider" -> WidgetRenderer.week(context, city, snap, blue)
+            "WeatherWidgetAqiProvider" -> WidgetRenderer.aqi(context, city, snap, blue)
             else -> WidgetRenderer.small(context, city, snap, blue)
         }
         runCatching { awm.updateAppWidget(appWidgetId, views) }
