@@ -128,8 +128,15 @@ class DailyWeatherNotificationWorker(
     override suspend fun doWork(): Result {
         val app = applicationContext as DailyWeatherApp
         val container = app.container
+        // 「早晚天气通知」开关真正生效：关闭即不再发这一档。
         val evening = inputData.getBoolean(KEY_EVENING, false)
-        Log.i(TAG, "doWork: 每日通知任务, evening=$evening")
+        val enabled = if (evening) {
+            container.settings.dailyEveningNotification.first()
+        } else {
+            container.settings.dailyMorningNotification.first()
+        }
+        Log.i(TAG, "doWork: 每日通知任务, evening=$evening, enabled=$enabled")
+        if (!enabled) return Result.success()
         val primary = container.cityRepository.currentLocationCity()
             ?: container.cityRepository.cities.first().firstOrNull()
             ?: return Result.success()
@@ -195,6 +202,8 @@ class UrgentNotificationWorker(
     override suspend fun doWork(): Result {
         val app = applicationContext as DailyWeatherApp
         val container = app.container
+        // 「气象预警推送」开关真正生效：关闭即整轮跳过。
+        if (!container.settings.urgentNotification.first()) return Result.success()
         val primary = inputData.getString(KEY_CITY_ID)?.let { container.cityRepository.byId(it) }
             ?: container.cityRepository.currentLocationCity()
             ?: container.cityRepository.cities.first().firstOrNull()
@@ -259,6 +268,16 @@ object AlertDedup {
     }
 }
 
+/** 开关关闭时立即撤销已展示的早晚档与预警通知（常驻胶囊另走 PersistentWeatherNotification.cancel）。 */
+fun cancelDailyAndUrgent(context: Context) {
+    val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    nm.cancel(1002) // 早档
+    nm.cancel(1003) // 晚档
+    for (i in 0 until UrgentNotificationWorker.MAX_PER_ROUND) {
+        nm.cancel(UrgentNotificationWorker.NOTIF_ID_BASE + i)
+    }
+}
+
 /** 常驻胶囊观察 Worker：同步当前天气到通知（阶段一每 30 分钟；实时化在阶段二）。 */
 class PersistentWeatherWorker(
     context: Context,
@@ -268,6 +287,15 @@ class PersistentWeatherWorker(
     override suspend fun doWork(): Result {
         val app = applicationContext as DailyWeatherApp
         val container = app.container
+        val settings = container.settings
+        // 「常驻天气」开关真正生效：关闭即撤销常驻胶囊并跳过本轮。
+        val enabled = settings.persistentNotification.first()
+        if (!enabled) {
+            PersistentWeatherNotification.cancel(applicationContext)
+            return Result.success()
+        }
+        // 划除胶囊后 6h 静默窗口内不自动再弹。
+        if (settings.liveUpdateSuppressedUntil() > System.currentTimeMillis()) return Result.success()
         val primary = container.cityRepository.currentLocationCity()
             ?: container.cityRepository.cities.first().firstOrNull()
             ?: return Result.success()

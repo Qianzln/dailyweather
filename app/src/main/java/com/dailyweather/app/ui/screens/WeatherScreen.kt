@@ -231,9 +231,8 @@ fun WeatherScreen(
                                 }
                             }
                             source.takeIf { it.isNotBlank() }?.let { src ->
-                                Spacer(Modifier.height(18.dp))
                                 Row(
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                                     horizontalArrangement = Arrangement.Center,
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {

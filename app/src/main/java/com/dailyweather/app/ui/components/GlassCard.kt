@@ -31,7 +31,7 @@ import com.dailyweather.app.ui.theme.Tokens
 fun GlassCard(
     modifier: Modifier = Modifier,
     cornerRadius: Dp = Tokens.CardRadius,
-    contentPadding: PaddingValues = PaddingValues(16.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = 14.dp, vertical = 12.dp),
     accentColor: Color? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {

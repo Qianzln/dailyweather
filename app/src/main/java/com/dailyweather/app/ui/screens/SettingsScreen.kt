@@ -55,8 +55,6 @@ fun SettingsScreen(vm: WeatherViewModel, onBack: () -> Unit, onOpenSub: (String)
             NavRow("通知设置", onClick = { onOpenSub("通知设置") })
             NavRow("外观设置", onClick = { onOpenSub("外观设置") })
             NavRow("单位设置", onClick = { onOpenSub("单位设置") })
-            NavRow("定位显示", onClick = { onOpenSub("定位显示") })
-            NavRow("插件设置", onClick = { onOpenSub("插件设置") })
             NavRow("语音播报", onClick = { onOpenSub("语音播报") }, divider = false)
         }
         GroupCard {
@@ -76,6 +74,12 @@ fun SettingsScreen(vm: WeatherViewModel, onBack: () -> Unit, onOpenSub: (String)
                     trailing = vm.updateInstallHint ?: if (vm.updateDownloading) "下载中…" else "",
                     onClick = { vm.installUpdate() },
                 )
+                // 应用内下载失败（常见：GitHub CDN 在当前网络不可达）→ 兜底两条路。
+                if (vm.updateFallbackUrl != null) {
+                    NavRow("复制下载链接", subtitle = "用浏览器或自有网络工具下载",
+                        onClick = { vm.copyUpdateLink() })
+                    NavRow("浏览器打开下载", divider = false, onClick = { vm.openUpdateInBrowser() })
+                }
             }
             NavRow("联系作者", onClick = { onOpenSub("联系作者") }, divider = false)
         }
@@ -89,12 +93,9 @@ fun SettingsSubScreen(title: String, vm: WeatherViewModel, onBack: () -> Unit, o
         title == "通知设置" -> NotificationSettingsScreen(vm, onBack)
         title == "外观设置" -> AppearanceSettingsScreen(vm, onBack)
         title == "单位设置" -> UnitsSettingsScreen(vm, onBack)
-        title == "定位显示" -> LocationDisplayScreen(vm, onBack)
-        title == "插件设置" -> PluginsSettingsScreen(vm, onBack, onOpenSub)
         title == "语音播报" -> SpeechSettingsScreen(vm, onBack)
         title == "了解天气图标" -> WeatherIconsScreen(vm, onBack)
         title == "联系作者" -> ContactAuthorScreen(vm, onBack)
-        title.startsWith("组件详情:") -> WidgetDetailScreen(title.removePrefix("组件详情:"), vm, onBack)
         else -> SettingsScaffold(title, onBack) {
             GroupCard { NavRow("该页面尚未接入", divider = false) }
         }

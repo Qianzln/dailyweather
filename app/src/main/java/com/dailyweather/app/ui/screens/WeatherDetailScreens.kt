@@ -101,7 +101,7 @@ fun HourlyDetailScreen(snapshot: WeatherSnapshot, zone: ZoneId, onBack: () -> Un
             Text("暂无逐小时数据", color = Tokens.TextSecondary, fontSize = 14.sp)
             return@DetailScaffold
         }
-        GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+        GlassCard(modifier = Modifier.fillMaxWidth()) {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     rememberLucide("thermometer")?.let {
@@ -114,7 +114,7 @@ fun HourlyDetailScreen(snapshot: WeatherSnapshot, zone: ZoneId, onBack: () -> Un
                 TempCurve(hours, Modifier.fillMaxWidth().height(140.dp))
             }
         }
-        GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+        GlassCard(modifier = Modifier.fillMaxWidth()) {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     rememberLucide("umbrella")?.let {
@@ -131,7 +131,7 @@ fun HourlyDetailScreen(snapshot: WeatherSnapshot, zone: ZoneId, onBack: () -> Un
         }
         val aqiHours = hours.filter { it.aqi > 0 }
         if (aqiHours.size >= 3) {
-            GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+            GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         rememberLucide("leaf")?.let {
@@ -291,7 +291,7 @@ fun AirQualityDetailScreen(snapshot: WeatherSnapshot, onBack: () -> Unit) {
             Text("暂无空气质量数据", color = Tokens.TextSecondary, fontSize = 14.sp)
             return@DetailScaffold
         }
-        GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(18.dp)) {
+        GlassCard(modifier = Modifier.fillMaxWidth()) {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
@@ -320,7 +320,7 @@ fun AirQualityDetailScreen(snapshot: WeatherSnapshot, onBack: () -> Unit) {
                 }
             }
         }
-        GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+        GlassCard(modifier = Modifier.fillMaxWidth()) {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text("六项污染物", color = Tokens.TextSecondary, fontSize = 13.sp)
                 listOf(
@@ -373,11 +373,11 @@ fun MinutelyPrecipScreen(snapshot: WeatherSnapshot, onBack: () -> Unit) {
             return@DetailScaffold
         }
         if (minutely.description.isNotBlank()) {
-            GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+            GlassCard(modifier = Modifier.fillMaxWidth()) {
                 Text(minutely.description, color = Color.White, fontSize = 15.sp, lineHeight = 22.sp)
             }
         }
-        GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(14.dp)) {
+        GlassCard(modifier = Modifier.fillMaxWidth()) {
             Column {
                 Spacer(Modifier.height(4.dp))
                 MinutelyBars(minutely.precipitation2h, Modifier.fillMaxWidth().height(120.dp))

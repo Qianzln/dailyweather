@@ -57,12 +57,16 @@ class WeatherViewModel(private val container: AppContainer) {
         private set
     var updateInstallHint by mutableStateOf<String?>(null)
         private set
+    /** 下载失败后：官方直链（供"复制链接/浏览器打开"兜底下载）。非空=上一次下载失败。 */
+    var updateFallbackUrl by mutableStateOf<String?>(null)
+        private set
 
     /** 检测最新版本（直连本项目 GitHub 仓库），与当前 BuildConfig 版本号比对。 */
     fun checkUpdate() {
         if (updateChecking) return
         updateChecking = true
         updateMessage = null
+        updateFallbackUrl = null
         scope.launch {
             val info = container.checkLatestUpdate()
             updateChecking = false
@@ -95,19 +99,23 @@ class WeatherViewModel(private val container: AppContainer) {
         return 0
     }
 
-    /** 在 app 内下载更新 APK 并拉起系统安装器（不跳浏览器）。 */
+    /** 在 app 内下载更新 APK 并拉起系统安装器（不跳浏览器）。
+     *  下载失败时给出具体原因 + 官方直链兜底（copyUpdateLink / openUpdateInBrowser）。 */
     fun installUpdate() {
         val info = updateInfo ?: return
         if (updateDownloading) return
         updateDownloading = true
-        updateInstallHint = "正在下载 v${info.version} …"
+        updateInstallHint = "正在下载 v${info.version}（直链 → 镜像依次尝试）…"
+        updateFallbackUrl = null
         scope.launch {
-            val apk = container.downloadUpdateApk(info)
-            if (apk == null) {
+            val result = container.downloadUpdateApk(info)
+            if (result is com.dailyweather.app.di.UpdateDownloadResult.Failure) {
                 updateDownloading = false
-                updateInstallHint = "下载失败，请检查网络后重试"
+                updateInstallHint = "下载失败：${result.reason}"
+                updateFallbackUrl = result.fallbackUrl
                 return@launch
             }
+            val apk = (result as com.dailyweather.app.di.UpdateDownloadResult.Success).file
             val ctx = container.appContext
             val pm = ctx.packageManager
             val canInstall = android.os.Build.VERSION.SDK_INT < 26 || pm.canRequestPackageInstalls()
@@ -120,8 +128,13 @@ class WeatherViewModel(private val container: AppContainer) {
                 runCatching { ctx.startActivity(open) }
                 return@launch
             }
-            val uri = androidx.core.content.FileProvider.getUriForFile(
-                ctx, "${ctx.packageName}.fileprovider", apk)
+            val uri = runCatching {
+                androidx.core.content.FileProvider.getUriForFile(ctx, "${ctx.packageName}.fileprovider", apk)
+            }.getOrNull() ?: run {
+                updateDownloading = false
+                updateInstallHint = "安装包路径异常，请重试"
+                null
+            } ?: return@launch
             val intent = android.content.Intent(android.content.Intent.ACTION_VIEW)
                 .setDataAndType(uri, "application/vnd.android.package-archive")
                 .addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -129,6 +142,29 @@ class WeatherViewModel(private val container: AppContainer) {
             updateDownloading = false
             updateInstallHint = "已下载，正在打开安装器…"
             runCatching { ctx.startActivity(intent) }
+        }
+    }
+
+    /** 兜底 1：把官方下载直链复制到剪贴板（用户可用浏览器 / 自有网络工具下载）。 */
+    fun copyUpdateLink() {
+        val url = updateFallbackUrl ?: updateInfo?.apkUrl ?: return
+        scope.launch(kotlinx.coroutines.Dispatchers.Main) {
+            val ctx = container.appContext
+            val cm = ctx.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+                as? android.content.ClipboardManager
+            cm?.setPrimaryClip(android.content.ClipData.newPlainText("dailyweather-update", url))
+            updateInstallHint = "链接已复制：$url"
+        }
+    }
+
+    /** 兜底 2：用系统浏览器打开官方直链（浏览器可用系统代理/自有网络工具）。 */
+    fun openUpdateInBrowser() {
+        val url = updateFallbackUrl ?: updateInfo?.apkUrl ?: return
+        runCatching {
+            container.appContext.startActivity(
+                android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                    .addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
         }
     }
 
@@ -215,67 +251,6 @@ class WeatherViewModel(private val container: AppContainer) {
         val temp = snap.currentTemp.toInt()
         val text = "当前${temp}度，$desc。"
         container.ttsSpeaker.speak(text)
-    }
-
-    // ---- 雷达帧加载 ----
-    /** 雷达帧序列（按时间升序，用于轮播）。 */
-    var radarFrames by mutableStateOf<List<Pair<Long, ByteArray>>>(emptyList())
-        private set
-    var radarFrameTime by mutableStateOf<Long?>(null)
-        private set
-    var radarIntervalSec by mutableStateOf(600L)
-        private set
-    var radarError by mutableStateOf<String?>(null)
-        private set
-    /** 用于雷达卡触发重新拉帧的版本号（每次刷新 +1）。 */
-    var radarRefreshKey by mutableStateOf(0)
-        private set
-
-    /** 拉取雷达元数据 + 最近若干帧，供雷达卡缩略图轮播。meta 偶发 502，重试 2 次。 */
-    fun loadRadar() {
-        scope.launch {
-            radarError = null
-            try {
-                var meta: com.dailyweather.app.data.remote.RadarGateway.RadarMetadata? = null
-                repeat(3) { attempt ->
-                    runCatching { container.radarGateway.metadata() }
-                        .onSuccess { meta = it }
-                    if (meta != null) return@repeat
-                    delay(800L * (attempt + 1))
-                }
-                val m = meta ?: run {
-                    radarError = "雷达服务暂不可用"
-                    return@launch
-                }
-                if (m.frameTimes.isEmpty()) {
-                    radarError = "暂无雷达帧"
-                    return@launch
-                }
-                radarIntervalSec = m.frameIntervalSec
-                val city = cityFor(selectedCityId)
-                    ?: cities.value.firstOrNull { it.isCurrentLocation }
-                    ?: cities.value.firstOrNull()
-                val lat = city?.latitude ?: 32.06
-                val lon = city?.longitude ?: 118.78
-                // 取最近 4 帧轮播（省流：只拉一小段），失败帧跳过。
-                val times = m.frameTimes.takeLast(4)
-                val frames = buildList {
-                    for (t in times) {
-                        runCatching { container.radarGateway.frame(t, lat, lon) }
-                            .getOrNull()?.let { add(t to it) }
-                    }
-                }
-                if (frames.isNotEmpty()) {
-                    radarFrames = frames
-                    radarFrameTime = frames.last().first
-                    radarRefreshKey += 1
-                } else {
-                    radarError = "雷达帧拉取失败"
-                }
-            } catch (e: Exception) {
-                radarError = "雷达加载失败：${e.message?.take(40)}"
-            }
-        }
     }
 
     fun refreshCurrent() {
@@ -408,6 +383,14 @@ class WeatherViewModel(private val container: AppContainer) {
                 SettingKey.EXTREME -> s.setExtreme(value)
                 SettingKey.SPEECH -> s.setSpeechEnabled(value)
             }
+            // 开关关掉 → 已展示的通知立即撤销，不等下一轮 Worker。
+            when {
+                key == SettingKey.PERSISTENT && !value ->
+                    com.dailyweather.app.notification.PersistentWeatherNotification.cancel(container.appContext)
+                (key == SettingKey.DAILY_MORNING || key == SettingKey.DAILY_EVENING ||
+                        key == SettingKey.URGENT) && !value ->
+                    com.dailyweather.app.notification.cancelDailyAndUrgent(container.appContext)
+            }
         }
     }
 
@@ -429,6 +412,7 @@ class WeatherViewModel(private val container: AppContainer) {
         scope.launch {
             container.settings.setDailyMorning(enabled)
             container.settings.setDailyEvening(enabled)
+            if (!enabled) com.dailyweather.app.notification.cancelDailyAndUrgent(container.appContext)
         }
     }
 

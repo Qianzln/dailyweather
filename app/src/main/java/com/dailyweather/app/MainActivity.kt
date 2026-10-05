@@ -31,7 +31,6 @@ import com.dailyweather.app.ui.screens.HourlyDetailScreen
 import com.dailyweather.app.ui.screens.MinutelyPrecipScreen
 import com.dailyweather.app.ui.screens.SettingsScreen
 import com.dailyweather.app.ui.screens.SettingsSubScreen
-import com.dailyweather.app.ui.screens.TyphoonDetailScreen
 import com.dailyweather.app.ui.screens.WeatherScreen
 import com.dailyweather.app.ui.theme.DailyWeatherTheme
 import com.dailyweather.app.viewmodel.WeatherViewModel
@@ -86,7 +85,7 @@ private sealed interface Screen {
     data class Detail(val kind: DetailKind) : Screen
 }
 
-enum class DetailKind { HOURLY, AIR_QUALITY, MINUTELY, TYPHOON }
+enum class DetailKind { HOURLY, AIR_QUALITY, MINUTELY }
 
 @Composable
 private fun AppNavigation(vm: WeatherViewModel, blueTheme: Boolean, onLocate: () -> Unit) {
@@ -150,7 +149,6 @@ private fun AppNavigation(vm: WeatherViewModel, blueTheme: Boolean, onLocate: ()
                     DetailKind.HOURLY -> HourlyDetailScreen(snapshot = snap ?: return@AnimatedContent, zone = zone, onBack = pop)
                     DetailKind.AIR_QUALITY -> AirQualityDetailScreen(snapshot = snap ?: return@AnimatedContent, onBack = pop)
                     DetailKind.MINUTELY -> MinutelyPrecipScreen(snapshot = snap ?: return@AnimatedContent, onBack = pop)
-                    DetailKind.TYPHOON -> TyphoonDetailScreen(vm = vm, snapshot = snap, onBack = pop)
                 }
             }
         }

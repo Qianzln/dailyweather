@@ -151,13 +151,20 @@ fun TopProgressiveGlass(
     modifier: Modifier = Modifier,
     bandHeight: androidx.compose.ui.unit.Dp = 128.dp,
 ) {
-    val strength = (scrollState.value / 260f).coerceIn(0f, 1f)
+    val strength = (scrollState.value / 260f).coerceIn(0f, 0.9f)
     if (strength <= 0.02f) return
     Box(modifier = modifier.fillMaxWidth().height(bandHeight)) {
         // 关键：blur、DstIn 蒙版、离屏 layer 三者必须落在**同一个节点**上，
         // 顺序（内→外）：drawBackdrop(画模糊) → drawWithContent(DstIn 蒙版)
         // → graphicsLayer(Offscreen 隔离)。这样 DstIn 擦除只发生在离屏层内部，
         // 擦掉的区域真正透明、透出背后的天空，而不是黑底。
+        //
+        // 「一条线 + 一个方框」的去法（v0.1.17）：
+        // 1) 显式关掉库默认的 highlight/shadow（否则 drawBackdrop 会沿 shape 描一圈
+        //    高光边 + 投影，那就是那条"线"和那个"框"）。
+        // 2) DstIn 蒙版**上下都软渐隐**：顶 16% 淡入、底 40% 淡出，四条边里左右是
+        //    通栏（无侧边），上下又都被 alpha 抹平 → 不存在任何硬边。
+        // 3) 整体透明度封顶 0.9，避免顶部落成一整块"实心方框"。
         Box(
             Modifier
                 .matchParentSize()
@@ -165,15 +172,17 @@ fun TopProgressiveGlass(
                     backdrop,
                     shape = { RoundedCornerShape(0.dp) },
                     effects = { blur(13f) },
+                    highlight = { null as com.kyant.backdrop.highlight.Highlight? },
+                    shadow = { null as com.kyant.backdrop.shadow.Shadow? },
                 )
                 .drawWithContent {
                     drawContent()
                     // DstIn 蒙版：只取源 alpha（白=保留，透明=擦除到"真透明"）。
                     drawRect(
                         brush = Brush.verticalGradient(
-                            0f to Color.White,
-                            0.55f to Color.White,
-                            0.85f to Color.Transparent,
+                            0f to Color.Transparent,
+                            0.16f to Color.White,
+                            0.60f to Color.White,
                             1f to Color.Transparent,
                             startY = 0f,
                             endY = size.height,
