@@ -220,15 +220,22 @@ class AppContainer(context: Context) {
     }
 
     /**
-     * 从 APK 读 versionName：解包 AndroidManifest.xml（二进制 XML 的字符串表是明文
-     * UTF-8，versionName 就是其中一个字符串），取第一个 x.y.z 形态的数字串。
-     * 解析失败返回 null（不阻断——digest/PK/大小校验仍兜底）。
+     * 从 APK 读 versionName：解包 AndroidManifest.xml（二进制 XML 的字符串表里
+     * versionName 是其中一个字符串），取第一个 x.y.z 形态的数字串。
+     * 字符串表可能是 UTF-8 或 UTF-16LE（aapt2 按内容选，含中文时常是 UTF-16），
+     * 两种都扫一遍。解析失败返回 null（不阻断——digest/PK/大小校验仍兜底）。
      */
     private fun apkVersionName(apk: java.io.File): String? = runCatching {
         java.util.zip.ZipFile(apk).use { zf ->
             val entry = zf.getEntry("AndroidManifest.xml") ?: return@runCatching null
-            val text = String(zf.getInputStream(entry).readBytes(), Charsets.UTF_8)
-            Regex("\\d+\\.\\d+\\.\\d+").find(text)?.value
+            val bytes = zf.getInputStream(entry).readBytes()
+            val candidates = listOf(
+                String(bytes, Charsets.UTF_8),
+                String(bytes, Charsets.UTF_16LE),
+            )
+            candidates.firstNotNullOfOrNull { t ->
+                Regex("\\d+\\.\\d+\\.\\d+").find(t)?.value
+            }
         }
     }.getOrNull()
 
