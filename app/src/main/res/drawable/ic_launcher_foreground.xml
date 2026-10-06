@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  每日天气 App 图标 v7（南风天气 1:1 复刻）：
-  深蓝底上，白色多层大云居下中，暖黄太阳带白色光晕从云左上"探出"（太阳在云后）。
+  每日天气 App 图标 v8（南风构图 + 北风天气 B 样条云实现）：
+  - 云不再用"圆瓣拼贴"（观感生硬），改用北风天气同款平滑三次贝塞尔云堤剪影
+    （ic_launcher_foreground 同款曲线，向下移 4 单位让云落在下中）
+  - 太阳从云左上探出：白晕环 + 外圈淡晕 + 金黄核心（都在 d66 安全区内）
   分层（自底向上）：
-    1) 云下柔和投影（radial 深蓝，云"浮"在背景上）
-    2) 太阳外层光晕（radial 暖色淡晕，r34）
-    3) 太阳中层光晕（radial 暖黄，r24）
-    4) 太阳核心（radial 金黄，r14，左上偏亮立体）
-    5) 云体柔光（radial 白，撑出云外一圈辉光）
-    6) 云主体（4 圆瓣剪影，上白下浅蓝灰渐变——南风同款上白下灰的云底）
+    1) 云下柔和投影
+    2) 太阳外层淡晕 r28
+    3) 太阳白色光晕环 r20（南风同款"发光太阳"）
+    4) 太阳核心 r11（左上偏亮）
+    5) 云体柔光（收小，不洗白背景）
+    6) 云主体（B 样条云堤，纯白）
+    7) 云右下内侧软阴影（#33FFFFFF，北风同款）
   坐标基于 108 视口，落在自适应安全区（中心圆 d66，x/y∈[21,87]）。
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
@@ -20,11 +23,11 @@
 
     <!-- 1) 云下柔和投影 -->
     <path
-        android:pathData="M32,78 a24,10 0 1,0 48,0 a24,10 0 1,0 -48,0">
+        android:pathData="M26,80 a24,9 0 1,0 48,0 a24,9 0 1,0 -48,0">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="radial"
-                android:centerX="56"
+                android:centerX="50"
                 android:centerY="80"
                 android:gradientRadius="24"
                 android:startColor="#401B3C6E"
@@ -32,81 +35,70 @@
         </aapt:attr>
     </path>
 
-    <!-- 2) 太阳外层光晕（淡） -->
+    <!-- 2) 太阳外层淡晕 -->
     <path
-        android:pathData="M-1,38 a34,34 0 1,0 68,0 a34,34 0 1,0 -68,0">
+        android:pathData="M10,38 a28,28 0 1,0 56,0 a28,28 0 1,0 -56,0">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="radial"
-                android:centerX="33"
+                android:centerX="38"
                 android:centerY="38"
-                android:gradientRadius="34"
-                android:startColor="#3DFFF0B8"
+                android:gradientRadius="28"
+                android:startColor="#33FFF0B8"
                 android:endColor="#00FFF0B8" />
         </aapt:attr>
     </path>
 
-    <!-- 3) 太阳中层光晕（白色光晕环，南风同款"发光太阳"） -->
+    <!-- 3) 太阳白色光晕环 -->
     <path
-        android:pathData="M9,38 a24,24 0 1,0 48,0 a24,24 0 1,0 -48,0">
+        android:pathData="M18,38 a20,20 0 1,0 40,0 a20,20 0 1,0 -40,0">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="radial"
-                android:centerX="33"
+                android:centerX="38"
                 android:centerY="38"
-                android:gradientRadius="24"
+                android:gradientRadius="20"
                 android:startColor="#B3FFFBE8"
                 android:endColor="#00FFFBE8" />
         </aapt:attr>
     </path>
 
-    <!-- 4) 太阳核心（放大 r16，左上偏亮立体） -->
+    <!-- 4) 太阳核心（左上偏亮立体） -->
     <path
-        android:pathData="M17,38 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0">
+        android:pathData="M27,38 a11,11 0 1,0 22,0 a11,11 0 1,0 -22,0">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="radial"
-                android:centerX="30"
-                android:centerY="34"
-                android:gradientRadius="18"
+                android:centerX="35"
+                android:centerY="35"
+                android:gradientRadius="13"
                 android:startColor="#FFE98F"
                 android:endColor="#FFC43C" />
         </aapt:attr>
     </path>
 
-    <!-- 5) 云体柔光（收小到不洗白背景，只托住云缘） -->
+    <!-- 5) 云体柔光（收小，只托住云缘） -->
     <path
-        android:pathData="M36,54 a20,19 0 1,0 40,0 a20,19 0 1,0 -40,0">
+        android:pathData="M28,57 a22,21 0 1,0 44,0 a22,21 0 1,0 -44,0">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="radial"
-                android:centerX="56"
-                android:centerY="54"
-                android:gradientRadius="20"
-                android:startColor="#33FFFFFF"
+                android:centerX="50"
+                android:centerY="55"
+                android:gradientRadius="22"
+                android:startColor="#26FFFFFF"
                 android:endColor="#00FFFFFF" />
         </aapt:attr>
     </path>
 
-    <!-- 6) 云主体：4 圆瓣剪影（南风云形：大顶瓣+左瓣+双下瓣），上白下浅蓝灰 -->
+    <!-- 6) 云主体：北风天气同款平滑 B 样条云堤（下移 4），纯白 -->
     <path
-        android:fillType="nonZero"
-        android:pathData="
-            M44,50 a18,18 0 1,0 36,0 a18,18 0 1,0 -36,0
-            M32,54 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0
-            M37,63 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0
-            M52,62 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0
-        ">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:type="linear"
-                android:startX="56"
-                android:startY="30"
-                android:endX="56"
-                android:endY="78"
-                android:startColor="#FFFFFF"
-                android:endColor="#C9D8EA" />
-        </aapt:attr>
-    </path>
+        android:fillColor="#FFFFFF"
+        android:pathData="M36,74 C28,74 22,68 22,61 C22,54 27,49 34,48 C35,40 42,34 50,34 C58,34 65,40 66,48 C73,49 78,55 78,62 C78,69 72,74 65,74 Z" />
+
+    <!-- 7) 云右下内侧软阴影（浅蓝灰 20%，给纯白云体立体感） -->
+    <path
+        android:fillColor="#33B9CDE8"
+        android:pathData="M50,74 L78,74 C78,70 76,67 73,65 L47,65 C48,68 50,71 50,74 Z" />
 
 </vector>

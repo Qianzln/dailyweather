@@ -50,47 +50,28 @@ data class SpriteCloudSpec(
  */
 fun spriteCloudsFor(state: WeatherSceneState): List<SpriteCloudSpec> {
     val stretch = 1f + state.wind * 1.2f
+    // 晴/晴转多云共用一套规格：两者天空帧本就是同一组（8 帧积云），若云精灵数量不同，
+    // 数据源在 CLEAR↔PARTLY_CLOUDY 间每次翻牌都会触发 900ms 特效 Crossfade，双份云
+    // 临时叠加 → 顶部天空"一会儿深一会儿浅"。规格一致后翻牌只变卡片图标，天空零跳动。
+    val sunny = listOf(
+        // 高空卷云 4 朵（南风 PHOTO_WISP count=3）。alpha 上调到"看得见的丝状云"。
+        SpriteCloudSpec(
+            SpriteAssets.CloudSprite.WISP, SpriteAssets.CloudSprite.WISP,
+            4, 0.06f..0.18f, 0.50f..0.70f, 0.52f, 0.009f * stretch, 11,
+        ),
+        // 中景积云群 4 朵（南风 PHOTO_CUMULUS count=9 的"晴"档：明显而不密）。
+        SpriteCloudSpec(
+            SpriteAssets.CloudSprite.CUMULUS_DAY_4, SpriteAssets.CloudSprite.CUMULUS_NIGHT,
+            4, 0.18f..0.30f, 0.50f..0.66f, 0.46f, 0.010f * stretch, 13,
+        ),
+        // 低空积云 3 朵，近景更显眼（与背景帧拉开纵深；用户反馈晴天云"不够明显"）。
+        SpriteCloudSpec(
+            SpriteAssets.CloudSprite.CUMULUS_DAY_1, SpriteAssets.CloudSprite.CUMULUS_NIGHT,
+            3, 0.26f..0.36f, 0.44f..0.58f, 0.52f, 0.016f * stretch, 23,
+        ),
+    )
     return when (state.kind) {
-        WeatherKind.CLEAR -> listOf(
-            // 高空卷云 4 朵（南风 PHOTO_WISP count=3）。alpha 上调到"看得见的丝状云"。
-            SpriteCloudSpec(
-                SpriteAssets.CloudSprite.WISP, SpriteAssets.CloudSprite.WISP,
-                4, 0.06f..0.18f, 0.50f..0.70f, 0.52f, 0.009f * stretch, 11,
-            ),
-            // 中景积云群 4 朵（南风 PHOTO_CUMULUS count=9 的"晴"档：明显而不密）。
-            SpriteCloudSpec(
-                SpriteAssets.CloudSprite.CUMULUS_DAY_4, SpriteAssets.CloudSprite.CUMULUS_NIGHT,
-                4, 0.18f..0.30f, 0.50f..0.66f, 0.46f, 0.010f * stretch, 13,
-            ),
-            // 低空积云 3 朵，近景更显眼（与背景帧拉开纵深；用户反馈晴天云"不够明显"）。
-            SpriteCloudSpec(
-                SpriteAssets.CloudSprite.CUMULUS_DAY_1, SpriteAssets.CloudSprite.CUMULUS_NIGHT,
-                3, 0.26f..0.36f, 0.44f..0.58f, 0.52f, 0.016f * stretch, 23,
-            ),
-        )
-
-        WeatherKind.PARTLY_CLOUDY -> listOf(
-            // 高空卷云 3 朵。
-            SpriteCloudSpec(
-                SpriteAssets.CloudSprite.WISP, SpriteAssets.CloudSprite.WISP,
-                3, 0.05f..0.16f, 0.50f..0.68f, 0.40f, 0.011f * stretch, 31,
-            ),
-            // 高积云群：成片碎云填中层（"云阵"）。
-            SpriteCloudSpec(
-                SpriteAssets.CloudSprite.ALTO_DAY_1, SpriteAssets.CloudSprite.WISP,
-                3, 0.10f..0.24f, 0.60f..0.85f, 0.45f, 0.012f * stretch, 35,
-            ),
-            // 白云朵朵：5 朵积云变体轮换（南风 CUMULUS count=9 的"多云"档）。
-            SpriteCloudSpec(
-                SpriteAssets.CloudSprite.CUMULUS_DAY_2, SpriteAssets.CloudSprite.CUMULUS_NIGHT,
-                5, 0.14f..0.32f, 0.45f..0.62f, 0.60f, 0.018f * stretch, 41,
-            ),
-            // 近景大积云 1 朵，贴镜头的纵深感（南风 PHOTO_CUMULUS float≈0.88 高 alpha 档）。
-            SpriteCloudSpec(
-                SpriteAssets.CloudSprite.CUMULUS_DAY_3, SpriteAssets.CloudSprite.CUMULUS_NIGHT,
-                1, 0.30f..0.42f, 0.70f..0.90f, 0.78f, 0.030f * stretch, 53,
-            ),
-        )
+        WeatherKind.CLEAR, WeatherKind.PARTLY_CLOUDY -> sunny
 
         WeatherKind.CLOUDY -> listOf(
             // 三层暗云堤铺满上 1/3：顶层薄、中层主、底层碎。
