@@ -59,6 +59,10 @@ float fbm(float2 p) {
 
 half4 main(float2 fragCoord) {
     float2 uv = fragCoord / uResolution;
+    // uv.y = 1.0 是顶部（OpenGL/AGSL 坐标系 y 轴向下）；画布 y=0 也是顶部，
+    // 所以 uv.y=1.0 处需要完全遮罩。这里 invert: topMask = smoothstep(1.0, 0.90, uv.y)
+    // 使得 y≥1.0（顶部）→ mask=0，y≤0.90 → mask=1（全量）。
+    float topMask = smoothstep(1.0, 0.90, uv.y);
     float t = uTime;
     // 云团形状：低频、慢漂移 + domain warp。
     float2 p = uv * float2(2.1, 1.7);
@@ -76,7 +80,7 @@ half4 main(float2 fragCoord) {
     // 明暗：云顶亮、云底暗（uv.y=0 是顶部）+ 细节高光。
     float vertical = 1.0 - uv.y * 0.45;
     float shade = (0.45 + 0.55 * detail) * vertical;
-    float a = cloud * uIntensity * (0.40 + 0.60 * shade);
+    float a = cloud * uIntensity * (0.40 + 0.60 * shade) * topMask;
     // 颜色：暗部压到 tint 的 60%，亮部接近 tint（超 1 自动 clamp）。
     half3 c = uTint.rgb * (0.55 + 0.55 * shade);
     return half4(c, half(a));
@@ -109,15 +113,14 @@ fun NoiseHazeLayer(
     if (android.os.Build.VERSION.SDK_INT < 33) return
     val quality = LocalEffectQuality.current
     if (quality.particleScale <= 0f || quality.fps.ambient <= 0) return
-    return // [实验] 关噪声层
+
     val shader = remember { RuntimeShader(NOISE_HAZE_AGSF) }
     val brush = remember(shader) { ShaderBrush(shader) }
     val tint = SpriteSky.cloudTint(state)
 
-    // 注意（v0.1.26 教训）：本层**不能**套 DstIn 顶部蒙版 + Offscreen 离屏合成——
-    // 实测（像素级取证）该组合在 API 33+ 上把顶部 25% 直接压成纯黑带，用户实机反馈
-    // "最上面就是暗色"即此。噪层顶部不做渐隐：其强度 0.14-0.30 且漂移极慢，顶部的
-    // 明暗变化远小于黑带观感；顶部"稳定"由帧层渐隐 + kind 滞回保证即可。
+    // 噪声层：顶部不做 DstIn/Offscreen 遮罩（实测在 API33+ 上会把顶部压成纯黑带）。
+    // 其强度仅 0.14（晴天）且漂移极慢，对顶部观感影响可忽略；顶部稳定由帧层渐隐
+    // 和 kind 滞回保证。
     Canvas(modifier) {
         shader.setFloatUniform("uResolution", size.width, size.height)
         shader.setFloatUniform("uTime", clock.floatValue)

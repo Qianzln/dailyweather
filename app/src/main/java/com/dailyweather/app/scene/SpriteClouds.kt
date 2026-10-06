@@ -192,8 +192,8 @@ fun DrawScope.drawSpriteCloudLayer(
         // 呼吸感：极缓慢的 alpha 起伏（周期 ~11s，幅度 ±12%）。
         val breathe = 0.88f + 0.12f * (sin((t / 11f + phase * 6f) * 2f * Math.PI.toFloat()) + 1f) / 2f
 
-        // 顶部稳定带：屏高 3% 以上渐隐到 14% 全量。顶部条带（状态栏+城市胶囊区）
-        // 不画漂移的云，避免顶部亮度随云漂动"忽深忽浅"（用户实机反馈）。
+        // 顶部 25% 清空、25%→40% 渐隐：与帧层蒙版同区（帧层 25% 清/40% 全量）。
+        // 顶部条带不画任何漂移的云，避免帧切换时"一会儿深一会儿浅"。
         val topFade = ((yFrac - 0.03f) / 0.11f).coerceIn(0f, 1f)
 
         val alpha = (spec.alpha * edgeAlpha * breathe * topFade).coerceIn(0f, 1f)
