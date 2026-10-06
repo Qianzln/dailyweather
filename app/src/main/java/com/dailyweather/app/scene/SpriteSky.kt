@@ -13,10 +13,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.coroutines.Dispatchers
@@ -195,7 +199,26 @@ fun SpriteSkyBackground(
             // 注意：Crossfade content 不是外层 BoxScope 直接子项，matchParentSize
             // 在此未定义（实测尺寸算 0 → 帧不渲染），必须 fillMaxSize。
             if (bmp != null) {
-                Canvas(Modifier.fillMaxSize()) {
+                // 帧层竖直 alpha 蒙版：顶部 20% 屏高把云纹理淡到 0——天空帧的波浪云脊
+                // 原来一路顶到屏顶，在深蓝天顶上像贴了一道白纹（用户指认"突兀"处）。
+                // 离屏 + DstIn 与 TopProgressiveGlass 同一手法：只蒙本层，不伤背后渐变。
+                Canvas(
+                    Modifier.fillMaxSize()
+                        .drawWithContent {
+                            drawContent()
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    0f to Color.Transparent,
+                                    0.20f to Color.White,
+                                    1f to Color.White,
+                                    startY = 0f,
+                                    endY = size.height,
+                                ),
+                                blendMode = BlendMode.DstIn,
+                            )
+                        }
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen },
+                ) {
                     // 帧流化：静止帧 → 连续漂移 + 呼吸缩放。
                     // 1) 漂移：dx = -(t×speed mod 1)×屏宽，基于同一全局时钟 → 帧切换时
                     //    位移连续，Crossfade 里两帧云形交错淡化，肉眼看不到"翻页"；

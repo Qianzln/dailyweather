@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dailyweather.app.data.City
 import com.dailyweather.app.ui.components.GlassCard
+import com.dailyweather.app.ui.components.WeatherSkyBackground
 import com.dailyweather.app.ui.components.rememberLucide
 import com.dailyweather.app.ui.theme.LocalSky
 import com.dailyweather.app.viewmodel.WeatherViewModel
@@ -38,11 +39,12 @@ import com.dailyweather.app.viewmodel.WeatherViewModel
 /** 城市搜索：高德关键字搜索优先，内置城市表兜底。 */
 @Composable
 fun CitySearchScreen(vm: WeatherViewModel, onBack: () -> Unit) {
-    val sky = LocalSky.current
-    var keyword by remember { mutableStateOf("") }
-    var results by remember { mutableStateOf(listOf<Triple<String, Double, Double>>()) }
+    WeatherSkyBackground(vm) {
+        val sky = LocalSky.current
+        var keyword by remember { mutableStateOf("") }
+        var results by remember { mutableStateOf(listOf<Triple<String, Double, Double>>()) }
 
-    Column(
+        Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(WindowInsets.statusBars.asPaddingValues())
@@ -105,6 +107,7 @@ fun CitySearchScreen(vm: WeatherViewModel, onBack: () -> Unit) {
                     Text(name, color = sky.textPrimary, fontSize = 16.sp)
                 }
             }
+        }
         }
     }
 }

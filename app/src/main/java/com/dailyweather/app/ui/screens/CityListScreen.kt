@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dailyweather.app.ui.components.GlassCard
 import com.dailyweather.app.ui.components.WeatherBitmapIcon
+import com.dailyweather.app.ui.components.WeatherSkyBackground
 import com.dailyweather.app.ui.components.SkyconMap
 import com.dailyweather.app.ui.components.rememberLucide
 import com.dailyweather.app.ui.theme.LocalSky
@@ -52,23 +53,24 @@ fun CityListScreen(
     onOpenSearch: () -> Unit,
     onPickCity: (String) -> Unit,
 ) {
-    val sky = LocalSky.current
     val cities by vm.cities.collectAsState()
     val snapshots by vm.snapshotCache.collectAsState()
 
-    // ---- 拖拽排序状态（LazyColumn 手柄拖动：记录拖拽中的 key 与位移）----
-    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
-    var draggingId by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
-    var dragOffset by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
-    val itemHeightPx = with(androidx.compose.ui.platform.LocalDensity.current) { 96.dp.toPx() }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(WindowInsets.statusBars.asPaddingValues())
-            .padding(16.dp),
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    // 天气天空背景（随所选城市天气）+ 场景调色板，替代纯蓝窗底。
+    WeatherSkyBackground(vm) {
+        val sky = LocalSky.current
+        // ---- 拖拽排序状态（LazyColumn 手柄拖动：记录拖拽中的 key 与位移）----
+        val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+        var draggingId by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
+        var dragOffset by remember { androidx.compose.runtime.mutableFloatStateOf(0f) }
+        val itemHeightPx = with(androidx.compose.ui.platform.LocalDensity.current) { 96.dp.toPx() }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(WindowInsets.statusBars.asPaddingValues())
+                .padding(16.dp),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
             val backIcon = rememberLucide("arrow-left")
             if (backIcon != null) {
                 Icon(
@@ -202,6 +204,7 @@ fun CityListScreen(
                     Text("＋ 添加城市", color = sky.textSecondary, fontSize = 15.sp)
                 }
             }
+        }
         }
     }
 }
