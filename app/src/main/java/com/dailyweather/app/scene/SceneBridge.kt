@@ -12,6 +12,56 @@ import java.util.Calendar
  */
 object SceneBridge {
 
+    /**
+     * kind 滞回（防"翻牌"）：数据源在相邻刷新里会在 CLEAR/PARTLY_CLOUDY/CLOUDY/WIND 之间
+     * 来回跳（同一天的"晴""晴转多云""风"），每翻一次，天空帧/云精灵/tint 整套跟着变 →
+     * 顶部天空"一会儿深一会儿浅"。规则：
+     * - 新 kind 需**连续两次**快照确认才生效（单次翻牌被压住）；
+     * - 降水/雾类（RAIN/THUNDER/SNOW/SLEET/FOG）从有到无、从无到有**立即生效**（安全优先）；
+     * - 同一 pending 挂起超过 10 分钟也放行（避免一直压着真实天气变化）。
+     * 进程内按 cityKey 记忆，两个消费面（主屏/子页天空）共用同一份。
+     */
+    private class StickyKind {
+        var stable = WeatherKind.CLEAR
+        var pending: WeatherKind? = null
+        var pendingSinceMs = 0L
+        var pendingCount = 0
+    }
+
+    private val stickyKinds = java.util.concurrent.ConcurrentHashMap<String, StickyKind>()
+
+    private val IMMEDIATE_KINDS = setOf(
+        WeatherKind.RAIN, WeatherKind.THUNDER,
+        WeatherKind.SNOW, WeatherKind.SLEET, WeatherKind.FOG,
+    )
+    private val PENDING_TIMEOUT_MS = 10 * 60_000L
+
+    private fun stabilizeKind(cityKey: String, fresh: WeatherKind, nowMs: Long): WeatherKind {
+        val s = stickyKinds.getOrPut(cityKey) {
+            StickyKind().also { it.stable = fresh }
+        }
+        if (fresh == s.stable) {
+            s.pending = null; s.pendingCount = 0
+            return s.stable
+        }
+        if (fresh in IMMEDIATE_KINDS || s.stable in IMMEDIATE_KINDS) {
+            s.stable = fresh; s.pending = null; s.pendingCount = 0
+            return fresh
+        }
+        if (s.pending == fresh) {
+            s.pendingCount++
+            if (s.pendingCount >= 2 || nowMs - s.pendingSinceMs >= PENDING_TIMEOUT_MS) {
+                s.stable = fresh; s.pending = null; s.pendingCount = 0
+                return s.stable
+            }
+            return s.stable
+        }
+        s.pending = fresh
+        s.pendingSinceMs = nowMs
+        s.pendingCount = 1
+        return s.stable
+    }
+
     fun phaseOf(cal: Calendar): SkyPhase = when (Fixture.hourOverride ?: cal.get(Calendar.HOUR_OF_DAY)) {
         in 5..8 -> SkyPhase.MORNING
         in 9..16 -> SkyPhase.DAY
@@ -73,11 +123,13 @@ object SceneBridge {
     fun stateFor(
         snapshot: WeatherSnapshot?,
         zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
+        cityKey: String = "default",
     ): WeatherSceneState {
-        val kind = kindOf(snapshot?.currentSkycon ?: "")
+        val rawKind = kindOf(snapshot?.currentSkycon ?: "")
         // 相位必须按城市当地时间判：设备在别的时区时，默认时区会把白天判成夜。
         val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone(zone))
         val nowMs = System.currentTimeMillis()
+        val kind = stabilizeKind(cityKey, rawKind, nowMs)
         val wet = kind == WeatherKind.RAIN || kind == WeatherKind.THUNDER ||
             kind == WeatherKind.SNOW || kind == WeatherKind.SLEET
         return WeatherSceneState(

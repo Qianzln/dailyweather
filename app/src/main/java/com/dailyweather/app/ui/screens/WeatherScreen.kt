@@ -135,7 +135,9 @@ fun WeatherScreen(
     val effectQuality = remember(refreshRate, powerSave) {
         if (powerSave) EffectQuality.Low else EffectQuality.High.copy(fps = WeatherEffectFps.refreshFor(refreshRate))
     }
-    val scene = remember(snapshot, cityZone) { SceneBridge.stateFor(snapshot, cityZone) }
+    val scene = remember(snapshot, cityZone) {
+        SceneBridge.stateFor(snapshot, cityZone, cityKey = city?.id ?: "default")
+    }
     val sky = SkyPalette.of(scene)
 
     CompositionLocalProvider(

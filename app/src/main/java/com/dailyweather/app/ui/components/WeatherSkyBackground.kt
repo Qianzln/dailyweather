@@ -35,7 +35,9 @@ fun WeatherSkyBackground(vm: WeatherViewModel, content: @Composable () -> Unit) 
         ?: cities.firstOrNull()
     val snapshot = snapshots[vm.selectedCityId] ?: snapshots[city?.id]
     val zone = city?.zone ?: java.time.ZoneId.systemDefault()
-    val scene = remember(snapshot, zone) { SceneBridge.stateFor(snapshot, zone) }
+    val scene = remember(snapshot, zone) {
+        SceneBridge.stateFor(snapshot, zone, cityKey = city?.id ?: "default")
+    }
     val sky = SkyPalette.of(scene)
 
     Box(modifier = Modifier.fillMaxSize()) {

@@ -4,7 +4,12 @@ import android.graphics.RuntimeShader
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
 
 /**
@@ -114,7 +119,30 @@ fun NoiseHazeLayer(
     val brush = remember(shader) { ShaderBrush(shader) }
     val tint = SpriteSky.cloudTint(state)
 
-    Canvas(modifier) {
+    // 顶部稳定带：DstIn 把噪声云在屏高 3% 渐隐、14% 全量（与精灵云顶部淡化同区），
+    // 顶部条带（状态栏+城市胶囊区）不再随噪声漂动变亮变暗。
+    // 关键（同 TopProgressiveGlass 的教训）：蒙版与离屏必须在**同一节点**串联——
+    // drawWithContent(DstIn) 之后再 graphicsLayer(Offscreen)，DstIn 擦除发生在离屏
+    // 缓冲内部，擦掉的区域透出背后天空而不是黑底。
+    Canvas(
+        modifier
+            .drawWithContent {
+                drawContent()
+                drawRect(
+                    brush = Brush.verticalGradient(
+                        0f to Color.Transparent,
+                        0.14f to Color.White,
+                        1f to Color.White,
+                        startY = 0f,
+                        endY = size.height,
+                    ),
+                    blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
+                )
+            }
+            .graphicsLayer {
+                compositingStrategy = CompositingStrategy.Offscreen
+            },
+    ) {
         shader.setFloatUniform("uResolution", size.width, size.height)
         shader.setFloatUniform("uTime", clock.floatValue)
         shader.setFloatUniform("uIntensity", hazeIntensityFor(state))
