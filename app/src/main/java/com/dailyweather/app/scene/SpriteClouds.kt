@@ -52,20 +52,20 @@ fun spriteCloudsFor(state: WeatherSceneState): List<SpriteCloudSpec> {
     val stretch = 1f + state.wind * 1.2f
     return when (state.kind) {
         WeatherKind.CLEAR -> listOf(
-            // 高空卷云 4 朵，若隐若现（南风 PHOTO_WISP count=3）。
+            // 高空卷云 4 朵（南风 PHOTO_WISP count=3）。alpha 上调到"看得见的丝状云"。
             SpriteCloudSpec(
                 SpriteAssets.CloudSprite.WISP, SpriteAssets.CloudSprite.WISP,
-                4, 0.06f..0.18f, 0.50f..0.70f, 0.40f, 0.009f * stretch, 11,
+                4, 0.06f..0.18f, 0.50f..0.70f, 0.52f, 0.009f * stretch, 11,
             ),
-            // 中景积云群 3 朵（南风 PHOTO_CUMULUS count=9 的"晴"档：淡而多）。
+            // 中景积云群 4 朵（南风 PHOTO_CUMULUS count=9 的"晴"档：明显而不密）。
             SpriteCloudSpec(
                 SpriteAssets.CloudSprite.CUMULUS_DAY_4, SpriteAssets.CloudSprite.CUMULUS_NIGHT,
-                3, 0.18f..0.30f, 0.50f..0.66f, 0.32f, 0.010f * stretch, 13,
+                4, 0.18f..0.30f, 0.50f..0.66f, 0.46f, 0.010f * stretch, 13,
             ),
-            // 低空积云 3 朵，稍显眼（视差近景，与背景帧拉开纵深）。
+            // 低空积云 3 朵，近景更显眼（与背景帧拉开纵深；用户反馈晴天云"不够明显"）。
             SpriteCloudSpec(
                 SpriteAssets.CloudSprite.CUMULUS_DAY_1, SpriteAssets.CloudSprite.CUMULUS_NIGHT,
-                2, 0.26f..0.36f, 0.44f..0.58f, 0.32f, 0.016f * stretch, 23,
+                3, 0.26f..0.36f, 0.44f..0.58f, 0.52f, 0.016f * stretch, 23,
             ),
         )
 

@@ -86,7 +86,7 @@ half4 main(float2 fragCoord) {
 /** 按天气取噪声云强度：云团明暗结构撑得起更高 alpha，整体抬升；雨天/雾天最浓、晴天最淡。 */
 private fun hazeIntensityFor(state: WeatherSceneState): Float {
     val base = when (state.kind) {
-        WeatherKind.CLEAR -> 0.14f
+        WeatherKind.CLEAR -> 0.20f
         WeatherKind.PARTLY_CLOUDY -> 0.20f
         WeatherKind.WIND -> 0.22f
         WeatherKind.CLOUDY -> 0.24f

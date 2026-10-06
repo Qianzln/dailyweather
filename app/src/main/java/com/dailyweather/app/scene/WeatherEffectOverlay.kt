@@ -221,31 +221,33 @@ internal fun DrawScope.drawSun(state: WeatherSceneState, quality: EffectQuality)
     // 弧线：x 从屏宽 12% 到 88%，y 在中午(0.5)升到最高。
     val x = size.width * (0.12f + 0.76f * progress)
     val y = size.height * (0.50f - 0.30f * sin(PI.toFloat() * progress))
-    val coreR = size.width * 0.038f
-    val glowSize = coreR * 7f
+    val coreR = size.width * 0.045f
+    val glowSize = coreR * 8f
     // 朝晚霞判定：日出前20%或日落前20%时段内，太阳靠近地平线，霞光增强。
     val isGlowPhase = state.phase == SkyPhase.MORNING || state.phase == SkyPhase.EVENING
+    // 正午：暖白光晕拉大到 3 层（内实外虚，对齐南风晴天"太阳光晕"——亮白辐射盘+宽晕），
+    // 核心放大并提亮，白天一眼可见。
     val (tints, glowAlpha) = if (isGlowPhase) {
         // 朝晚霞：暖橙色 tint，光晕更大更亮。
-        listOf(Color(0xAAFF9944), Color(0x66FFB366)) to 0.75f
+        listOf(Color(0xAAFF9944), Color(0x66FFB366), Color(0x3DFFB366)) to 0.75f
     } else {
         // 正午：正常暖白 tint。
-        listOf(Color(0x55FFD98A), Color(0x33FFE9C0)) to 0.5f
+        listOf(Color(0x99FFD98A), Color(0x66FFE9C0), Color(0x40FFF3C8)) to 0.85f
     }
     // 低档质量光晕只画一层小的，省一次大纹理采样。
-    val glowLayers = if (quality.particleScale >= 0.7f) 2 else 1
+    val glowLayers = if (quality.particleScale >= 0.7f) 3 else 1
     for (i in 0 until glowLayers) {
         val s = glowSize * (1f + i * 0.55f) * (if (isGlowPhase) 1.5f else 1f)
         drawImage(
             image = glow,
             dstOffset = androidx.compose.ui.unit.IntOffset((x - s / 2f).toInt(), (y - s / 2f).toInt()),
             dstSize = androidx.compose.ui.unit.IntSize(s.toInt(), s.toInt()),
-            alpha = glowAlpha,
+            alpha = glowAlpha * (1f - i * 0.22f),
             colorFilter = ColorFilter.tint(tints[i], BlendMode.SrcIn),
         )
     }
-    drawCircle(Color(0xCCFFF3CE), radius = coreR, center = Offset(x, y))
-    drawCircle(Color(0xFFFFFFFF).copy(alpha = 0.85f), radius = coreR * 0.62f, center = Offset(x, y))
+    drawCircle(Color(0xFFFFF8E0), radius = coreR * 1.1f, center = Offset(x, y))
+    drawCircle(Color(0xFFFFFFFF).copy(alpha = 0.95f), radius = coreR * 0.66f, center = Offset(x, y))
     // 朝晚霞额外添加一道地平线暖色光晕（对齐南风 HorizonGlow）。
     if (isGlowPhase) {
         val horizonY = size.height * 0.88f

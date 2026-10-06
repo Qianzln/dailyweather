@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Splash 屏图标：与 App 安装图标 v5 同构图（蓝底上：光晕黄太阳 + 多层白云） -->
+<!-- Splash 屏图标：与 App 安装图标 v6 同构图（蓝底上：放大+双层光晕的黄太阳 + 上半白云） -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="200dp"
@@ -9,80 +9,92 @@
 
     <!-- 1) 云体柔光 -->
     <path
-        android:pathData="M20,57 a37,32 0 1,0 74,0 a37,32 0 1,0 -74,0">
+        android:pathData="M33,44 a24,22 0 1,0 48,0 a24,22 0 1,0 -48,0">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="radial"
                 android:centerX="57"
-                android:centerY="59"
-                android:gradientRadius="33"
-                android:startColor="#4DFFFFFF"
+                android:centerY="44"
+                android:gradientRadius="24"
+                android:startColor="#40FFFFFF"
                 android:endColor="#00FFFFFF" />
         </aapt:attr>
     </path>
 
     <!-- 2) 云下方柔和投影 -->
     <path
-        android:pathData="M31,71 a27,15 0 1,0 54,0 a27,15 0 1,0 -54,0">
+        android:pathData="M41,55 a17,9 0 1,0 34,0 a17,9 0 1,0 -34,0">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="radial"
                 android:centerX="58"
-                android:centerY="75"
-                android:gradientRadius="26"
-                android:startColor="#3D183466"
+                android:centerY="58"
+                android:gradientRadius="17"
+                android:startColor="#33183466"
                 android:endColor="#00183466" />
         </aapt:attr>
     </path>
 
-    <!-- 3) 太阳光晕 -->
+    <!-- 3) 太阳外层光晕 -->
     <path
-        android:pathData="M14,38 a23,23 0 1,0 46,0 a23,23 0 1,0 -46,0">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:type="radial"
-                android:centerX="37"
-                android:centerY="38"
-                android:gradientRadius="23"
-                android:startColor="#F2FFEC9E"
-                android:endColor="#00FFE9A8" />
-        </aapt:attr>
-    </path>
-
-    <!-- 4) 太阳核心 -->
-    <path
-        android:pathData="M24,38 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0">
+        android:pathData="M5,37 a30,30 0 1,0 60,0 a30,30 0 1,0 -60,0">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="radial"
                 android:centerX="35"
-                android:centerY="35"
-                android:gradientRadius="16"
-                android:startColor="#FFFCE0"
-                android:endColor="#FFCB3D" />
+                android:centerY="37"
+                android:gradientRadius="30"
+                android:startColor="#66FFF3C0"
+                android:endColor="#00FFF3C0" />
         </aapt:attr>
     </path>
 
-    <!-- 5) 云主体 -->
+    <!-- 4) 太阳中层光晕 -->
+    <path
+        android:pathData="M15,37 a20,20 0 1,0 40,0 a20,20 0 1,0 -40,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="35"
+                android:centerY="37"
+                android:gradientRadius="20"
+                android:startColor="#D9FFE08A"
+                android:endColor="#00FFE08A" />
+        </aapt:attr>
+    </path>
+
+    <!-- 5) 太阳核心 -->
+    <path
+        android:pathData="M19,37 a16,16 0 1,0 32,0 a16,16 0 1,0 -32,0">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="34"
+                android:centerY="34"
+                android:gradientRadius="18"
+                android:startColor="#FFFDF0"
+                android:endColor="#FFD24A" />
+        </aapt:attr>
+    </path>
+
+    <!-- 6) 云主体：4 圆瓣剪影，只占上半 -->
     <path
         android:fillType="nonZero"
         android:pathData="
-            M40,51 a17,17 0 1,0 34,0 a17,17 0 1,0 -34,0
-            M31,58 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0
-            M58,54 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0
-            M36,66 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0
-            M47,69 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0
-            M59,64 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0
+            M58,40 a13,13 0 1,0 26,0 a13,13 0 1,0 -26,0
+            M47,44 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0
+            M68,44 a9,9 0 1,0 18,0 a9,9 0 1,0 -18,0
+            M56,46 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0
         ">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:type="linear"
-                android:startX="54"
-                android:startY="34"
-                android:endX="54"
-                android:endY="82"
+                android:startX="57"
+                android:startY="27"
+                android:endX="57"
+                android:endY="56"
                 android:startColor="#FFFFFF"
-                android:endColor="#CFE0F2" />
+                android:endColor="#D9E6F5" />
         </aapt:attr>
     </path>
 
