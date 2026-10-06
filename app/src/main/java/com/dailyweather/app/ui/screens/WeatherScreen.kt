@@ -713,21 +713,23 @@ private fun SunCard(snapshot: WeatherSnapshot, zone: java.time.ZoneId) {
             }
             Spacer(Modifier.height(10.dp))
             // 白色细线：已过段暗、未来段亮；太阳/月牙骑在分界处（无圆底托，南风就是裸图标）。
+            // 修复"白色宽白条"：线减细（3dp→2dp），未来段 0.90 纯白在白天玻璃卡上像一道
+            // 横贯的亮白条——压到 0.55，保持"未来比已走过亮"的进度语义但不刺眼。
             Canvas(modifier = Modifier.fillMaxWidth().height(30.dp)) {
                 val lineY = size.height / 2f
-                val lineH = 3.dp.toPx()
+                val lineH = 2.dp.toPx()
                 val inset = 4.dp.toPx()
                 val x0 = inset
                 val x1 = size.width - inset
                 val cx = x0 + (x1 - x0) * frac
                 drawRoundRect(
-                    color = Color.White.copy(alpha = 0.28f),
+                    color = Color.White.copy(alpha = 0.22f),
                     topLeft = Offset(x0, lineY - lineH / 2f),
                     size = Size(cx - x0, lineH),
                     cornerRadius = CornerRadius(lineH / 2f, lineH / 2f),
                 )
                 drawRoundRect(
-                    color = Color.White.copy(alpha = 0.90f),
+                    color = Color.White.copy(alpha = 0.55f),
                     topLeft = Offset(cx, lineY - lineH / 2f),
                     size = Size(x1 - cx, lineH),
                     cornerRadius = CornerRadius(lineH / 2f, lineH / 2f),
