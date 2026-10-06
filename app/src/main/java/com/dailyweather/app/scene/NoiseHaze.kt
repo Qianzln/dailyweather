@@ -4,12 +4,7 @@ import android.graphics.RuntimeShader
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.ShaderBrush
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Modifier
 
 /**
@@ -114,35 +109,16 @@ fun NoiseHazeLayer(
     if (android.os.Build.VERSION.SDK_INT < 33) return
     val quality = LocalEffectQuality.current
     if (quality.particleScale <= 0f || quality.fps.ambient <= 0) return
-
+    return // [实验] 关噪声层
     val shader = remember { RuntimeShader(NOISE_HAZE_AGSF) }
     val brush = remember(shader) { ShaderBrush(shader) }
     val tint = SpriteSky.cloudTint(state)
 
-    // 顶部稳定带：DstIn 把噪声云在屏高 4% 渐隐、25% 全量（v0.1.25 由 3/14% 扩到 4/25%，
-    // 与帧层 30% 渐隐一致），顶部条带不再随噪声漂动变亮变暗，也不会发闷。
-    // 关键（同 TopProgressiveGlass 的教训）：蒙版与离屏必须在**同一节点**串联——
-    // drawWithContent(DstIn) 之后再 graphicsLayer(Offscreen)，DstIn 擦除发生在离屏
-    // 缓冲内部，擦掉的区域透出背后天空而不是黑底。
-    Canvas(
-        modifier
-            .drawWithContent {
-                drawContent()
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        0f to Color.Transparent,
-                        0.25f to Color.White,
-                        1f to Color.White,
-                        startY = 0f,
-                        endY = size.height,
-                    ),
-                    blendMode = androidx.compose.ui.graphics.BlendMode.DstIn,
-                )
-            }
-            .graphicsLayer {
-                compositingStrategy = CompositingStrategy.Offscreen
-            },
-    ) {
+    // 注意（v0.1.26 教训）：本层**不能**套 DstIn 顶部蒙版 + Offscreen 离屏合成——
+    // 实测（像素级取证）该组合在 API 33+ 上把顶部 25% 直接压成纯黑带，用户实机反馈
+    // "最上面就是暗色"即此。噪层顶部不做渐隐：其强度 0.14-0.30 且漂移极慢，顶部的
+    // 明暗变化远小于黑带观感；顶部"稳定"由帧层渐隐 + kind 滞回保证即可。
+    Canvas(modifier) {
         shader.setFloatUniform("uResolution", size.width, size.height)
         shader.setFloatUniform("uTime", clock.floatValue)
         shader.setFloatUniform("uIntensity", hazeIntensityFor(state))

@@ -61,10 +61,9 @@ private val skyRows = mapOf(
         overcast = SkyGradientStops(Color(0xFF6A7580), Color(0xFF7D8892), Color(0xFF9EA5AD)),
     ),
     SkyPhase.DAY to SkyRow(
-        // 晴：天顶蓝（v0.1.25 再提亮：顶部条带 30% 内只剩纯渐变，天顶色直接决定"顶部亮不亮"；
-        // 原 #1E5AA8 太深、#2E6FC8 仍闷，调至明亮蓝，对齐南风晴天顶部），地平线暖金——
-        // 对齐南风晴天截图的"上冷下暖"对比。
-        clear = SkyGradientStops(Color(0xFF3E82D8), Color(0xFF63A8E8), Color(0xFFD4A860)),
+        // 晴：天顶 #4A8EE0（v0.1.26 再提亮一档：#1E5AA8 深闷 → #3E82D8 → #4A8EE0，
+        // 用户连续两轮反馈"顶部太暗"）；地平线暖金，对齐南风晴天"上冷下暖"。
+        clear = SkyGradientStops(Color(0xFF4A8EE0), Color(0xFF63A8E8), Color(0xFFD4A860)),
         // [实测] 阴天：深灰蓝，上深下浅，比晴天整体暗一档，和晴朗拉开明显差异。
         overcast = SkyGradientStops(
             zenith = Color(0xFF344550),
