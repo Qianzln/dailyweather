@@ -2,7 +2,7 @@
 <resources>
     <color name="widget_solid_scrim">#33000000</color>
     <color name="widget_text_primary">#FFFFFFFF</color>
-    <color name="launcher_bg">#256FD0</color>
-    <!-- Splash 屏底色：与 App 图标 v5 蓝渐变底取中值（windowSplashScreenBackground 只接受色值） -->
-    <color name="splash_bg">#4A86CC</color>
+    <color name="launcher_bg">#2B5DAE</color>
+    <!-- Splash 屏底色：与 App 图标 v7 深蓝渐变底取中值（windowSplashScreenBackground 只接受色值） -->
+    <color name="splash_bg">#2B5DAE</color>
 </resources>

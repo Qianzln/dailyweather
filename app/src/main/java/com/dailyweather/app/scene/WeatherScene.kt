@@ -18,7 +18,10 @@ enum class WeatherKind {
     val baseOvercast: Float
         get() = when (this) {
             CLEAR -> 0.00f
-            PARTLY_CLOUDY -> 0.25f
+            // 晴转多云与晴同天色（0.0）：南风的"晴/少云"天空都是亮蓝，"少云"只体现在
+            // 云精灵数量上。若这里给 0.25，数据源在 CLEAR↔PARTLY_CLOUDY 间来回翻时
+            // 天空渐变会被 25% 拉向灰色档 → 顶部天空"忽深忽浅"（用户实机反馈）。
+            PARTLY_CLOUDY -> 0.0f
             CLOUDY -> 1.00f
             RAIN -> 0.85f
             SNOW -> 0.90f
