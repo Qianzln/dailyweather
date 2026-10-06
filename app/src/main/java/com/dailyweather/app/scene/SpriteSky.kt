@@ -199,8 +199,8 @@ fun SpriteSkyBackground(
             // 注意：Crossfade content 不是外层 BoxScope 直接子项，matchParentSize
             // 在此未定义（实测尺寸算 0 → 帧不渲染），必须 fillMaxSize。
             if (bmp != null) {
-                // 帧层竖直 alpha 蒙版：顶部 20% 屏高把云纹理淡到 0——天空帧的波浪云脊
-                // 原来一路顶到屏顶，在深蓝天顶上像贴了一道白纹（用户指认"突兀"处）。
+                // 帧层竖直 alpha 蒙版：顶部 30% 屏高把云纹理淡到 0（v0.1.25 由 20% 扩到 30%——
+                // 20% 档时 12% 高度处暗云仍半透明可见，把顶部条带拉暗 40 个色阶，"顶部发闷"）。
                 // 离屏 + DstIn 与 TopProgressiveGlass 同一手法：只蒙本层，不伤背后渐变。
                 Canvas(
                     Modifier.fillMaxSize()
@@ -209,7 +209,7 @@ fun SpriteSkyBackground(
                             drawRect(
                                 brush = Brush.verticalGradient(
                                     0f to Color.Transparent,
-                                    0.20f to Color.White,
+                                    0.30f to Color.White,
                                     1f to Color.White,
                                     startY = 0f,
                                     endY = size.height,

@@ -53,7 +53,10 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        // 天空底色恒为深蓝，状态栏/导航栏图标强制浅色（深色图标在蓝底上不可读）
+        // 天空底色恒为深蓝，状态栏/导航栏图标强制浅色（深色图标在蓝底上不可读）。
+        // SystemBarStyle.dark + TRANSPARENT：深色"风格"= 白色图标，透明底 = 天空直接铺到
+        // 状态栏下（实机截图像素核验：顶端天空亮蓝、无黑条；用户看到的"黑框"是状态栏里
+        // 其他 App 的黑色通知胶囊，与本工程无关）。
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),

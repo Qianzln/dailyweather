@@ -243,7 +243,8 @@ fun WeatherScreen(
                                     Text(src, color = Tokens.TextSecondary, fontSize = 11.sp)
                                 }
                             }
-                            Spacer(Modifier.height(80.dp))
+                            // 底部留白：只留手势条呼吸位（原 80dp 拉到底时空白过多，用户实机反馈）。
+                            Spacer(Modifier.height(24.dp))
                         }
                     }
                     city != null -> HeroPlaceholder(city.name, vm.message, onLocate)

@@ -119,8 +119,8 @@ fun NoiseHazeLayer(
     val brush = remember(shader) { ShaderBrush(shader) }
     val tint = SpriteSky.cloudTint(state)
 
-    // 顶部稳定带：DstIn 把噪声云在屏高 3% 渐隐、14% 全量（与精灵云顶部淡化同区），
-    // 顶部条带（状态栏+城市胶囊区）不再随噪声漂动变亮变暗。
+    // 顶部稳定带：DstIn 把噪声云在屏高 4% 渐隐、25% 全量（v0.1.25 由 3/14% 扩到 4/25%，
+    // 与帧层 30% 渐隐一致），顶部条带不再随噪声漂动变亮变暗，也不会发闷。
     // 关键（同 TopProgressiveGlass 的教训）：蒙版与离屏必须在**同一节点**串联——
     // drawWithContent(DstIn) 之后再 graphicsLayer(Offscreen)，DstIn 擦除发生在离屏
     // 缓冲内部，擦掉的区域透出背后天空而不是黑底。
@@ -131,7 +131,7 @@ fun NoiseHazeLayer(
                 drawRect(
                     brush = Brush.verticalGradient(
                         0f to Color.Transparent,
-                        0.14f to Color.White,
+                        0.25f to Color.White,
                         1f to Color.White,
                         startY = 0f,
                         endY = size.height,
