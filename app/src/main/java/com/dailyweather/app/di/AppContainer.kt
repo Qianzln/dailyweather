@@ -138,10 +138,20 @@ class AppContainer(context: Context) {
                     // kotlin.io 的 copyTo 扩展返回 File（非 Boolean），用 runCatching 归一成布尔
                     val moved = file.renameTo(final) ||
                         runCatching { file.copyTo(final, overwrite = true) }.isSuccess
-                    if (moved) {
-                        return@withContext UpdateDownloadResult.Success(final)
+                    if (!moved) {
+                        lastReason = "下载成功但写入安装目录失败"
+                        continue
                     }
-                    lastReason = "下载成功但写入安装目录失败"
+                    // 版本校验（防"镜像缓存旧文件"）：解包读 manifest 里的 versionName，
+                    // 与 release tag 不一致说明这个源吐了旧包——丢弃并换下一个源。
+                    val detected = apkVersionName(final)
+                    val expected = info.version.trim().removePrefix("v")
+                    if (detected != null && expected.isNotBlank() && detected != expected) {
+                        final.delete()
+                        lastReason = "该下载源提供了旧版文件（v$detected，期望 v$expected）——换源重试中"
+                        continue
+                    }
+                    return@withContext UpdateDownloadResult.Success(final)
                 }
             }
             UpdateDownloadResult.Failure(lastReason, direct)
@@ -208,6 +218,19 @@ class AppContainer(context: Context) {
             conn?.disconnect()
         }
     }
+
+    /**
+     * 从 APK 读 versionName：解包 AndroidManifest.xml（二进制 XML 的字符串表是明文
+     * UTF-8，versionName 就是其中一个字符串），取第一个 x.y.z 形态的数字串。
+     * 解析失败返回 null（不阻断——digest/PK/大小校验仍兜底）。
+     */
+    private fun apkVersionName(apk: java.io.File): String? = runCatching {
+        java.util.zip.ZipFile(apk).use { zf ->
+            val entry = zf.getEntry("AndroidManifest.xml") ?: return@runCatching null
+            val text = String(zf.getInputStream(entry).readBytes(), Charsets.UTF_8)
+            Regex("\\d+\\.\\d+\\.\\d+").find(text)?.value
+        }
+    }.getOrNull()
 
     /** 更新下载 host 白名单（全部是公开 CDN/官方域；镜像有 SHA-256 兜底）。 */
     private fun isPublicAllowedUpdateHost(host: String): Boolean {
