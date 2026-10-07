@@ -181,32 +181,14 @@ fun DrawScope.drawSpriteCloudLayer(
     val count = (spec.count * quality.particleScale).toInt().coerceAtLeast(1)
     val image = bitmap.asImageBitmap()
 
-    // ---- 南风 A3 阴影：按 天气×时段 的 tint（亮度保持），整层共用一个 filter ----
-    val shadeColor: Color = when {
-        state.phase == SkyPhase.MORNING -> Color(0xFFE8C48E)  // MorningCloudShades 金调
-        state.phase == SkyPhase.EVENING -> Color(0xFFE8A276)  // EveningCloudShades 橙红
-        state.kind == WeatherKind.RAIN || state.kind == WeatherKind.THUNDER ->
-            Color(0xFFB9C2CE)                                  // Rain/StormCloudTint 冷灰
-        state.kind == WeatherKind.SNOW || state.kind == WeatherKind.SLEET ->
-            Color(0xFFDDE7F2)                                  // SnowCloudShade 冷白
-        state.kind == WeatherKind.FOG -> Color(0xFFD9DDE3)     // FogWispShade 灰白
-        state.isNight -> Color(0xFF9FA9BC)                     // *CloudShadeNight 蓝灰
-        else -> Color(0xFFFFFFFF)                              // 昼晴：原色不 tint
-    }
-    val shadeFilter: ColorFilter? = if (shadeColor == Color.White) null else ColorFilter.colorMatrix(
-        // 亮度保持 tint：RGB' = luma(RGB) × tint（对应南风 drawBitmap(…, shade.filter)）。
-        ColorMatrix(
-            floatArrayOf(
-                0.213f * shadeColor.red, 0.715f * shadeColor.red, 0.072f * shadeColor.red, 0f, 0f,
-                0.213f * shadeColor.green, 0.715f * shadeColor.green, 0.072f * shadeColor.green, 0f, 0f,
-                0.213f * shadeColor.blue, 0.715f * shadeColor.blue, 0.072f * shadeColor.blue, 0f, 0f,
-                0f, 0f, 0f, 1f, 0f,
-            ),
-        ),
-    )
-
+    // ---- 南风 A3 阴影（真实源码值）：filter + alphaScale，按 天气×时段×景深 取档 ----
+    // 真身（si 引擎 p1()/q1()/r3()/k4()/l4()/m4()）：
+    // - whiteMix(x)：ColorMatrix RGB'=(1-x)·RGB+(250,252,255)·x —— 云"雾白化"（夜云灰白）；
+    // - 雨云昼：SRCIN tint #5C6E8C@0.30，alphaScale 0.72；雪云昼：#6E82A3@0.18，0.88；
+    // - 晴/多云：Near 原色 α1.0，Mid/Far whiteMix(0.21/0.16) α0.95/0.88（夜间三档同理）。
     for (i in 0 until count) {
         // 南风 A3 的两个独立相位：driftPhase（呼吸缩放）/ phase（偏斜 + 水平初相）。
+        val shade = cloudShadeFor(state, i, count)
         val driftPhase = spriteHash01(spec.seed * 31 + i * 7)
         val phase = spriteHash01(spec.seed * 13 + i * 5)
         val yFrac = spec.altitude.start +
@@ -217,9 +199,10 @@ fun DrawScope.drawSpriteCloudLayer(
         val w = wFrac * size.width
         val h = w * (bitmap.height.toFloat() / bitmap.width.toFloat())
 
-        // ---- 南风 L4 放置：正弦振荡 + 循环半宽 ----
+        // ---- 南风 L4 放置：振荡 + 循环半宽 ----
         // 基准点散布在屏幕中部 60%；振幅 = max(云最大边, 云宽×50%+3)，
         // 摆幅足够时云可完整飘出屏幕再摆回来；角速度随风拉伸（风大摆得快）。
+        // 注：南风真身 C0968e1.c 用贝塞尔缓动往返，正弦为其等效近似（肉眼无差）。
         val baseX = (0.20f + 0.60f * spriteHash01(spec.seed * 29 + i * 13)) * size.width
         val loopHalf = maxOf(maxOf(w, h), w * 0.50f + 3f)
         val angular = (spec.speed * 18f * (0.5f + state.wind) *
@@ -232,9 +215,7 @@ fun DrawScope.drawSpriteCloudLayer(
         val cxN = ((left + w / 2f) / size.width).coerceIn(-0.3f, 1.3f)
         val topFade = (yFrac / 0.12f).coerceIn(0f, 1f)
 
-        // 南风 A3 alphaScale：景深越远越淡（Far/Mid/Near 递增）。
-        val depthNorm = if (count <= 1) 1f else i.toFloat() / (count - 1).toFloat()
-        val alpha = (spec.alpha * (0.80f + 0.20f * depthNorm) * edgeFade(cxN) * topFade)
+        val alpha = (spec.alpha * shade.alphaScale * edgeFade(cxN) * topFade)
             .coerceIn(0f, 1f)
         if (alpha <= 0.005f) continue
 
@@ -264,9 +245,81 @@ fun DrawScope.drawSpriteCloudLayer(
                 dstOffset = IntOffset.Zero,
                 dstSize = IntSize(w.toInt().coerceAtLeast(1), h.toInt().coerceAtLeast(1)),
                 alpha = alpha,
-                colorFilter = shadeFilter,
+                colorFilter = shade.filter,
             )
         }
+    }
+}
+
+/** 南风 CloudShade 真身：(ColorFilter, alphaScale)。 */
+private data class CloudShade(val filter: ColorFilter?, val alphaScale: Float)
+
+/**
+ * 南风 r3(x) 真身：白色混合 ColorMatrix——RGB' = (1-x)·RGB + (250,252,255)·x，
+ * alpha 不变。夜云/远层云的"雾白化"（南风实图夜云是灰白、清晰可见）。
+ */
+private fun whiteMix(x: Float): ColorFilter = ColorFilter.colorMatrix(
+    ColorMatrix(
+        floatArrayOf(
+            1f - x, 0f, 0f, 0f, 250f * x,
+            0f, 1f - x, 0f, 0f, 252f * x,
+            0f, 0f, 1f - x, 0f, 255f * x,
+            0f, 0f, 0f, 1f, 0f,
+        ),
+    ),
+)
+
+/** SRCIN tint（素材 alpha 承载形状与立体，RGB 全替换为 tint 色）——南风 gb.V() 的等效。 */
+private fun cloudTint(color: Color, alpha: Float = 1f): ColorFilter =
+    ColorFilter.tint(color.copy(alpha = alpha))
+
+/**
+ * 按天气×时段×景深取 CloudShade（真实值 + 相邻档补全）：
+ * - 晴/多云：景深三档 Far whiteMix(0.16)/Mid whiteMix(0.21)/Near 原色（夜同昼值）；
+ * - 雨/雷：昼 SRCIN #5C6E8C@0.30 α0.72；夜 #57506B（CloudyOvercastShade 系）；
+ * - 雪/雨夹雪：昼 #6E82A3@0.18 α0.88；夜同色加白化；
+ * - 阴：#57506B@0.25（CloudyOvercastShade 系）；雾/风：轻白化/近原色。
+ */
+private fun cloudShadeFor(state: WeatherSceneState, index: Int, count: Int): CloudShade {
+    val depthNorm = if (count <= 1) 1f else index.toFloat() / (count - 1).toFloat()
+    val far = depthNorm < 0.34f
+    val mid = depthNorm < 0.67f
+    return when {
+        state.kind == WeatherKind.RAIN || state.kind == WeatherKind.THUNDER ->
+            if (state.isNight) CloudShade(cloudTint(Color(0xFF57506B), 0.38f), 0.60f)
+            else CloudShade(cloudTint(Color(0xFF5C6E8C), 0.30f), 0.72f)
+        state.kind == WeatherKind.SNOW || state.kind == WeatherKind.SLEET ->
+            if (state.isNight) CloudShade(whiteMix(0.24f), 0.80f)
+            else CloudShade(cloudTint(Color(0xFF6E82A3), 0.18f), 0.88f)
+        state.kind == WeatherKind.CLOUDY ->
+            if (state.isNight) CloudShade(whiteMix(0.20f), 0.90f)
+            else CloudShade(cloudTint(Color(0xFF57506B), 0.25f), 0.80f)
+        state.kind == WeatherKind.FOG ->
+            CloudShade(whiteMix(0.15f), 0.92f)
+        state.kind == WeatherKind.WIND ->
+            CloudShade(if (state.isNight) whiteMix(0.16f) else null, 0.92f)
+        state.isNight -> CloudShade(
+            when {
+                far -> whiteMix(0.16f)
+                mid -> whiteMix(0.21f)
+                else -> null
+            },
+            when {
+                far -> 0.88f
+                mid -> 0.95f
+                else -> 1.0f
+            },
+        )
+        state.phase == SkyPhase.MORNING -> CloudShade(cloudTint(Color(0xFFE8C48E), 0.18f), 0.96f)
+        state.phase == SkyPhase.EVENING -> CloudShade(cloudTint(Color(0xFFE8A276), 0.18f), 0.96f)
+        else -> CloudShade(
+            when {
+                far -> whiteMix(0.10f)
+                mid -> whiteMix(0.16f)
+                else -> null
+            },
+            1.0f,
+        )
     }
 }
 
