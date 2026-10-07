@@ -1,6 +1,9 @@
 package com.dailyweather.app.scene
 
 import android.graphics.Bitmap
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
@@ -36,7 +39,7 @@ data class SpriteCloudSpec(
     /** 云宽，占屏宽分数。 */
     val width: ClosedFloatingPointRange<Float>,
     val alpha: Float,
-    /** 基准漂移速度（屏宽/秒），wind=0.3 时即此值。 */
+    /** 摆动角速度基准（数值沿用旧"屏宽/秒"表 ×18 换算），wind 拉伸；风大摆得快。 */
     val speed: Float,
     /** 每层唯一 seed，保证同层多朵不重叠在同一相位。 */
     val seed: Int,
@@ -154,11 +157,18 @@ fun spriteCloudsFor(state: WeatherSceneState): List<SpriteCloudSpec> {
 }
 
 /**
- * 在 DrawScope 上绘制一层云精灵。
+ * 在 DrawScope 上绘制一层云精灵 —— 南风 L4/A3 的 1:1 复刻（逆向文档五·5.1/5.2）。
  *
- * 布局：每朵的纵向位置/尺寸/相位由 seed 哈希决定（稳定，不随帧跳变）；
- * 横向 = 初始相位 + 时间×速度，行程 [-margin, 1+margin] 内环绕回卷，
- * 回卷边界处 alpha 淡入淡出，云"从雾里飘进来、飘进雾里消失"。
+ * 与旧线性穿屏方案的区别（对齐南风逆向）：
+ * - **放置（L4）**：正弦振荡 + 循环半宽——每朵云绕自己的基准点缓慢摆动，
+ *   振幅 = max(云最大边, 云宽×50%+3)，摆幅足够时云可完整飘出屏幕再摆回来；
+ *   不再"从左飞到右再瞬移回卷"。底部受 bottomFactor 约束（云不越地平线）。
+ * - **阴影（A3）**：按 天气×时段 给精灵上亮度保持的 tint——晨金 / 暮橙 /
+ *   雨雷冷灰 / 雪冷白 / 雾灰白 / 夜蓝灰，昼晴保持原色；景深越远 alphaScale 越低。
+ * - **变换（A3）**：呼吸缩放 ±2%（driftPhase 相位）+ 垂直偏斜 skew 0.4（phase 相位），
+ *   云团缓慢"翻腾"的伪 3D 感（南风实测参数 1:1）。
+ *
+ * 每朵云的基准/相位/尺寸由 seed 哈希决定（稳定，不随帧跳变，可复现）。
  */
 fun DrawScope.drawSpriteCloudLayer(
     spec: SpriteCloudSpec,
@@ -169,47 +179,67 @@ fun DrawScope.drawSpriteCloudLayer(
 ) {
     if (bitmap == null || quality.particleScale <= 0f) return
     val count = (spec.count * quality.particleScale).toInt().coerceAtLeast(1)
-    val windBoost = 0.5f + state.wind
-    val margin = 0.20f
-    val travelSpan = 1f + 2 * margin
     val image = bitmap.asImageBitmap()
 
+    // ---- 南风 A3 阴影：按 天气×时段 的 tint（亮度保持），整层共用一个 filter ----
+    val shadeColor: Color = when {
+        state.phase == SkyPhase.MORNING -> Color(0xFFE8C48E)  // MorningCloudShades 金调
+        state.phase == SkyPhase.EVENING -> Color(0xFFE8A276)  // EveningCloudShades 橙红
+        state.kind == WeatherKind.RAIN || state.kind == WeatherKind.THUNDER ->
+            Color(0xFFB9C2CE)                                  // Rain/StormCloudTint 冷灰
+        state.kind == WeatherKind.SNOW || state.kind == WeatherKind.SLEET ->
+            Color(0xFFDDE7F2)                                  // SnowCloudShade 冷白
+        state.kind == WeatherKind.FOG -> Color(0xFFD9DDE3)     // FogWispShade 灰白
+        state.isNight -> Color(0xFF9FA9BC)                     // *CloudShadeNight 蓝灰
+        else -> Color(0xFFFFFFFF)                              // 昼晴：原色不 tint
+    }
+    val shadeFilter: ColorFilter? = if (shadeColor == Color.White) null else ColorFilter.colorMatrix(
+        // 亮度保持 tint：RGB' = luma(RGB) × tint（对应南风 drawBitmap(…, shade.filter)）。
+        ColorMatrix(
+            floatArrayOf(
+                0.213f * shadeColor.red, 0.715f * shadeColor.red, 0.072f * shadeColor.red, 0f, 0f,
+                0.213f * shadeColor.green, 0.715f * shadeColor.green, 0.072f * shadeColor.green, 0f, 0f,
+                0.213f * shadeColor.blue, 0.715f * shadeColor.blue, 0.072f * shadeColor.blue, 0f, 0f,
+                0f, 0f, 0f, 1f, 0f,
+            ),
+        ),
+    )
+
     for (i in 0 until count) {
-        val phase = spriteHash01(spec.seed * 31 + i * 7)
+        // 南风 A3 的两个独立相位：driftPhase（呼吸缩放）/ phase（偏斜 + 水平初相）。
+        val driftPhase = spriteHash01(spec.seed * 31 + i * 7)
+        val phase = spriteHash01(spec.seed * 13 + i * 5)
         val yFrac = spec.altitude.start +
-            (spec.altitude.endInclusive - spec.altitude.start) * spriteHash01(spec.seed * 13 + i * 5)
+            (spec.altitude.endInclusive - spec.altitude.start) * spriteHash01(spec.seed * 17 + i * 9)
         val wFrac = spec.width.start +
-            (spec.width.endInclusive - spec.width.start) * spriteHash01(spec.seed * 17 + i * 9)
-        val speed = spec.speed * (0.7f + 0.6f * spriteHash01(spec.seed * 23 + i * 3)) * windBoost
-
-        val travel = (phase * travelSpan + t * speed) % travelSpan
-        val xFrac = travel - margin
-
-        // 回卷边界羽化：进入（travel < margin）与离开（travel > span-margin）时 alpha→0。
-        val fadeIn = (travel / margin).coerceIn(0f, 1f)
-        val fadeOut = ((travelSpan - travel) / margin).coerceIn(0f, 1f)
-        val edgeAlpha = min(fadeIn, fadeOut)
-
-        // 呼吸感：极缓慢的 alpha 起伏（周期 ~11s，幅度 ±12%）。
-        val breathe = 0.88f + 0.12f * (sin((t / 11f + phase * 6f) * 2f * Math.PI.toFloat()) + 1f) / 2f
-
-        // 顶区 12% 渐隐带（v0.1.29）：云 alpha 在顶部 0→12% 线性渐入，
-        // 云不再贴顶——配合 kind 滞回 + 云量渐变（WeatherKindState.kt），
-        // 顶区亮度只由渐变云量驱动，精灵云不再贡献顶部明暗跳变。
-        val topFade = (yFrac / 0.12f).coerceIn(0f, 1f)
-
-        val alpha = (spec.alpha * edgeAlpha * breathe * topFade).coerceIn(0f, 1f)
-        if (alpha <= 0.005f) continue
+            (spec.width.endInclusive - spec.width.start) * spriteHash01(spec.seed * 23 + i * 3)
 
         val w = wFrac * size.width
         val h = w * (bitmap.height.toFloat() / bitmap.width.toFloat())
-        val x = xFrac * size.width
-        val y = yFrac * size.height - h / 2f
 
-        // 呼吸缩放 ±2% + 垂直偏斜 skew 0.4（对齐南风 A3 drawCloud 的变换对）：
-        // 云团缓慢"翻腾"的伪 3D 感——缩放周期约 126s、偏斜周期约 157s，
-        // 变化极慢，肉眼只见形变不见节奏（南风实测参数 1:1）。
-        val breatheScale = 1f + 0.02f * sin((0.05f * t + phase) * 2f * PI.toFloat())
+        // ---- 南风 L4 放置：正弦振荡 + 循环半宽 ----
+        // 基准点散布在屏幕中部 60%；振幅 = max(云最大边, 云宽×50%+3)，
+        // 摆幅足够时云可完整飘出屏幕再摆回来；角速度随风拉伸（风大摆得快）。
+        val baseX = (0.20f + 0.60f * spriteHash01(spec.seed * 29 + i * 13)) * size.width
+        val loopHalf = maxOf(maxOf(w, h), w * 0.50f + 3f)
+        val angular = (spec.speed * 18f * (0.5f + state.wind) *
+            (0.7f + 0.6f * spriteHash01(spec.seed * 37 + i * 11))).coerceAtMost(0.9f)
+        val left = baseX + loopHalf * sin(phase * 2f * PI.toFloat() + t * angular) - w / 2f
+        // 南风 L4 底部约束：云不得越过 bottomFactor×屏高（地平线之上）。
+        val top = min(yFrac * size.height - h / 2f, size.height * 0.75f - h)
+
+        // 云心出屏羽化（摆出屏幕时不生硬）；顶区 12% 渐隐带（v0.1.29 防抖）保留。
+        val cxN = ((left + w / 2f) / size.width).coerceIn(-0.3f, 1.3f)
+        val topFade = (yFrac / 0.12f).coerceIn(0f, 1f)
+
+        // 南风 A3 alphaScale：景深越远越淡（Far/Mid/Near 递增）。
+        val depthNorm = if (count <= 1) 1f else i.toFloat() / (count - 1).toFloat()
+        val alpha = (spec.alpha * (0.80f + 0.20f * depthNorm) * edgeFade(cxN) * topFade)
+            .coerceIn(0f, 1f)
+        if (alpha <= 0.005f) continue
+
+        // ---- 南风 A3 变换：呼吸缩放 ±2%（driftPhase）+ 垂直偏斜 skew 0.4（phase）----
+        val breatheScale = 1f + 0.02f * sin((0.05f * t + driftPhase) * 2f * PI.toFloat())
         val skewY = 0.4f * sin((0.04f * t + phase) * 2f * PI.toFloat())
 
         // 亚像素平移：位置走 withTransform{translate(Float)}，只有尺寸取整。
@@ -219,7 +249,7 @@ fun DrawScope.drawSpriteCloudLayer(
         // Matrix 的 column-major values 手写：skew(sx=0, sy=k) ⇒ m10 = values[1] = k，
         // 与南风 canvas.skew(0,skewY) 的 x'=x, y'=y+k·x 同构）→ 平移回 → 绘制。
         withTransform({
-            translate(x + w / 2f, y + h / 2f)
+            translate(left + w / 2f, top + h / 2f)
             scale(breatheScale, 1f)
             transform(
                 // Matrix() 工厂即 identity，只需写入 skew 项 m10。
@@ -234,6 +264,7 @@ fun DrawScope.drawSpriteCloudLayer(
                 dstOffset = IntOffset.Zero,
                 dstSize = IntSize(w.toInt().coerceAtLeast(1), h.toInt().coerceAtLeast(1)),
                 alpha = alpha,
+                colorFilter = shadeFilter,
             )
         }
     }
