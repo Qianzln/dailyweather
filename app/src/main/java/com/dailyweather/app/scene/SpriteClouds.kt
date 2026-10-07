@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import kotlin.math.PI
 import kotlin.math.min
 import kotlin.math.sin
 
@@ -192,9 +193,10 @@ fun DrawScope.drawSpriteCloudLayer(
         // 呼吸感：极缓慢的 alpha 起伏（周期 ~11s，幅度 ±12%）。
         val breathe = 0.88f + 0.12f * (sin((t / 11f + phase * 6f) * 2f * Math.PI.toFloat()) + 1f) / 2f
 
-        // 顶部 25% 清空、25%→40% 渐隐：与帧层蒙版同区（帧层 25% 清/40% 全量）。
-        // 顶部条带不画任何漂移的云，避免帧切换时"一会儿深一会儿浅"。
-        val topFade = ((yFrac - 0.03f) / 0.11f).coerceIn(0f, 1f)
+        // 顶区 12% 渐隐带（v0.1.29）：云 alpha 在顶部 0→12% 线性渐入，
+        // 云不再贴顶——配合 kind 滞回 + 云量渐变（WeatherKindState.kt），
+        // 顶区亮度只由渐变云量驱动，精灵云不再贡献顶部明暗跳变。
+        val topFade = (yFrac / 0.12f).coerceIn(0f, 1f)
 
         val alpha = (spec.alpha * edgeAlpha * breathe * topFade).coerceIn(0f, 1f)
         if (alpha <= 0.005f) continue
@@ -204,10 +206,27 @@ fun DrawScope.drawSpriteCloudLayer(
         val x = xFrac * size.width
         val y = yFrac * size.height - h / 2f
 
+        // 呼吸缩放 ±2% + 垂直偏斜 skew 0.4（对齐南风 A3 drawCloud 的变换对）：
+        // 云团缓慢"翻腾"的伪 3D 感——缩放周期约 126s、偏斜周期约 157s，
+        // 变化极慢，肉眼只见形变不见节奏（南风实测参数 1:1）。
+        val breatheScale = 1f + 0.02f * sin((0.05f * t + phase) * 2f * PI.toFloat())
+        val skewY = 0.4f * sin((0.04f * t + phase) * 2f * PI.toFloat())
+
         // 亚像素平移：位置走 withTransform{translate(Float)}，只有尺寸取整。
         // 高刷屏（120-165Hz）下每帧位移仅 2-5px，IntOffset 取整会产生可感知的
         // "走一步停一步"抖动 —— 用户实测的"云一卡一卡"第二根因。
-        withTransform({ translate(x, y) }) {
+        // 变换顺序对齐南风：绕云中心 → scale → skew（DrawScope 无 skew，用 Compose
+        // Matrix 的 column-major values 手写：skew(sx=0, sy=k) ⇒ m10 = values[1] = k，
+        // 与南风 canvas.skew(0,skewY) 的 x'=x, y'=y+k·x 同构）→ 平移回 → 绘制。
+        withTransform({
+            translate(x + w / 2f, y + h / 2f)
+            scale(breatheScale, 1f)
+            transform(
+                // Matrix() 工厂即 identity，只需写入 skew 项 m10。
+                androidx.compose.ui.graphics.Matrix().apply { values[1] = skewY },
+            )
+            translate(-w / 2f, -h / 2f)
+        }) {
             drawImage(
                 image = image,
                 srcOffset = IntOffset.Zero,

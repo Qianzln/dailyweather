@@ -32,8 +32,8 @@ android {
         applicationId = "com.dailyweather.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 27
-        versionName = "0.1.28"
+        versionCode = 29
+        versionName = "0.1.30"
         buildConfigField("String", "CAIYUN_TOKEN", "\"${keys.getProperty("caiyun_token", "")}\"")
         buildConfigField("String", "AMAP_KEY", "\"${keys.getProperty("amap_key", "")}\"")
         // CloudBase 云代理（与微风天气同一已打通链路）：彩云/和风/小米/高德唯一出口
@@ -87,6 +87,17 @@ tasks.matching { it.name == "validateSigningRelease" }.configureEach {
     dependsOn("verifyReleaseSigning")
 }
 
+// APK 产物按版本命名（v0.1.30 起）：assembleVersionedRelease 产出
+// dailyweather-v<versionName>.apk，替代无名的 app-release.apk。
+// （AGP 9 移除了旧 Variant API 的 outputFileName；Copy 目标用独立目录，
+//   避开 Gradle 9.6 与 AGP createReleaseApkListingFileRedirect 的隐式依赖校验。）
+tasks.register<Copy>("assembleVersionedRelease") {
+    dependsOn("assembleRelease")
+    from("build/outputs/apk/release/app-release.apk")
+    into("build/outputs/apk/versioned")
+    rename { "dailyweather-v${android.defaultConfig.versionName ?: "unknown"}.apk" }
+}
+
 dependencies {
     // 依赖集与 D:\DEV\wui 完全同源（本地 Gradle 缓存已验证），
     // Room/Hilt/Retrofit 在阶段二换装（当前用零依赖等价实现，拓扑一致）。
@@ -105,4 +116,6 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+    // Haze 毛玻璃（南风同款库）：真·采样模糊，顶栏无缝融合天空（v0.1.30 对齐逆向文档）
+    implementation("dev.chrisbanes.haze:haze:1.6.1")
 }

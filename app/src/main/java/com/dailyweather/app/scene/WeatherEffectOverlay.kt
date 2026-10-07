@@ -86,7 +86,9 @@ internal fun DrawScope.drawPrecipitation(
 ) {
     val base = if (kind == PrecipKind.RAIN) 90 else 70
     val count = (base * intensity.coerceIn(0.1f, 1f) * quality.particleScale).toInt().coerceAtLeast(8)
-    val tiltDeg = (wind * 26f - 4f).coerceIn(-12f, 34f)
+    // 倾斜语义对齐南风 z3：画布预倾斜固定 10°（tan10°=0.176），风力只在 10° 基础上
+    // 追加偏移（±14°），不再由风全权决定角度——无风天雨也有自然倾角。
+    val tiltDeg = (10f + wind * 14f).coerceIn(4f, 26f)
     val tanTilt = tan((tiltDeg * PI / 180.0).toFloat())
     val aspect = size.height / size.width
     val tint = if (night) Color(0xFF9FB6D8) else Color(0xFFE8F2FF)
@@ -117,7 +119,8 @@ internal fun DrawScope.drawPrecipitation(
         }
     }
 
-    // ---- 雪花层（SNOW 全量，SLEET 一半粒子）----
+    // ---- 雪花层（SNOW 全量，SLEET 一半）—— 四层景深（对齐南风 SnowLayer*）----
+    // 远景小/淡/慢/漂移大，近景大/亮/快/漂移小：四层叠加出"雪幕"的纵深视差。
     val snowFrames = ParticleSprites.snowflakeFrames()
     val snowCount = when (kind) {
         PrecipKind.SNOW -> count
@@ -126,23 +129,27 @@ internal fun DrawScope.drawPrecipitation(
     }
     if (snowFrames != null && snowCount > 0) {
         val frameCount = snowFrames.size
-        for (i in 0 until snowCount) {
-            val r1 = hash01(i * 7 + 1)
-            val r2 = hash01(i * 13 + 5)
-            val r3 = hash01(i * 19 + 9)
-            val fall = (t * (0.16f + r3 * 0.12f) + r2) % 1f
-            val x = (r1 + 0.05f * sin(t * 1.6f + r3 * 6.28f)).mod1()
-            val sizePx = size.height * (0.014f + r3 * 0.020f)
-            // 帧随时间推进 → 连续自旋；r2 错开相位，避免整屏雪花同步转。
-            val frame = (((t * (0.5f + r3) + r2 * frameCount) * frameCount).toInt()) % frameCount
-            drawImage(
-                image = snowFrames[frame],
-                dstOffset = androidx.compose.ui.unit.IntOffset(
-                    (x * size.width - sizePx / 2f).toInt(), (fall * size.height - sizePx / 2f).toInt(),
-                ),
-                dstSize = androidx.compose.ui.unit.IntSize(sizePx.toInt().coerceAtLeast(1), sizePx.toInt().coerceAtLeast(1)),
-                alpha = (0.5f + 0.4f * r2) * edgeFade(x),
-            )
+        val perLayer = (snowCount / SnowDepths.size).coerceAtLeast(2)
+        SnowDepths.forEachIndexed { li, layer ->
+            for (i in 0 until perLayer) {
+                val gi = li * 31 + i  // 层间错开随机序列，避免四层云纹重合
+                val r1 = hash01(gi * 7 + 1)
+                val r2 = hash01(gi * 13 + 5)
+                val r3 = hash01(gi * 19 + 9)
+                val fall = (t * (0.16f + r3 * 0.12f) * layer.speed + r2) % 1f
+                val x = (r1 + 0.05f * layer.drift * sin(t * 1.6f + r3 * 6.28f)).mod1()
+                val sizePx = size.height * (0.014f + r3 * 0.020f) * layer.size
+                // 帧随时间推进 → 连续自旋；r2 错开相位，避免整屏雪花同步转。
+                val frame = (((t * (0.5f + r3) + r2 * frameCount) * frameCount).toInt()) % frameCount
+                drawImage(
+                    image = snowFrames[frame],
+                    dstOffset = androidx.compose.ui.unit.IntOffset(
+                        (x * size.width - sizePx / 2f).toInt(), (fall * size.height - sizePx / 2f).toInt(),
+                    ),
+                    dstSize = androidx.compose.ui.unit.IntSize(sizePx.toInt().coerceAtLeast(1), sizePx.toInt().coerceAtLeast(1)),
+                    alpha = (0.5f + 0.4f * r2) * layer.alpha * edgeFade(x),
+                )
+            }
         }
     }
 
@@ -446,6 +453,17 @@ internal fun hash01(seed: Int): Float {
     x = x xor (x ushr 16)
     return (x and 0xFFFFFF) / 16777216f
 }
+
+/** 雪花景深层参数：尺寸 / 透明度 / 速度 / 漂移 倍率（对齐南风 SnowLayerFar→Near）。 */
+private data class SnowDepth(val size: Float, val alpha: Float, val speed: Float, val drift: Float)
+
+/** 远→近四层：远小淡慢漂移大，近大亮快漂移小（南风 SnowLayerFar/MidFar/MidNear/Near）。 */
+private val SnowDepths = listOf(
+    SnowDepth(0.50f, 0.45f, 0.70f, 1.60f),
+    SnowDepth(0.70f, 0.65f, 0.85f, 1.30f),
+    SnowDepth(1.00f, 0.85f, 1.00f, 1.00f),
+    SnowDepth(1.40f, 1.00f, 1.20f, 0.60f),
+)
 
 private fun lerpF(a: Float, b: Float, t: Float): Float = a + (b - a) * t
 

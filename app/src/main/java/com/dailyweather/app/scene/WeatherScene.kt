@@ -54,9 +54,15 @@ data class WeatherSceneState(
      * null = 夜间或缺日出日落数据，不画太阳。
      */
     val sunProgress: Float? = null,
+    /**
+     * 云量覆盖值 0–1（v0.1.29 顶区防抖）：非空时 overcast 用它——
+     * 供 rememberWeatherCloudiness 的 1.5s 渐变云量回填场景，
+     * 让天空渐变/卡片色随云量平滑走，而不是随快照跳变。
+     */
+    val overcastOverride: Float? = null,
 ) {
     val isNight: Boolean get() = phase == SkyPhase.NIGHT
 
     val overcast: Float
-        get() = (kind.baseOvercast + intensity * 0.15f).coerceAtMost(1f)
+        get() = (overcastOverride ?: (kind.baseOvercast + intensity * 0.15f)).coerceAtMost(1f)
 }

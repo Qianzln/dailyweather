@@ -46,6 +46,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import dev.chrisbanes.haze.hazeEffect
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,13 +71,19 @@ import com.dailyweather.app.data.Units
 import com.dailyweather.app.data.model.WeatherSnapshot
 import com.dailyweather.app.scene.AnimatedSkyGradient
 import com.dailyweather.app.scene.SceneBridge
+import com.dailyweather.app.scene.rememberWeatherCloudiness
+import com.dailyweather.app.scene.rememberWeatherKindState
 import com.dailyweather.app.scene.LocalEffectQuality
 import com.dailyweather.app.scene.LocalWeatherEffectDrawEnabled
 import com.dailyweather.app.scene.EffectQuality
-import com.dailyweather.app.scene.TopBlurLayer
+import com.dailyweather.app.scene.RainRefractionShader
 import com.dailyweather.app.scene.WeatherEffectFps
 import com.dailyweather.app.scene.WeatherEffectHost
+import com.dailyweather.app.scene.WeatherKind
+import com.dailyweather.app.scene.defaultIntensity
+import com.dailyweather.app.scene.rememberEffectClock
 import com.dailyweather.app.ui.components.GlassCard
+import com.dailyweather.app.ui.components.GlassRaindropsCard
 import com.dailyweather.app.ui.components.SkyconMap
 import com.dailyweather.app.ui.components.WeatherBitmapIcon
 import com.dailyweather.app.ui.components.rememberLucide
@@ -89,6 +97,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.exp
 import kotlin.math.roundToInt
 
 /**
@@ -129,8 +138,16 @@ fun WeatherScreen(
     val effectQuality = remember(refreshRate, powerSave) {
         if (powerSave) EffectQuality.Low else EffectQuality.High.copy(fps = WeatherEffectFps.refreshFor(refreshRate))
     }
-    val scene = remember(snapshot, cityZone) {
+    val sceneRaw = remember(snapshot, cityZone) {
         SceneBridge.stateFor(snapshot, cityZone, cityKey = city?.id ?: "default")
+    }
+    // v0.1.29 顶区防抖收尾：云量 1.5s 指数渐变（WeatherKindState.rememberWeatherCloudiness）
+    // + kind 双阈值滞回（≥0.20 进多云 / ≤0.12 退晴 + 双帧确认）。渐变云量同时喂给
+    // 天空渐变插值与卡片色（SkyPalette.of），顶区亮度只随云量平滑走，不再随快照跳。
+    val cloudiness = rememberWeatherCloudiness(sceneRaw.overcast)
+    val kindSticky = rememberWeatherKindState(cloudiness, sceneRaw.kind)
+    val scene = remember(sceneRaw, kindSticky, cloudiness) {
+        sceneRaw.copy(kind = kindSticky, overcastOverride = cloudiness)
     }
     val sky = SkyPalette.of(scene)
 
@@ -141,27 +158,69 @@ fun WeatherScreen(
         LocalEffectQuality provides effectQuality,
     ) {
         // 下拉刷新（material3）：刷新走当前城市 refreshCurrent，定位仍走右上按钮。
+        val pullState = androidx.compose.material3.pulltorefresh.rememberPullToRefreshState()
         androidx.compose.material3.pulltorefresh.PullToRefreshBox(
             isRefreshing = vm.refreshing,
             onRefresh = { vm.refreshCurrent() },
+            state = pullState,
             modifier = Modifier.fillMaxSize(),
         ) {
         Box(modifier = Modifier.fillMaxSize()) {
             val scrollState = rememberScrollState()
+            // 南风双 HazeState 之天空层：顶栏毛玻璃的模糊源（采样天空渐变+动效）。
+            val skyHaze = remember { dev.chrisbanes.haze.HazeState() }
+            // 南风 P0：降雨折射（MIUI rain_drop_new 移植）——雨类天气整片天空被雨滴
+            // 法线扭曲（"透过水滴看世界"）。uVisibility 随天气切换 900ms 渐变，
+            // uniforms 在 draw 阶段按 precip 帧率更新（RenderEffect 创建后仍可改）。
+            val rainKinds = remember { setOf(WeatherKind.RAIN, WeatherKind.THUNDER, WeatherKind.SLEET) }
+            val refractionVisible by androidx.compose.animation.core.animateFloatAsState(
+                targetValue = if (scene.kind in rainKinds) 1f else 0f,
+                animationSpec = androidx.compose.animation.core.tween(
+                    900,
+                    easing = androidx.compose.animation.core.LinearEasing,
+                ),
+                label = "rainRefractionVis",
+            )
+            val precipClock = rememberEffectClock(effectQuality.fps.precip)
+            val refractionShader = remember { RainRefractionShader.newShader(RainRefractionShader.REFRACTION) }
+            val refractionEffect = remember(refractionShader) {
+                refractionShader?.let { RainRefractionShader.composeEffect(it, "uTex") }
+            }
 
             Box(modifier = Modifier.matchParentSize()) {
-                AnimatedSkyGradient(scene, Modifier.matchParentSize())
-                // 天气切换时的交叉淡入淡出（对齐南风 effectTimeline：约 900ms 过渡），
-                // 新旧两层粒子互相淡入淡出，而不是"雨突然停了"。
-                androidx.compose.animation.Crossfade(
-                    targetState = scene.kind to scene.phase,
-                    animationSpec = androidx.compose.animation.core.tween(900),
-                    label = "weatherEffectCrossfade",
-                    modifier = Modifier.matchParentSize(),
-                ) { key ->
-                    val (kind, phase) = key
-                    val faded = scene.copy(kind = kind, phase = phase)
-                    WeatherEffectHost(faded, Modifier.matchParentSize())
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .hazeSource(skyHaze)
+                        .graphicsLayer {
+                            if (refractionShader != null && refractionVisible > 0.01f) {
+                                RainRefractionShader.applyRefractionUniforms(
+                                    shader = refractionShader,
+                                    width = size.width,
+                                    height = size.height,
+                                    timeSec = precipClock.floatValue,
+                                    intensity = if (scene.intensity > 0f) scene.intensity else 0.55f,
+                                    visibility = refractionVisible,
+                                )
+                                renderEffect = refractionEffect
+                            } else {
+                                renderEffect = null
+                            }
+                        },
+                ) {
+                    AnimatedSkyGradient(scene, Modifier.matchParentSize())
+                    // 天气切换时的交叉淡入淡出（对齐南风 effectTimeline：约 900ms 过渡），
+                    // 新旧两层粒子互相淡入淡出，而不是"雨突然停了"。
+                    androidx.compose.animation.Crossfade(
+                        targetState = scene.kind to scene.phase,
+                        animationSpec = androidx.compose.animation.core.tween(900),
+                        label = "weatherEffectCrossfade",
+                        modifier = Modifier.matchParentSize(),
+                    ) { key ->
+                        val (kind, phase) = key
+                        val faded = scene.copy(kind = kind, phase = phase)
+                        WeatherEffectHost(faded, Modifier.matchParentSize())
+                    }
                 }
 
                 Column(
@@ -171,28 +230,9 @@ fun WeatherScreen(
                         .verticalScroll(scrollState),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                Box(modifier = Modifier.fillMaxWidth().height(46.dp)) {
-                    Text(
-                        text = city?.name ?: "添加城市",
-                        color = sky.textPrimary,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.align(Alignment.Center)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(sky.cardFill.copy(alpha = 0.34f))
-                            .clickable(onClick = onOpenCityList)
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                    )
-                    Row(
-                        modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        // 右上角只保留设置入口；定位走「点击重试」占位态与下拉刷新。
-                        HeaderIcon("more-horizontal", sky.textPrimary, onClick = onOpenSettings)
-                    }
-                }
+                    // 顶栏呼吸位：城市名/设置已上移到覆盖顶栏（HomeControls），
+                    // 内容从顶栏下开始，滚动时卡片从毛玻璃下穿过被真·模糊（南风同款）。
+                    Spacer(Modifier.fillMaxWidth().height(56.dp))
 
                 val snap = snapshot
                 when {
@@ -203,6 +243,28 @@ fun WeatherScreen(
                             modifier = Modifier.fillMaxWidth().padding(horizontal = Tokens.ScreenMargin),
                             verticalArrangement = Arrangement.spacedBy(Tokens.CardGap),
                         ) {
+                            // 南风 GlassRainDropsCard：雨类天气的玻璃雨滴沉浸卡
+                            // （显示 1000ms / 隐藏 600ms，对齐逆向文档二·2.3）。
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = scene.kind in rainKinds,
+                                enter = androidx.compose.animation.fadeIn(
+                                    animationSpec = androidx.compose.animation.core.tween(
+                                        1000,
+                                        easing = androidx.compose.animation.core.LinearEasing,
+                                    ),
+                                ) + androidx.compose.animation.expandVertically(),
+                                exit = androidx.compose.animation.fadeOut(
+                                    animationSpec = androidx.compose.animation.core.tween(
+                                        600,
+                                        easing = androidx.compose.animation.core.LinearEasing,
+                                    ),
+                                ) + androidx.compose.animation.shrinkVertically(),
+                            ) {
+                                GlassRaindropsCard(
+                                    intensity = if (scene.intensity > 0f) scene.intensity else scene.kind.defaultIntensity(),
+                                    night = scene.isNight,
+                                )
+                            }
                             cards.forEachIndexed { index, card ->
                                 // 错峰入场：卡片按序淡入 + 轻微上移，数据/城市切换时也有过渡感。
                                 key(card) {
@@ -246,18 +308,105 @@ fun WeatherScreen(
             } // 内容层结束
             } // 天空/特效/内容合成层结束
 
-            // 顶部可读性压暗带：取天空天顶色再压暗 → 与天空同色系，滚到状态栏区域时
-            // 保证城市名可读，同时不会出现灰黑色带或硬边（详见 TopBlurLayer 注释）。
-            TopBlurLayer(
+            // 南风 HomeControls 覆盖顶栏（逆向文档一·核心）：Haze 22dp 真模糊采样
+            // 天空层（skyHaze），状态栏区域与天空无缝融合、看不出毛玻璃边界；
+            // 下拉时按 T5 曲线整体下移，滚动时模糊强度渐入。
+            HomeControls(
+                cityName = city?.name ?: "添加城市",
+                hazeState = skyHaze,
                 scrollState = scrollState,
-                tint = Color(
-                    red = sky.skyTop.red * 0.55f,
-                    green = sky.skyTop.green * 0.55f,
-                    blue = sky.skyTop.blue * 0.60f,
-                ),
+                pullProgress = pullState.distanceFraction,
+                onOpenCityList = onOpenCityList,
+                onOpenSettings = onOpenSettings,
+                modifier = Modifier.align(Alignment.TopCenter),
             )
         }
         } // PullToRefreshBox
+    }
+}
+
+/** 南风 TopBlurRadius（逆向 xd.java f23396a）：顶栏毛玻璃半径 22dp。 */
+private val TopBlurRadius = 22.dp
+
+/**
+ * 南风 T5 下拉偏移算法（sv.java:3767 还原）：
+ * 线性段走 72% 偏移保证跟手，剩余 28% 用指数衰减（系数 1.35）阻尼趋近上限，
+ * progress 超过 3.0 后封顶 —— iOS 橡皮筋手感的经典实现。
+ */
+private fun pullRefreshOffset(progress: Float, maxOffsetPx: Float): Float {
+    val d = maxOf(progress, 0f)
+    if (d <= 1f) return maxOffsetPx * 0.72f * d
+    val excess = minOf(d - 1f, 2f)
+    val decay = 1f - exp(-excess * 1.35f)
+    return minOf(0.72f * maxOffsetPx + 0.28f * maxOffsetPx * decay, maxOffsetPx)
+}
+
+/**
+ * 覆盖顶栏（南风 HomeControls 的等价物）：
+ * - 背景 = hazeEffect(skyHaze)：22dp 高斯模糊采样天空层，无 tint、无噪点
+ *   （逆向 configureHaze 的精确配置）——状态栏与天空融为一体，看不出玻璃边界；
+ * - 强度随滚动渐入（原 TopBlurLayer 行为保留：0~260dp → 静止极淡）；
+ * - 下拉刷新时按 T5 曲线整体下移，跟随手比；
+ * - 内容：城市名胶囊（点击开城市列表）+ 右上设置入口。
+ */
+@Composable
+private fun HomeControls(
+    cityName: String,
+    hazeState: dev.chrisbanes.haze.HazeState,
+    scrollState: androidx.compose.foundation.ScrollState,
+    pullProgress: Float,
+    onOpenCityList: () -> Unit,
+    onOpenSettings: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val sky = LocalSky.current
+    val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    // 滚动强度：0~260dp → 0~1。静止时顶栏几乎透明（天空原色透出），滚动后变实。
+    val strength = (scrollState.value / 260f).coerceIn(0f, 1f)
+    // T5 下拉偏移：顶栏随下拉按阻尼曲线下移（最多 80dp 的 45%）。
+    val density = LocalDensity.current
+    val maxOffsetPx = with(density) { 80.dp.toPx() }
+    val phasePx = pullRefreshOffset(pullProgress, maxOffsetPx)
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(statusTop + 46.dp)
+            .graphicsLayer { translationY = phasePx * 0.45f }
+            .hazeEffect(hazeState) {
+                blurRadius = TopBlurRadius
+                noiseFactor = 0f
+                tints = emptyList()
+                alpha = 0.08f + 0.84f * strength
+            },
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(46.dp)
+                .align(Alignment.BottomCenter),
+        ) {
+            Text(
+                text = cityName,
+                color = sky.textPrimary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.Center)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(sky.cardFill.copy(alpha = 0.34f))
+                    .clickable(onClick = onOpenCityList)
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+            )
+            Row(
+                modifier = Modifier.align(Alignment.CenterEnd).padding(end = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                // 右上角只保留设置入口；定位走「点击重试」占位态与下拉刷新。
+                HeaderIcon("more-horizontal", sky.textPrimary, onClick = onOpenSettings)
+            }
+        }
     }
 }
 

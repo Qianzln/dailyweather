@@ -38,7 +38,9 @@ data class WeatherEffectFps(
         // 云不再被锁 30fps —— 那是高刷屏上"云一卡一卡"的根因。
         val Full = WeatherEffectFps(precip = 120, cloud = 120, ambient = 60)
         val Balanced = WeatherEffectFps(precip = 90, cloud = 90, ambient = 45)
-        val Low = WeatherEffectFps(precip = 30, cloud = 15, ambient = 0)
+        // Low 档环境 10fps（对齐南风逆向：云朵移动缓慢，10fps 已足够流畅且大幅省电，
+        // 不再完全停画——省电模式下天空仍"活着"）。
+        val Low = WeatherEffectFps(precip = 30, cloud = 15, ambient = 10)
         val Static = WeatherEffectFps(precip = 0, cloud = 0, ambient = 0)
 
         /** 设备刷新率 → 动效时钟（precip/cloud 跟满屏，ambient 折半省电）。上限 120。 */
