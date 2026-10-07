@@ -61,9 +61,14 @@ fun GlassCard(
         contentAlignment = Alignment.TopStart,
     ) {
         // Layer 1: 折射高光 —— 左上角扩散柔光扇区
+        // Layer 2: 顶部极弱高光条
+        // Layer 3: 底部内阴影（厚度感）
+        // 合并为单个 Canvas，减少 draw call
         androidx.compose.foundation.Canvas(modifier = Modifier.matchParentSize()) {
             val w = size.width
             val h = size.height
+            
+            // Layer 1: 折射高光
             drawRect(
                 brush = Brush.linearGradient(
                     colors = listOf(
@@ -88,22 +93,16 @@ fun GlassCard(
                     end = Offset(w * 0.8f, 0f),
                 ),
             )
-        }
-
-        // Layer 2: 顶部极弱高光条
-        androidx.compose.foundation.Canvas(modifier = Modifier.matchParentSize()) {
-            val w = size.width
+            
+            // Layer 2: 顶部极弱高光条
             drawLine(
                 color = edgeHighlight,
                 start = Offset(0f, 0.5f),
                 end = Offset(w, 0.5f),
                 strokeWidth = 0.5f,
             )
-        }
-
-        // Layer 3: 底部内阴影（厚度感）
-        androidx.compose.foundation.Canvas(modifier = Modifier.matchParentSize()) {
-            val h = size.height
+            
+            // Layer 3: 底部内阴影
             drawRect(
                 brush = Brush.linearGradient(
                     colors = listOf(

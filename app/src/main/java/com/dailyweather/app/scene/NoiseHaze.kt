@@ -59,10 +59,10 @@ float fbm(float2 p) {
 
 half4 main(float2 fragCoord) {
     float2 uv = fragCoord / uResolution;
-    // uv.y = 1.0 是顶部（OpenGL/AGSL 坐标系 y 轴向下）；画布 y=0 也是顶部，
-    // 所以 uv.y=1.0 处需要完全遮罩。这里 invert: topMask = smoothstep(1.0, 0.90, uv.y)
-    // 使得 y≥1.0（顶部）→ mask=0，y≤0.90 → mask=1（全量）。
-    float topMask = smoothstep(1.0, 0.90, uv.y);
+    // AGSL/Skia 左上原点：uv.y = 0 是顶部、= 1 是底部（与下方 `vertical` 云顶亮/云底暗
+    // 的坐标假设一致）。顶部 10% 完全遮罩，往下到 0.10 过渡到全量——否则 FBM 噪声云
+    // 会一直铺到状态栏后面随 uTime 脉动，造成顶区明暗跳动（本层顶部唯一的遮罩就在这）。
+    float topMask = smoothstep(0.0, 0.10, uv.y);
     float t = uTime;
     // 云团形状：低频、慢漂移 + domain warp。
     float2 p = uv * float2(2.1, 1.7);
@@ -118,9 +118,10 @@ fun NoiseHazeLayer(
     val brush = remember(shader) { ShaderBrush(shader) }
     val tint = SpriteSky.cloudTint(state)
 
-    // 噪声层：顶部不做 DstIn/Offscreen 遮罩（实测在 API33+ 上会把顶部压成纯黑带）。
-    // 其强度仅 0.14（晴天）且漂移极慢，对顶部观感影响可忽略；顶部稳定由帧层渐隐
-    // 和 kind 滞回保证。
+    // 噪声层顶部稳定：不用 DstIn/Offscreen 遮罩（实测在 API33+ 上会把顶部压成纯黑带），
+    // 改在 shader 内做 topMask（见 NOISE_HAZE_AGSF 的 smoothstep(0.0,0.10,uv.y)）——顶部 10%
+    // 归零、向下过渡到全量。若遮罩方向写反（顶区反而全量），FBM 噪声云会一直铺到状态栏
+    // 后面随 uTime 脉动，顶区明暗一跳一跳（v0.1.28 前长期存在的顶区抖动根因）。
     Canvas(modifier) {
         shader.setFloatUniform("uResolution", size.width, size.height)
         shader.setFloatUniform("uTime", clock.floatValue)

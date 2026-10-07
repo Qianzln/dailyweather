@@ -32,8 +32,8 @@ android {
         applicationId = "com.dailyweather.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 26
-        versionName = "0.1.27"
+        versionCode = 27
+        versionName = "0.1.28"
         buildConfigField("String", "CAIYUN_TOKEN", "\"${keys.getProperty("caiyun_token", "")}\"")
         buildConfigField("String", "AMAP_KEY", "\"${keys.getProperty("amap_key", "")}\"")
         // CloudBase 云代理（与微风天气同一已打通链路）：彩云/和风/小米/高德唯一出口
@@ -105,7 +105,4 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
-    // Liquid Glass —— Kyant0/AndroidLiquidGlass
-    implementation("io.github.kyant0:backdrop-android:2.0.1")
-    implementation("io.github.kyant0:shapes-android:1.2.1")
 }

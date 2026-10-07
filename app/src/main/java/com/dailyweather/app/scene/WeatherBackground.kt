@@ -1,24 +1,8 @@
 package com.dailyweather.app.scene
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.CompositingStrategy
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.dp
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.effects.blur
 
 /**
  * 天空渐变的三段色标：天顶 → 中段 → 地平线。
@@ -104,97 +88,4 @@ fun AnimatedSkyGradient(
     modifier: Modifier = Modifier,
 ) {
     SpriteSkyBackground(state = state, modifier = modifier, overcast = state.overcast)
-}
-
-/**
- * 顶部渐进压暗，保证状态栏与城市名在任意天空下都可读。
- *
- * 南风的对应物是 `TopProgressiveBlur (WeatherBackground.kt:307)` —— 真·渐进模糊，
- * 要接 API 33+ 的 `RenderEffect`；这里先用压暗把可读性做对，不冒充模糊。
- */
-@Composable
-fun TopProgressiveScrim(
-    modifier: Modifier = Modifier,
-    bandFraction: Float = 0.22f,
-) {
-    Canvas(modifier) {
-        drawRect(
-            brush = Brush.verticalGradient(
-                0f to Color(0x10000000),
-                bandFraction to Color(0x00000000),
-                startY = 0f,
-                endY = size.height,
-            ),
-        )
-    }
-}
-
-/**
- * 滚动顶部渐进毛玻璃（南风 TopProgressiveBlur 的 1:1 复刻）。
- *
- * 与"再画一遍天空套 blur"的区别（实测南风截图）：玻璃带采样的是**整个内容层**
- * ——滚动时卡片/文字从状态栏区域穿过，它们也被真·模糊成雾状，而不仅是天空。
- * 实现用项目既有依赖 backdrop-android（南风同款库）：
- * - 内容层 `Modifier.layerBackdrop(backdrop)` 捕获绘制内容（含天空+滚动卡片）
- * - 顶部玻璃带 `Modifier.drawBackdrop(backdrop) { blur(13f) }` 采样并模糊
- * - 强度随 scrollY 渐入（南风：刚滚动时带子淡、滚深了变实）
- *
- * 底边"方框"修复（v0.1.16）：blur 区域有硬底边，此前靠"画 sky.skyBottom 渐隐 35%"
- * 遮缝——涂色与真实天空（渐变+云 PNG 合成色）永远对不齐，缝还在。改用开源
- * iOS 风格状态栏模糊的标准解法：把模糊层包进离屏 layer，对其自身做 DstIn
- * alpha 渐变蒙版（上 55% 实、55%→85% 线性淡到 0）。底边彻底消失，与背后
- * 任何天空/云色都无缝，不再需要圆角和渐隐涂色。
- */
-@Composable
-fun TopProgressiveGlass(
-    backdrop: com.kyant.backdrop.backdrops.LayerBackdrop,
-    scrollState: androidx.compose.foundation.ScrollState,
-    modifier: Modifier = Modifier,
-    bandHeight: androidx.compose.ui.unit.Dp = 128.dp,
-) {
-    val strength = (scrollState.value / 260f).coerceIn(0f, 0.9f)
-    if (strength <= 0.02f) return
-    Box(modifier = modifier.fillMaxWidth().height(bandHeight)) {
-        // 关键：blur、DstIn 蒙版、离屏 layer 三者必须落在**同一个节点**上，
-        // 顺序（内→外）：drawBackdrop(画模糊) → drawWithContent(DstIn 蒙版)
-        // → graphicsLayer(Offscreen 隔离)。这样 DstIn 擦除只发生在离屏层内部，
-        // 擦掉的区域真正透明、透出背后的天空，而不是黑底。
-        //
-        // 「一条线 + 一个方框」的去法（v0.1.17）：
-        // 1) 显式关掉库默认的 highlight/shadow（否则 drawBackdrop 会沿 shape 描一圈
-        //    高光边 + 投影，那就是那条"线"和那个"框"）。
-        // 2) DstIn 蒙版**上下都软渐隐**：顶 16% 淡入、底 40% 淡出，四条边里左右是
-        //    通栏（无侧边），上下又都被 alpha 抹平 → 不存在任何硬边。
-        // 3) 整体透明度封顶 0.9，避免顶部落成一整块"实心方框"。
-        Box(
-            Modifier
-                .matchParentSize()
-                .drawBackdrop(
-                    backdrop,
-                    shape = { RoundedCornerShape(0.dp) },
-                    effects = { blur(13f) },
-                    highlight = { null as com.kyant.backdrop.highlight.Highlight? },
-                    shadow = { null as com.kyant.backdrop.shadow.Shadow? },
-                )
-                .drawWithContent {
-                    drawContent()
-                    // DstIn 蒙版：只取源 alpha（白=保留，透明=擦除到"真透明"）。
-                    drawRect(
-                        brush = Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            0.16f to Color.White,
-                            0.60f to Color.White,
-                            1f to Color.Transparent,
-                            startY = 0f,
-                            endY = size.height,
-                        ),
-                        blendMode = BlendMode.DstIn,
-                    )
-                }
-                .graphicsLayer {
-                    compositingStrategy = CompositingStrategy.Offscreen
-                    alpha = strength
-                },
-        )
-    }
 }

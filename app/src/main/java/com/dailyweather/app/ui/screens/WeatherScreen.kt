@@ -1,9 +1,14 @@
 package com.dailyweather.app.ui.screens
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Image
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,14 +27,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
-import com.kyant.backdrop.backdrops.layerBackdrop
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,12 +43,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.key
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,9 +57,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -74,8 +72,7 @@ import com.dailyweather.app.scene.SceneBridge
 import com.dailyweather.app.scene.LocalEffectQuality
 import com.dailyweather.app.scene.LocalWeatherEffectDrawEnabled
 import com.dailyweather.app.scene.EffectQuality
-import com.dailyweather.app.scene.TopProgressiveGlass
-import com.dailyweather.app.scene.TopProgressiveScrim
+import com.dailyweather.app.scene.TopBlurLayer
 import com.dailyweather.app.scene.WeatherEffectFps
 import com.dailyweather.app.scene.WeatherEffectHost
 import com.dailyweather.app.ui.components.GlassCard
@@ -92,10 +89,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Locale
-import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.roundToInt
-import kotlin.math.sin
 
 /**
  * 首页：分层天空（渐变 → 云层 → 降水/氛围 → 顶部压暗）+ 居中 Hero + 卡片流。
@@ -153,12 +147,9 @@ fun WeatherScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            // 顶部毛玻璃的背板：采样"天空+特效+滚动内容"，玻璃带模糊其覆盖区域的
-            // 全部内容（南风同款 backdrop-android：卡片穿过状态栏区域时也被真模糊）。
-            val backdrop = com.kyant.backdrop.backdrops.rememberLayerBackdrop()
             val scrollState = rememberScrollState()
 
-            Box(modifier = Modifier.matchParentSize().layerBackdrop(backdrop)) {
+            Box(modifier = Modifier.matchParentSize()) {
                 AnimatedSkyGradient(scene, Modifier.matchParentSize())
                 // 天气切换时的交叉淡入淡出（对齐南风 effectTimeline：约 900ms 过渡），
                 // 新旧两层粒子互相淡入淡出，而不是"雨突然停了"。
@@ -214,16 +205,18 @@ fun WeatherScreen(
                         ) {
                             cards.forEachIndexed { index, card ->
                                 // 错峰入场：卡片按序淡入 + 轻微上移，数据/城市切换时也有过渡感。
-                                CardEnter(index) {
-                                    when (card) {
-                                        HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone) { onOpenDetail(com.dailyweather.app.DetailKind.HOURLY) }
-                                        HomeCardId.DAILY -> DailyCard(snap, blueTheme, cityZone)
-                                        HomeCardId.PRECIP -> PrecipCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.MINUTELY) }
-                                        HomeCardId.LIFE -> LifeAdviceCard(snap)
-                                        HomeCardId.AQI -> AqiCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.AIR_QUALITY) }
-                                        HomeCardId.SUN -> SunCard(snap, cityZone)
-                                        HomeCardId.DETAIL -> DetailCard(snap)
-                                        else -> Unit
+                                key(card) {
+                                    CardEnter(index) {
+                                        when (card) {
+                                            HomeCardId.HOURLY -> HourlyCard(snap, blueTheme, cityZone) { onOpenDetail(com.dailyweather.app.DetailKind.HOURLY) }
+                                            HomeCardId.DAILY -> DailyCard(snap, blueTheme, cityZone)
+                                            HomeCardId.PRECIP -> PrecipCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.MINUTELY) }
+                                            HomeCardId.LIFE -> LifeAdviceCard(snap)
+                                            HomeCardId.AQI -> AqiCard(snap) { onOpenDetail(com.dailyweather.app.DetailKind.AIR_QUALITY) }
+                                            HomeCardId.SUN -> SunCard(snap, cityZone)
+                                            HomeCardId.DETAIL -> DetailCard(snap)
+                                            else -> Unit
+                                        }
                                     }
                                 }
                             }
@@ -250,37 +243,50 @@ fun WeatherScreen(
                     city != null -> HeroPlaceholder(city.name, vm.message, onLocate)
                     else -> EmptyState(onOpenSearch, vm.message)
                 }
-            }
-            } // layerBackdrop 采样层
+            } // 内容层结束
+            } // 天空/特效/内容合成层结束
 
-            // 顶部毛玻璃带：锚定屏幕顶（含状态栏后）128dp，滚动时内容穿过被真·模糊（南风同款）。
-            TopProgressiveGlass(backdrop, scrollState)
-            TopProgressiveScrim(Modifier.matchParentSize())
+            // 顶部可读性压暗带：取天空天顶色再压暗 → 与天空同色系，滚到状态栏区域时
+            // 保证城市名可读，同时不会出现灰黑色带或硬边（详见 TopBlurLayer 注释）。
+            TopBlurLayer(
+                scrollState = scrollState,
+                tint = Color(
+                    red = sky.skyTop.red * 0.55f,
+                    green = sky.skyTop.green * 0.55f,
+                    blue = sky.skyTop.blue * 0.60f,
+                ),
+            )
         }
         } // PullToRefreshBox
     }
 }
 
-/** 卡片错峰入场：淡入 + 轻微上移，每张错开 60ms（学报告整体过渡取向）。 */
+/** 卡片错峰入场：淡入 + 轻微上移，每张错开 55ms（学报告整体过渡取向）。 */
 @Composable
 private fun CardEnter(index: Int, content: @Composable () -> Unit) {
-    val alpha = remember { androidx.compose.animation.core.Animatable(0f) }
-    val shift = remember { androidx.compose.animation.core.Animatable(26f) }
+    val visible = remember { mutableStateOf(false) }
+    val density = LocalDensity.current
+    // 错峰封顶前 8 张：长列表不会把最后一张推迟到 1s 以上，避免"等卡片"的观感。
+    val stagger = index.coerceAtMost(8) * 55L
     LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(index * 60L)
-        launch {
-            alpha.animateTo(1f, androidx.compose.animation.core.tween(450))
-        }
-        launch {
-            shift.animateTo(0f, androidx.compose.animation.core.tween(450))
-        }
+        delay(stagger)
+        visible.value = true
     }
-    Box(
-        Modifier.graphicsLayer {
-            this.alpha = alpha.value
-            translationY = shift.value
-        },
-    ) { content() }
+    AnimatedVisibility(
+        visible = visible.value,
+        enter = fadeIn(animationSpec = tween(420, easing = FastOutSlowInEasing)) +
+            slideInVertically(
+                animationSpec = tween(420, easing = FastOutSlowInEasing),
+                initialOffsetY = { with(density) { 26.dp.roundToPx() } },
+            ),
+        exit = fadeOut(animationSpec = tween(200)) +
+            slideOutVertically(
+                animationSpec = tween(200),
+                targetOffsetY = { with(density) { 18.dp.roundToPx() } },
+            ),
+    ) {
+        content()
+    }
 }
 
 @Composable
@@ -293,7 +299,7 @@ private fun HeaderIcon(name: String, tint: Color, onClick: () -> Unit) {
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        icon?.let { Icon(it, contentDescription = null, tint = tint, modifier = Modifier.size(15.dp)) }
+        icon?.let { Icon(it, contentDescription = name, tint = tint, modifier = Modifier.size(15.dp)) }
     }
 }
 
@@ -599,7 +605,7 @@ private fun LifeAdviceCard(snapshot: WeatherSnapshot) {
                             if (glyph != null) {
                                 Icon(
                                     glyph,
-                                    contentDescription = null,
+                                    contentDescription = item.label,
                                     tint = sky.textPrimary,
                                     modifier = Modifier.size(Tokens.AdviceIconSize),
                                 )
@@ -700,7 +706,7 @@ private fun SunCard(snapshot: WeatherSnapshot, zone: java.time.ZoneId) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     rememberLucide(leftIcon)?.let {
-                        Icon(it, contentDescription = null, tint = Tokens.TextTertiary, modifier = Modifier.size(14.dp))
+                        Icon(it, contentDescription = leftLabel, tint = Tokens.TextTertiary, modifier = Modifier.size(14.dp))
                     }
                     Spacer(Modifier.width(5.dp))
                     Text(leftLabel, color = Tokens.TextTertiary, fontSize = 12.sp)
@@ -710,7 +716,7 @@ private fun SunCard(snapshot: WeatherSnapshot, zone: java.time.ZoneId) {
                     Text(rightLabel, color = Tokens.TextTertiary, fontSize = 12.sp)
                     Spacer(Modifier.width(5.dp))
                     rememberLucide(rightIcon)?.let {
-                        Icon(it, contentDescription = null, tint = Tokens.TextTertiary, modifier = Modifier.size(14.dp))
+                        Icon(it, contentDescription = rightLabel, tint = Tokens.TextTertiary, modifier = Modifier.size(14.dp))
                     }
                 }
             }
@@ -790,7 +796,7 @@ private fun PrecipCard(snapshot: WeatherSnapshot, onClick: () -> Unit = {}) {
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             rememberLucide("umbrella")?.let {
-                                Icon(it, contentDescription = null, tint = sky.textSecondary, modifier = Modifier.size(15.dp))
+                                Icon(it, contentDescription = "未来 24 小时降水", tint = sky.textSecondary, modifier = Modifier.size(15.dp))
                             }
                             Spacer(Modifier.width(6.dp))
                             Text("未来 24 小时降水", color = sky.textSecondary, fontSize = 13.sp)
@@ -964,7 +970,7 @@ private fun DetailCard(snapshot: WeatherSnapshot) {
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             rememberLucide(icon)?.let {
-                                Icon(it, contentDescription = null, tint = sky.textSecondary, modifier = Modifier.size(18.dp))
+                                Icon(it, contentDescription = label, tint = sky.textSecondary, modifier = Modifier.size(18.dp))
                             }
                             Spacer(Modifier.height(6.dp))
                             // 值行固定高度垂直居中：三列基线一致（长文本自动缩号不破行高）。
