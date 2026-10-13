@@ -827,7 +827,11 @@ private fun AqiCard(snapshot: WeatherSnapshot, onClick: () -> Unit = {}) {
 @Composable
 private fun SunCard(snapshot: WeatherSnapshot, zone: java.time.ZoneId) {
     val sky = LocalSky.current
-    val today = snapshot.daily.firstOrNull() ?: return
+    // ⚠️ daily[0] 可能是「昨天」（Providers 把 yesterday 实况补在日卡首行），
+    // 日落卡应显示今天的日出日落。按日期匹配今天，兜底再取首项。
+    val todayDate = java.time.LocalDate.now(zone).toString()
+    val today = snapshot.daily.firstOrNull { it.date == todayDate }
+        ?: snapshot.daily.firstOrNull() ?: return
     if (today.sunrise.isBlank() && today.sunset.isBlank()) return
     // 日照进度：日出 0 → 日落 1；夜间为 null。
     val sunProgress = remember(snapshot.fetchedAt) {

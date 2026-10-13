@@ -36,8 +36,8 @@ android {
         applicationId = "com.dailyweather.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 56
-        versionName = "0.1.56"
+        versionCode = 57
+        versionName = "0.1.57"
         // 只保留中文（默认 values 即中文）：剥掉第三方库 100+ locale 字符串，resources.arsc 瘦身
         resConfigs("zh")
         buildConfigField("String", "CAIYUN_TOKEN", "\"${keys.getProperty("caiyun_token", "")}\"")

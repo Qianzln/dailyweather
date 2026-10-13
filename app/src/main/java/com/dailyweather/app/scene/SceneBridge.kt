@@ -151,7 +151,13 @@ object SceneBridge {
     ): String? {
         if (!com.dailyweather.app.scene.oppo.OppoSceneKey.ready) return null
 
-        val today = snapshot?.daily?.firstOrNull()
+        // ⚠️ daily[0] 可能是「昨天」（Providers 把 yesterday 实况补在日卡首行），
+        // 直接 firstOrNull() 会用昨天的日出日落算今天的时段——若昨天数据缺 sunRise/sunSet，
+        // rise/set 解析失败 → fallbackSlot(18)=4 → 18:20 已入夜却显示日落粉紫（B1 bug）。
+        // 修复：按日期匹配今天，兜底再取首项。
+        val todayDate = java.time.LocalDate.ofInstant(java.time.Instant.ofEpochMilli(nowEpochMs), zone).toString()
+        val today = snapshot?.daily?.firstOrNull { it.date == todayDate }
+            ?: snapshot?.daily?.firstOrNull()
         val rise = minutesOf(today?.sunrise.orEmpty())
         val set = minutesOf(today?.sunset.orEmpty())
         val date = java.time.LocalDate.ofInstant(java.time.Instant.ofEpochMilli(nowEpochMs), zone)
