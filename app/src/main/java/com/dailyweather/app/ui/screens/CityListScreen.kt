@@ -99,7 +99,7 @@ fun CityListScreen(
             }
         }
         Spacer(Modifier.height(16.dp))
-        LazyColumn(state = listState, verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp)) {
+        LazyColumn(state = listState, verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(com.dailyweather.app.ui.theme.Tokens.CardGap)) {
             items(cities, key = { it.id }) { city ->
                 val snap = snapshots[city.id]
                 val dragging = draggingId == city.id

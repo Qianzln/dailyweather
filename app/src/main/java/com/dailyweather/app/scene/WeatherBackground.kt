@@ -73,19 +73,6 @@ fun skyStopsFor(phase: SkyPhase, overcast: Float): SkyGradientStops {
     return row.clear.lerpTo(row.overcast, overcast.coerceIn(0f, 1f))
 }
 
-/**
- * 天空层 —— 1:1 南风的精灵帧方案。
- *
- * 南风的 `AnimatedSkyGradient`：整幅天空（含云）是预渲染 PNG 帧序列，运行时逐帧轮播；
- * 渐变色只作为**帧解码前的兜底**与色调基座存在。本实现：
- * 1. 渐变底（`SkyGradientStops` 实测色，帧加载/解码期间可见）
- * 2. 天空精灵帧轮播（[SpriteSkyBackground]：8 帧积云 / 3 帧薄云 + Crossfade）
- * 3. 时段 × 天气 tint（清晨暖金 / 傍晚橙 / 夜深蓝；雨雪雾压灰）
- */
-@Composable
-fun AnimatedSkyGradient(
-    state: WeatherSceneState,
-    modifier: Modifier = Modifier,
-) {
-    SpriteSkyBackground(state = state, modifier = modifier, overcast = state.overcast)
-}
+// v0.1.52：PNG 精灵帧天空（SpriteSkyBackground）与 Canvas 特效层一并删除，
+// 天空/天气全部由 OPPO GL 3D 场景渲染；子页背景改用 skyStopsFor 静态渐变。
+// 本文件只保留三段色标数据（卡片/调色板仍在用）。

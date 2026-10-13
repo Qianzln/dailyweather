@@ -75,7 +75,12 @@ class XiaomiProvider(private val proxy: CloudProxy) : WeatherProvider {
         val lat = "%.2f".format(city.latitude)
         val lon = "%.2f".format(city.longitude)
         val geoArr = JSONArray(
-            proxy.get("/weather/xiaomi-geo", mapOf("latitude" to lat, "longitude" to lon))
+            proxy.get(
+                "/weather/xiaomi-geo",
+                mapOf("latitude" to lat, "longitude" to lon),
+                // 坐标→locationKey 是轻量反查（云端缓存 6h），5s 足够；超时即整源失败让位彩云。
+                timeoutMs = CloudProxy.LIGHT_TIMEOUT_MS,
+            )
         )
         val locationKey = (0 until geoArr.length()).mapNotNull { i ->
             geoArr.optJSONObject(i)

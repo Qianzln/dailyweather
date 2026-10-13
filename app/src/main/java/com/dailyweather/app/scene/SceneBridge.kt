@@ -32,7 +32,7 @@ object SceneBridge {
 
     private val IMMEDIATE_KINDS = setOf(
         WeatherKind.RAIN, WeatherKind.THUNDER,
-        WeatherKind.SNOW, WeatherKind.SLEET, WeatherKind.FOG,
+        WeatherKind.SNOW, WeatherKind.SLEET, WeatherKind.FOG, WeatherKind.DUST,
     )
     private val PENDING_TIMEOUT_MS = 10 * 60_000L
 
@@ -78,18 +78,31 @@ object SceneBridge {
         skycon.startsWith("PARTLY_CLOUDY") -> WeatherKind.PARTLY_CLOUDY
         skycon.startsWith("CLEAR") -> WeatherKind.CLEAR
         skycon.contains("HAZE") || skycon.contains("FOG") || skycon.contains("MIST") -> WeatherKind.FOG
-        skycon.contains("DUST") || skycon.contains("SAND") -> WeatherKind.FOG
+        skycon.contains("DUST") || skycon.contains("SAND") -> WeatherKind.DUST
         skycon.contains("WIND") || skycon.contains("GALE") -> WeatherKind.WIND
         else -> WeatherKind.PARTLY_CLOUDY
     }
 
-    /** 降水强度：取未来两小时内的最高降水概率。 */
+    /**
+     * 降水强度 0–1：按**未来两小时的小时降水量（mm/h）**，不是降水概率。
+     *
+     * ⚠️ 历史教训（2026-10-12 实机截图）：用概率当强度时，「小雨 + 96% 概率」被算成
+     * 0.96 → 玻璃雨滴卡出「暴雨倾盆」文案 + 满密度水珠、全屏折射也按暴雨强度扭曲。
+     * 概率只表达"下不下"，不表达"下多大"；强度必须看 mm/h。
+     *
+     * 分档（对齐气象小雨/中雨/大雨界值）：2.5 mm/h ≈ 0.25、8 mm/h ≈ 0.45、
+     * 16 mm/h ≈ 0.63、≥40 mm/h = 1.0；下雨时保底 0.18（小雨也要有可见水珠）。
+     * 数据源缺 mm/h（全 0）时退化为概率 × 0.35，避免雨景完全静止。
+     */
     fun intensityOf(snapshot: WeatherSnapshot?, nowEpochMs: Long): Float {
         val snap = snapshot ?: return 0f
-        return snap.hourly
+        val window = snap.hourly
             .filter { it.time in nowEpochMs until nowEpochMs + 2 * 3600_000L }
-            .maxOfOrNull { it.precipitationProbability.toFloat() }
-            ?.div(100f)?.coerceIn(0f, 1f) ?: 0f
+            .ifEmpty { snap.hourly.take(2) }
+        val mm = window.maxOfOrNull { it.precipitationMm.toFloat() } ?: 0f
+        if (mm > 0.05f) return kotlin.math.sqrt(mm / 40f).coerceIn(0f, 1f).coerceAtLeast(0.18f)
+        val pop = window.maxOfOrNull { it.precipitationProbability.toFloat() } ?: 0f
+        return (pop / 100f * 0.35f).coerceIn(0f, 0.35f)
     }
 
     /**
@@ -120,6 +133,100 @@ object SceneBridge {
     fun windOf(snapshot: WeatherSnapshot?): Float =
         ((snapshot?.realtime?.windSpeed ?: 0.0) / 60.0).toFloat().coerceIn(0.05f, 1f)
 
+    /**
+     * 南风 v4.3.99 的 OPPO 场景键（62 个预设之一）。整套映射见 [com.dailyweather.app.scene.oppo.OppoSceneKey]。
+     *
+     * 与 [stateFor] 的 9 种 [WeatherKind] **并存**：后者继续服务现有 Compose 渲染器（回退路径），
+     * 前者服务 GLES 场景渲染。两条路径共用同一份快照，互不依赖。
+     *
+     * 时段槽位用**真实日出日落**算（`OppoSceneKey.timeSlot`），不是按小时硬切——
+     * 这是南风 `w7/z0.d` 的口径，也是北京冬天 16:50 就进日落档、夏天 19:30 才进的原因。
+     * 取不到日晷数据时退化为按小时分桶（见 [fallbackSlot]），保证不返回 null。
+     */
+    fun oppoSceneKeyOf(
+        snapshot: WeatherSnapshot?,
+        zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
+        latitude: Double? = null,
+        nowEpochMs: Long = System.currentTimeMillis(),
+    ): String? {
+        if (!com.dailyweather.app.scene.oppo.OppoSceneKey.ready) return null
+
+        val today = snapshot?.daily?.firstOrNull()
+        val rise = minutesOf(today?.sunrise.orEmpty())
+        val set = minutesOf(today?.sunset.orEmpty())
+        val date = java.time.LocalDate.ofInstant(java.time.Instant.ofEpochMilli(nowEpochMs), zone)
+        // 视觉校准（debug）：fixture 的 `hour` 必须在这里也生效。
+        // `oppoSceneKeyOf` 不经过 [phaseOf]，所以单靠 phaseOf 那处覆盖不了场景键——
+        // 实测后果：8 个 fixture 全部落在「夜」档（系统时区 UTC 18:xx = 夜），
+        // 白天场景永远验不到。`Fixture.hourOverride` 只在 debug 被写入，release 恒 null。
+        val nowReal = java.time.LocalTime.ofInstant(java.time.Instant.ofEpochMilli(nowEpochMs), zone)
+        val now = com.dailyweather.app.data.Fixture.hourOverride
+            ?.let { java.time.LocalTime.of(it.coerceIn(0, 23), 0) }
+            ?: nowReal
+
+        val slot = com.dailyweather.app.scene.oppo.OppoSceneKey.polarSlot(latitude, date)
+            ?: if (rise != null && set != null) {
+                com.dailyweather.app.scene.oppo.OppoSceneKey.timeSlot(now.hour * 60 + now.minute, rise, set)
+            } else {
+                fallbackSlot(now.hour)
+            }
+
+        val rt = snapshot?.realtime
+        val skycon = snapshot?.currentSkycon.orEmpty()
+        val precipMm = snapshot?.hourly?.firstOrNull()?.precipitationMm
+        val hasThunder = snapshot?.alerts?.any { it.title.contains("雷") } == true
+        // 数据源不提供云量：按天气码反推一个代理值，让 1/55 与 56/58 的区分仍然有效。
+        val cloud = cloudrateProxyOf(skycon)
+        val hazeOk = com.dailyweather.app.scene.oppo.OppoSceneKey.isHazeCondition(
+            humidity = rt?.humidity,
+            pm25 = rt?.pm25,
+            windKmh = rt?.windSpeed,
+        )
+        val key = com.dailyweather.app.scene.oppo.OppoSceneKey.select(
+            skycon = skycon,
+            slot = slot,
+            cloudrate = cloud,
+            precipMmPerHour = precipMm,
+            hasThunderAlert = hasThunder,
+            hazeOk = hazeOk,
+        )
+        android.util.Log.d("SceneBridge", "oppoSceneKey: skycon=$skycon slot=$slot cloud=$cloud key=$key")
+        return key
+    }
+
+    /** 无日晷数据时的小时→槽位退化映射（与 [com.dailyweather.app.scene.oppo.OppoSceneKey.timeSlot] 的分段意图一致）。 */
+    private fun fallbackSlot(hour: Int): Int = when (hour) {
+        5 -> 0          // 黎明
+        6, 7, 8 -> 1    // 清晨
+        9, 10, 11 -> 2  // 正午前
+        12, 13, 14 -> 2
+        15, 16 -> 3     // 午后
+        17, 18 -> 4     // 日落
+        19 -> 5         // 傍晚
+        else -> 6       // 夜
+    }
+
+    /**
+     * 云量的代理值。上游（小米 wtr-v3 / 彩云）没有直接给 0–1 的云量，
+     * 用天气码反推：晴≈5%、晴转多云≈20%、阴/多云≈85%。
+     * 只影响 `1/55`（少云/有云）与 `56/58`（多云/少云）的选择，不影响天空配色。
+     *
+     * ⚠️ **顺序敏感**：`PARTLY_CLOUDY` 必须排在 `contains("CLOUDY")` 之前。
+     * 原写法把 `contains("CLOUDY")` 放前面，`PARTLY_CLOUDY_DAY` 会先命中它 →
+     * `startsWith("PARTLY_CLOUDY")` 那支成了**死代码**，「少云 58」永远轮不到，
+     * `partly_day` 与 `cloudy_day` 两个 fixture 会选到同一个场景键（实测确认）。
+     */
+    private fun cloudrateProxyOf(skycon: String): Double {
+        val s = skycon.uppercase()
+        return when {
+            // 少云：必须 < CLOUD_LOW(0.30)，否则 cloudyGroup 判成 56（4 朵）而不是 58（2 朵）。
+            s.startsWith("PARTLY_CLOUDY") -> 0.20
+            s.contains("OVERCAST") || s.contains("CLOUDY") -> 0.85
+            s.contains("HAZE") || s.contains("FOG") || s.contains("MIST") -> 0.90
+            else -> 0.05
+        }
+    }
+
     fun stateFor(
         snapshot: WeatherSnapshot?,
         zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
@@ -141,3 +248,4 @@ object SceneBridge {
         )
     }
 }
+

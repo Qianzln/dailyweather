@@ -10,6 +10,7 @@ import com.dailyweather.app.data.remote.ProxyNotConfiguredException
 import com.dailyweather.app.data.remote.WeatherProvider
 import com.dailyweather.app.data.Fixture
 import com.dailyweather.app.data.remote.XiaomiProvider
+import com.dailyweather.app.sync.RefreshManager
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -54,13 +55,23 @@ class WeatherRepository(
         val merged = mutableListOf<String>()
 
         for (provider in providers) {
-            val snapshot = try {
-                provider.fetch(city)
+            // 单源请求超时预算：此前 RefreshManager 的两个超时常量是死代码（声明了从不引用），
+            // 云函数挂起时只能等 HttpURLConnection 的 socket 超时，叠加两源无总预算保护。
+            val attemptTimeoutMs = RefreshManager.WEATHER_FETCH_ATTEMPT_TIMEOUT_MS
+            val snapshot: WeatherSnapshot? = try {
+                kotlinx.coroutines.withTimeoutOrNull(attemptTimeoutMs) { provider.fetch(city) }
             } catch (e: ProxyNotConfiguredException) {
                 throw DataSourceNotConfiguredException("数据源尚未配置，暂时无法获取天气")
             } catch (e: Exception) {
                 Log.w(TAG, "${provider.name}源失败: ${e.message}")
                 errors += "${provider.name}: ${e.message}"
+                null
+            }
+            if (snapshot == null) {
+                if (errors.none { it.startsWith("${provider.name}: ") }) {
+                    Log.w(TAG, "${provider.name}源超时(${attemptTimeoutMs}ms)")
+                    errors += "${provider.name}: 请求超时(${attemptTimeoutMs}ms)"
+                }
                 continue
             }
             if (base == null) {
@@ -68,7 +79,7 @@ class WeatherRepository(
                 baseName = provider.name
                 merged += provider.name
             } else {
-                base = mergeGaps(base!!, snapshot)
+                base = mergeGaps(base, snapshot)
                 merged += "${provider.name}(补)"
             }
         }

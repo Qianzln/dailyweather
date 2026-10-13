@@ -1,10 +1,9 @@
 package com.dailyweather.app.widget
 
 import android.appwidget.AppWidgetManager
-import android.content.BroadcastReceiver
+import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -19,10 +18,12 @@ import com.dailyweather.app.data.model.WeatherSnapshot
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
-/** 组件上次渲染的数据签名（cityId -> signature），变化时才重绘。 */
-private val lastSignatures = mutableMapOf<String, String>()
+/** 组件上次渲染的数据签名（cityId/widgetId -> signature），变化时才重绘。
+ *  使用 ConcurrentHashMap 避免进程长期运行后内存泄漏（旧 key 不清理）。 */
+private val lastSignatures = ConcurrentHashMap<String, String>()
 
 /**
  * 组件同步/渲染 Worker（对齐南风 `WidgetSyncWorker` + `WidgetScheduler`）：
@@ -47,15 +48,23 @@ class WidgetSyncWorker(
         }
 
         // 主刷新：当前定位城市或第一个城市（渲染模式跳过网络）
+        var refreshFailed: Boolean = false
         if (!renderOnly) {
             val primary = cities.firstOrNull { it.isCurrentLocation } ?: cities.firstOrNull()
             if (primary != null) {
                 Log.i(TAG, "doWork: [步骤3] 请求后台同步, reason=${inputData.getString(KEY_REASON) ?: "periodic"}")
-                container.refreshManager.refresh(primary, "widget_sync")
+                val outcome = container.refreshManager.refresh(primary, "widget_sync")
+                refreshFailed = outcome is com.dailyweather.app.sync.RefreshManager.Outcome.Failed
             }
         }
 
+        // 无论刷新成败都先按缓存渲染（失败时保住旧数据，不清空组件）。
         renderAll(applicationContext)
+        if (refreshFailed) {
+            // 联网约束已保证在线，刷新失败多半是上游异常 → 交回 WorkManager 指数退避重试。
+            Log.w(TAG, "doWork: 刷新失败，按退避策略重试")
+            return@withContext Result.retry()
+        }
         Log.i(TAG, "doWork: 渲染完成")
         Result.success()
     }
@@ -72,11 +81,11 @@ class WidgetSyncWorker(
             val container = app.container
             val blue = container.settings.weatherBlueIcons.first()
             val cities = container.cityRepository.cities.first()
-            val primary = cities.firstOrNull { it.isCurrentLocation } ?: cities.firstOrNull()
-            val snap: WeatherSnapshot? = primary?.let { container.weatherRepository.cached(it.id) }
+            val primaryCity = cities.firstOrNull { it.isCurrentLocation } ?: cities.firstOrNull()
+            val snap: WeatherSnapshot? = primaryCity?.let { container.weatherRepository.cached(it.id) }
 
             val awm = AppWidgetManager.getInstance(context)
-            
+
             // 小组件（1x1 / 2x1 / AQI 4x1）立即渲染
             val smallProviders = listOf(
                 WeatherWidgetProvider::class.java,
@@ -85,7 +94,7 @@ class WidgetSyncWorker(
             )
             smallProviders.forEach { cls ->
                 val ids = awm.getAppWidgetIds(ComponentName(context, cls))
-                ids.forEach { id -> WidgetScheduler.renderOne(context, cls, id, primary, snap, blue) }
+                ids.forEach { id -> WidgetScheduler.renderOne(context, cls, id, primaryCity, snap, blue) }
             }
 
             // 中等组件（4x2 / Medium / iOS）延后 50ms
@@ -97,10 +106,10 @@ class WidgetSyncWorker(
             )
             mediumProviders.forEach { cls ->
                 val ids = awm.getAppWidgetIds(ComponentName(context, cls))
-                ids.forEach { id -> WidgetScheduler.renderOne(context, cls, id, primary, snap, blue) }
+                ids.forEach { id -> WidgetScheduler.renderOne(context, cls, id, primaryCity, snap, blue) }
             }
 
-            // 大组件（Hourly / Week）延后 100ms
+            // 大组件（Hourly / Week）延后 50ms
             kotlinx.coroutines.delay(50)
             val largeProviders = listOf(
                 WeatherWidgetHourlyProvider::class.java,
@@ -108,7 +117,7 @@ class WidgetSyncWorker(
             )
             largeProviders.forEach { cls ->
                 val ids = awm.getAppWidgetIds(ComponentName(context, cls))
-                ids.forEach { id -> WidgetScheduler.renderOne(context, cls, id, primary, snap, blue) }
+                ids.forEach { id -> WidgetScheduler.renderOne(context, cls, id, primaryCity, snap, blue) }
             }
         }
 
@@ -126,7 +135,19 @@ class WidgetSyncWorker(
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 "weather_widget_periodic",
                 ExistingPeriodicWorkPolicy.KEEP,
-                PeriodicWorkRequestBuilder<WidgetSyncWorker>(30, TimeUnit.MINUTES).build(),
+                // 周期任务要联网刷新，离线时挂起（对齐南风 NetworkType.CONNECTED）。
+                PeriodicWorkRequestBuilder<WidgetSyncWorker>(30, TimeUnit.MINUTES)
+                    .setConstraints(
+                        androidx.work.Constraints.Builder()
+                            .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+                            .build(),
+                    )
+                    .setBackoffCriteria(
+                        androidx.work.BackoffPolicy.EXPONENTIAL,
+                        30L,
+                        TimeUnit.SECONDS,
+                    )
+                    .build(),
             )
         }
 
@@ -141,6 +162,7 @@ class WidgetSyncWorker(
             if (!anyActive) {
                 Log.i(TAG, "cancelIfNoInstances: 无任何活跃 widget，已取消共享任务")
                 WorkManager.getInstance(context).cancelUniqueWork("weather_widget_periodic")
+                WidgetScheduler.clearAllSignatures()
             }
         }
     }
@@ -151,7 +173,7 @@ object WidgetScheduler {
 
     fun renderOne(
         context: Context,
-        cls: Class<out BroadcastReceiver>,
+        cls: Class<out AppWidgetProvider>,
         appWidgetId: Int,
         city: com.dailyweather.app.data.City?,
         snap: WeatherSnapshot?,
@@ -165,6 +187,11 @@ object WidgetScheduler {
             return
         }
         lastSignatures[key] = sig
+        // 清理过期 key（仅保留最近 1000 个），避免内存泄漏。
+        if (lastSignatures.size > 1000) {
+            val keys = lastSignatures.keys.take(lastSignatures.size - 1000)
+            keys.forEach { lastSignatures.remove(it) }
+        }
 
         val awm = AppWidgetManager.getInstance(context)
         val views = when (cls.simpleName) {
@@ -181,10 +208,16 @@ object WidgetScheduler {
             .onFailure { Log.w(WidgetSyncWorker.TAG, "updateAll: 单实例渲染失败 widgetId=$appWidgetId, ${it.message}") }
     }
 
-    /** 首个实例放置 → 建周期任务；最后实例移除 → 清理（对齐 onEnabled/onDisabled 生命周期）。 */
+    /** 首个实例放置 → 建周期任务；最后实例移除 → 清理周期任务与签名缓存。 */
     fun onFirstInstance(context: Context) {
         Log.i(WidgetSyncWorker.TAG, "onEnabled: 首个小组件实例被放置")
         WidgetSyncWorker.enqueuePeriodic(context)
         WidgetSyncWorker.enqueueOneTime(context, "widget_enabled")
+    }
+
+    /** 清理所有组件签名缓存（最后一个实例移除时调用）。 */
+    fun clearAllSignatures() {
+        Log.i(WidgetSyncWorker.TAG, "clearAllSignatures: 清理组件签名缓存")
+        lastSignatures.clear()
     }
 }

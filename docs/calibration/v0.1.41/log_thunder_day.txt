@@ -1,0 +1,12 @@
+########## thunder_day ##########
+10-08 23:33:57.375 12537 12557 I OppoSceneKey: 已加载 22 个组 / 62 个键
+10-08 23:33:58.754 12537 12556 I OppoScene: 已加载 64 个预设 / 583 个实体，用时 1566ms
+10-08 23:33:59.807 12537 12574 I OppoGlCaps: GLES 3.1  compute=true  gles32=false  maxTex=16384  ver=OpenGL ES 3.1 (4.5.0 Core Profile Context 23.19.23.13.250826)
+10-08 23:33:59.811 12537 12574 I OppoParticles: 跳过粒子：需要 GLES 3.2（当前 3.1）
+10-08 23:33:59.811 12537 12574 I OppoRenderer: 场景键切换: (无) -> 1_6_sunny-night
+10-08 23:34:00.255 12537 12537 I WeatherScreen: GL 天空就绪=true
+10-08 23:34:00.890 12537 12574 I OppoRenderer: 贴图预热 44 张，用时 1079ms
+10-08 23:34:04.936 12537 12574 I OppoRenderer: 场景键切换: 1_6_sunny-night -> 1_2_sunny-noon
+10-08 23:34:05.228 12537 12537 I WeatherRepository: doRefreshWeather: fixture=thunder_day 已注入，不走网络
+10-08 23:34:05.352 12537 12574 I OppoRenderer: 场景键切换: 1_2_sunny-noon -> 21_2_thunder-noon
+10-08 23:34:05.464 12537 12537 I RainRefractionShader: SDF uniforms: size=996.0x462.0 corner=73.5 refractH=52.5 amount=23.625

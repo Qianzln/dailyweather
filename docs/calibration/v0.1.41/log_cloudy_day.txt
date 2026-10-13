@@ -1,0 +1,11 @@
+########## cloudy_day ##########
+10-08 23:32:57.663 12334 12354 I OppoSceneKey: 已加载 22 个组 / 62 个键
+10-08 23:32:58.877 12334 12353 I OppoScene: 已加载 64 个预设 / 583 个实体，用时 1388ms
+10-08 23:33:00.012 12334 12370 I OppoGlCaps: GLES 3.1  compute=true  gles32=false  maxTex=16384  ver=OpenGL ES 3.1 (4.5.0 Core Profile Context 23.19.23.13.250826)
+10-08 23:33:00.017 12334 12370 I OppoParticles: 跳过粒子：需要 GLES 3.2（当前 3.1）
+10-08 23:33:00.018 12334 12370 I OppoRenderer: 场景键切换: (无) -> 1_6_sunny-night
+10-08 23:33:00.458 12334 12334 I WeatherScreen: GL 天空就绪=true
+10-08 23:33:01.061 12334 12370 I OppoRenderer: 贴图预热 44 张，用时 1043ms
+10-08 23:33:06.017 12334 12370 I OppoRenderer: 场景键切换: 1_6_sunny-night -> 1_2_sunny-noon
+10-08 23:33:06.324 12334 12334 I WeatherRepository: doRefreshWeather: fixture=cloudy_day 已注入，不走网络
+10-08 23:33:06.453 12334 12370 I OppoRenderer: 场景键切换: 1_2_sunny-noon -> 56_3_cloudy-afternoon

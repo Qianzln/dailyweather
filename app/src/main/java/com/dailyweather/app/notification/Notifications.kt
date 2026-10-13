@@ -10,9 +10,13 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -30,7 +34,6 @@ import java.util.concurrent.TimeUnit
 
 /** 通知渠道与权限守门（对齐南风 notification 包的渠道语义）。 */
 object NotificationChannels {
-
     const val CHANNEL_DAILY = "daily_forecast"
     const val CHANNEL_URGENT = "weather_alerts"
     const val CHANNEL_LIVE = "weather_live"
@@ -49,7 +52,14 @@ object NotificationChannels {
         )
     }
 
+    /**
+     * 通知是否真的发得出去。两道门都要过：
+     * 1. **App 级总开关** —— Android 13+ 用户在系统设置里可以整体关掉本 App 的通知，
+     *    此时各渠道的 importance 仍是 DEFAULT，只看渠道会误判成"能发"，实际被系统静默吞掉；
+     * 2. 渠道级 —— 渠道被单独关掉（importance == NONE）。
+     */
     fun enabled(context: Context, channelId: String): Boolean {
+        if (!NotificationManagerCompat.from(context).areNotificationsEnabled()) return false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val ch = nm.getNotificationChannel(channelId) ?: return false
@@ -65,6 +75,18 @@ object NotificationChannels {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 }
+
+/**
+ * 后台联网任务的统一约束：**有网才跑**。
+ * 对齐南风 `DailyNotificationScheduler.g()` 的 `NetworkType.CONNECTED`——
+ * 此前全部周期任务裸 build（无任何约束），离线时也空跑一轮再等 30 分钟。
+ */
+internal fun networkConstraints(): Constraints =
+    Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+
+/** 失败重试退避：指数退避起步 30s（WorkManager 默认即指数 + 30s，这里显式声明以免依赖默认值）。 */
+internal const val RETRY_BACKOFF_SECONDS = 30L
+
 
 /** 常驻天气胶囊：Android 16（API 36+）promoted-ongoing 升格卡，低版本回退普通常驻通知。 */
 object PersistentWeatherNotification {
@@ -112,14 +134,15 @@ object PersistentWeatherNotification {
 
 class LiveUpdateDismissReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val app = context.applicationContext as DailyWeatherApp
-        kotlinx.coroutines.runBlocking {
-            app.container.settings.setLiveUpdateSuppressedUntil(System.currentTimeMillis() + 6 * 3600_000L)
-        }
+        val app = context.applicationContext as? DailyWeatherApp ?: return
+        runCatching {
+            kotlinx.coroutines.runBlocking {
+                app.container.settings.setLiveUpdateSuppressedUntil(System.currentTimeMillis() + 6 * 3600_000L)
+            }
+        }.onFailure { e -> Log.w("LiveDismiss", "setLiveUpdateSuppressedUntil 失败: ${e.message}") }
     }
 }
 
-/** 每日天气通知（早/晚档由调度器决定）。 */
 class DailyWeatherNotificationWorker(
     context: Context,
     params: WorkerParameters,
@@ -137,8 +160,7 @@ class DailyWeatherNotificationWorker(
         }
         Log.i(TAG, "doWork: 每日通知任务, evening=$evening, enabled=$enabled")
         if (!enabled) return Result.success()
-        val primary = container.cityRepository.currentLocationCity()
-            ?: container.cityRepository.cities.first().firstOrNull()
+        val primary = container.cityRepository.primaryCity()
             ?: return Result.success()
         val snap = container.weatherRepository.cached(primary.id)
             ?: return Result.success()
@@ -158,8 +180,16 @@ class DailyWeatherNotificationWorker(
             .setContentIntent(NotificationChannels.appIntent(applicationContext))
             .build()
         val nm = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.notify(if (evening) 1003 else 1002, notification)
-        return Result.success()
+        // 业务跳过（上面各 early-return）→ success；真正发失败（系统异常）→ failure 让 WorkManager 重试。
+        return runCatching {
+            nm.notify(if (evening) 1003 else 1002, notification)
+        }.fold(
+            onSuccess = { Result.success() },
+            onFailure = { e ->
+                Log.w(TAG, "doWork: 发送失败 - ${e.message}")
+                Result.failure()
+            },
+        )
     }
 
     companion object {
@@ -168,16 +198,26 @@ class DailyWeatherNotificationWorker(
 
         fun schedule(context: Context) {
             val wm = WorkManager.getInstance(context)
-            val morning = PeriodicWorkRequestBuilder<DailyWeatherNotificationWorker>(24, TimeUnit.HOURS)
-                .setInitialDelay(initialDelayTo(7, 30), TimeUnit.MINUTES)
+            val constraints = networkConstraints()
+            // 每日固定时刻调度：每次执行后自行排下一天同一时刻的一次性任务，
+            // 消除 PeriodicWorkRequest(24h) 的「上次执行 +24h」滚动漂移。
+            val morningDelay = initialDelayTo(7, 30)
+            val morning = OneTimeWorkRequestBuilder<DailyWeatherNotificationWorker>()
+                .setInitialDelay(morningDelay, TimeUnit.MINUTES)
                 .setInputData(workDataOf(KEY_EVENING to false))
+                .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, RETRY_BACKOFF_SECONDS, TimeUnit.SECONDS)
                 .build()
-            val evening = PeriodicWorkRequestBuilder<DailyWeatherNotificationWorker>(24, TimeUnit.HOURS)
-                .setInitialDelay(initialDelayTo(19, 30), TimeUnit.MINUTES)
+            val eveningDelay = initialDelayTo(19, 30)
+            val evening = OneTimeWorkRequestBuilder<DailyWeatherNotificationWorker>()
+                .setInitialDelay(eveningDelay, TimeUnit.MINUTES)
                 .setInputData(workDataOf(KEY_EVENING to true))
+                .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, RETRY_BACKOFF_SECONDS, TimeUnit.SECONDS)
                 .build()
-            wm.enqueueUniquePeriodicWork("daily_weather_morning", ExistingPeriodicWorkPolicy.KEEP, morning)
-            wm.enqueueUniquePeriodicWork("daily_weather_evening", ExistingPeriodicWorkPolicy.KEEP, evening)
+            // 用 unique work + REPLACE 策略，每次执行后重新入队下一天同一时刻的任务。
+            wm.enqueueUniqueWork("daily_weather_morning_once", ExistingWorkPolicy.REPLACE, morning)
+            wm.enqueueUniqueWork("daily_weather_evening_once", ExistingWorkPolicy.REPLACE, evening)
         }
 
         private fun initialDelayTo(hour: Int, minute: Int): Long {
@@ -205,8 +245,7 @@ class UrgentNotificationWorker(
         // 「气象预警推送」开关真正生效：关闭即整轮跳过。
         if (!container.settings.urgentNotification.first()) return Result.success()
         val primary = inputData.getString(KEY_CITY_ID)?.let { container.cityRepository.byId(it) }
-            ?: container.cityRepository.currentLocationCity()
-            ?: container.cityRepository.cities.first().firstOrNull()
+            ?: container.cityRepository.primaryCity()
             ?: return Result.success()
         val snap = container.weatherRepository.cached(primary.id)
         val alerts = snap?.alerts.orEmpty()
@@ -219,22 +258,32 @@ class UrgentNotificationWorker(
         val fresh = alerts.filter { alertKey(primary.id, it) !in seen }
         if (fresh.isEmpty()) return Result.success()
         val nm = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        fresh.take(MAX_PER_ROUND).forEachIndexed { i, a ->
-            nm.notify(
-                NOTIF_ID_BASE + i,
-                NotificationCompat.Builder(applicationContext, NotificationChannels.CHANNEL_URGENT)
-                    .setSmallIcon(R.drawable.ic_widget_thermometer)
-                    .setContentTitle(a.title.ifBlank { "气象预警" })
-                    .setContentText(a.description.take(80))
-                    .setStyle(NotificationCompat.BigTextStyle().bigText(a.description))
-                    .setContentIntent(NotificationChannels.appIntent(applicationContext))
-                    .setAutoCancel(true)
-                    .build(),
-            )
+        val toPost = fresh.take(MAX_PER_ROUND)
+        var failed = 0
+        toPost.forEachIndexed { i, a ->
+            runCatching {
+                nm.notify(
+                    NOTIF_ID_BASE + i,
+                    NotificationCompat.Builder(applicationContext, NotificationChannels.CHANNEL_URGENT)
+                        .setSmallIcon(R.drawable.ic_widget_thermometer)
+                        .setContentTitle(a.title.ifBlank { "气象预警" })
+                        .setContentText(a.description.take(80))
+                        .setStyle(NotificationCompat.BigTextStyle().bigText(a.description))
+                        .setContentIntent(NotificationChannels.appIntent(applicationContext))
+                        .setAutoCancel(true)
+                        .build(),
+                )
+            }.onFailure { Log.w(TAG, "预警发送失败: ${it.message}") }
+                .onFailure { failed++ }
+        }
+        // 全部发送失败 → failure 交回 WorkManager 重试（去重账本不记，下次仍会推）。
+        if (failed == toPost.size) {
+            Log.w(TAG, "预警全部发送失败，交回 WorkManager 重试")
+            return Result.failure()
         }
         // 当前全量都记为已见：漏掉的老预警不再补推，只推真正新增的。
         AlertDedup.markSeen(applicationContext, alerts.map { alertKey(primary.id, it) }.toSet())
-        Log.i(TAG, "预警推送: fresh=${fresh.size} 共${alerts.size}")
+        Log.i(TAG, "预警推送: fresh=${fresh.size} 共${alerts.size} 失败=$failed")
         return Result.success()
     }
 
@@ -262,8 +311,16 @@ object AlertDedup {
 
     suspend fun markSeen(context: Context, keys: Set<String>) {
         context.alertDedupStore.edit { p ->
-            val merged = (p[KEY_SEEN] ?: emptySet()) + keys
-            p[KEY_SEEN] = if (merged.size > MAX_KEYS) merged.drop(merged.size - MAX_KEYS).toSet() else merged
+            // 用 LinkedHashSet 保留**写入顺序**：原实现直接对 DataStore 返回的 Set 调
+            // `drop(size - MAX)`，而该 Set 的遍历顺序无保证 → 可能裁掉刚写入的新键，
+            // 导致旧预警被重复推送。按插入序保留最后 MAX_KEYS 个才是"淘汰最旧"。
+            val merged = LinkedHashSet<String>(p[KEY_SEEN] ?: emptySet())
+            merged.addAll(keys)
+            p[KEY_SEEN] = if (merged.size > MAX_KEYS) {
+                merged.toList().takeLast(MAX_KEYS).toSet()
+            } else {
+                merged
+            }
         }
     }
 }
@@ -296,17 +353,33 @@ class PersistentWeatherWorker(
         }
         // 划除胶囊后 6h 静默窗口内不自动再弹。
         if (settings.liveUpdateSuppressedUntil() > System.currentTimeMillis()) return Result.success()
-        val primary = container.cityRepository.currentLocationCity()
-            ?: container.cityRepository.cities.first().firstOrNull()
+        // 权限/渠道守门：另两条通知线都有这道门，胶囊此前缺失（无权限时照样 post，白耗资源）。
+        if (!NotificationChannels.enabled(applicationContext, NotificationChannels.CHANNEL_LIVE)) {
+            Log.i(TAG, "doWork: 实时渠道不可用，跳过")
+            return Result.success()
+        }
+        val primary = container.cityRepository.primaryCity()
             ?: return Result.success()
         val snap = container.weatherRepository.cached(primary.id)
         if (snap != null) {
-            PersistentWeatherNotification.post(
-                applicationContext,
-                "${primary.name} ${snap.currentTemp.toInt()}°",
-                "${SkyconMap.desc(snap.currentSkycon)} · ${snap.forecastKey.take(30)}",
+            return runCatching {
+                PersistentWeatherNotification.post(
+                    applicationContext,
+                    "${primary.name} ${snap.currentTemp.toInt()}°",
+                    "${SkyconMap.desc(snap.currentSkycon)} · ${snap.forecastKey.take(30)}",
+                )
+            }.fold(
+                onSuccess = { Result.success() },
+                onFailure = { e ->
+                    Log.w(TAG, "doWork: 胶囊发送失败 - ${e.message}")
+                    Result.failure()
+                },
             )
         }
         return Result.success()
+    }
+
+    companion object {
+        private const val TAG = "PersistentWeatherWorker"
     }
 }

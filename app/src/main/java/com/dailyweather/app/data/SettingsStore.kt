@@ -74,18 +74,24 @@ class SettingsStore(private val context: Context) {
 
     suspend fun setBool(keyName: String, v: Boolean) = ds.edit { it[booleanPreferencesKey(keyName)] = v }
 
-    /** 主页可见卡片（按用户排序）。所有卡片默认全部可见，无会员限制。 */
+    /** 主页可见卡片（按用户排序）。所有卡片默认全部可见，无会员限制。
+     *  SUMMARY（Hero 区）不渲染成卡片，在这里就过滤掉。 */
     val homeCardsFlow: Flow<List<HomeCardId>> = ds.data.map { p ->
         val saved = p[stringPreferencesKey(SettingsKeys.CARD_ORDER)]
             ?.split(",")?.mapNotNull { runCatching { HomeCardId.valueOf(it) }.getOrNull() }
             .orEmpty()
-        val ordered = (saved + HomeCards.defaultOrder).distinct()
+        // 用户保存的顺序优先，缺的卡片按默认顺序补齐；再剔除不渲染成卡片的 id。
+        val ordered = (saved + HomeCards.defaultOrder).distinct().filter { it !in HomeCards.nonCardIds }
         ordered.filter { id ->
             val key = when (id) {
+                HomeCardId.PRECIP -> SettingsKeys.SHOW_MINUTELY
                 HomeCardId.AQI -> SettingsKeys.SHOW_AQI
-                HomeCardId.HOURLY -> SettingsKeys.SHOW_HOURLY48
+                HomeCardId.HOURLY -> SettingsKeys.SHOW_HOURLY
                 HomeCardId.SUN -> SettingsKeys.SHOW_SUN
                 HomeCardId.DETAIL -> SettingsKeys.SHOW_DETAIL
+                HomeCardId.TREND -> SettingsKeys.SHOW_TREND
+                HomeCardId.RADAR -> SettingsKeys.SHOW_RADAR
+                HomeCardId.ALERT -> SettingsKeys.SHOW_ALERT
                 HomeCardId.LIFE -> SettingsKeys.SHOW_LIFE
                 else -> null
             } ?: return@filter true

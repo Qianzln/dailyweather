@@ -86,7 +86,7 @@ fun CitySearchScreen(vm: WeatherViewModel, onBack: () -> Unit) {
             modifier = Modifier.fillMaxWidth(),
         )
         Spacer(Modifier.height(16.dp))
-        LazyColumn(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(10.dp)) {
+        LazyColumn(verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(com.dailyweather.app.ui.theme.Tokens.CardGap)) {
             items(results) { (name, lat, lng) ->
                 GlassCard(
                     modifier = Modifier
@@ -98,7 +98,9 @@ fun CitySearchScreen(vm: WeatherViewModel, onBack: () -> Unit) {
                                     name = name.substringBefore(" ·"),
                                     longitude = lng,
                                     latitude = lat,
-                                    timeZoneId = "Asia/Shanghai",
+                                    // 按坐标推时区，别硬编码 Asia/Shanghai——搜索结果可以是境外城市，
+                                    // 硬编码会让它的 sunrise/sunset 与 now 混用（时段槽位选错）。
+                                    timeZoneId = City.inferZoneId(lng, lat),
                                 )
                             )
                             onBack()

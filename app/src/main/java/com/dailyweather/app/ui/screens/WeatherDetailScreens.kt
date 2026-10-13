@@ -83,7 +83,8 @@ private fun DetailScaffold(
         }
         Column(
             modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            // 与首页同一节奏（Tokens.CardGap=16dp），不再用 12dp 的私有间距。
+            verticalArrangement = Arrangement.spacedBy(Tokens.CardGap),
             content = content,
         )
     }

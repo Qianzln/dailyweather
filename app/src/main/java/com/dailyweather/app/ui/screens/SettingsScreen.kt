@@ -128,7 +128,7 @@ internal fun SettingsScaffold(title: String, onBack: () -> Unit, content: @Compo
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 .padding(horizontal = Tokens.SettingsScreenMargin),
-            verticalArrangement = Arrangement.spacedBy(14.dp),
+            verticalArrangement = Arrangement.spacedBy(Tokens.CardGap),
             content = content,
         )
     }

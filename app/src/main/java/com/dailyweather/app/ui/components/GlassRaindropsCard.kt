@@ -2,6 +2,7 @@ package com.dailyweather.app.ui.components
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,7 +25,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.ShaderBrush
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dailyweather.app.scene.RainRefractionShader
@@ -68,11 +71,47 @@ fun GlassRaindropsCard(
         }
 
         // 水珠高光层：30fps 独立时钟（水珠是慢变量，30fps 足够且省电）。
-        val highlight = remember { RainRefractionShader.newShader(RainRefractionShader.HIGHLIGHT)!! }
+        //
+        // ⚠️ 不要用 `!!`：AGSL 在运行时编译，源码一旦有问题（如漏声明 uniform）就会抛
+        // IllegalArgumentException，而 `newShader` 会吞掉异常返回 null 以降级。
+        // 这里再 `!!` 就变成 NPE 崩溃 —— 雨天进首页必闪退。
+        val highlight = remember { RainRefractionShader.newShader(RainRefractionShader.HIGHLIGHT) }
+        val sdf = remember { RainRefractionShader.newShader(RainRefractionShader.SDF) }
+        if (highlight == null || sdf == null) {
+            // 编译失败 / 系统不支持：静默降级为普通玻璃卡（保留文字内容，只是没有雨滴）。
+            // 注意这里**不**显示"需要 Android 13+"——那是 API 门槛提示，编译失败不该怪用户。
+            Column(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp, vertical = 13.dp),
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    rememberLucide("cloud-rain")?.let {
+                        Icon(it, contentDescription = null, tint = sky.textPrimary, modifier = Modifier.size(16.dp))
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        "雨滴打在玻璃上",
+                        color = sky.textPrimary,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    when {
+                        intensity >= 0.75f -> "暴雨倾盆，出门记得带伞"
+                        intensity >= 0.45f -> "雨打窗棂，适合窝在家里"
+                        else -> "细雨拂窗，空气很清爽"
+                    },
+                    color = sky.textSecondary,
+                    fontSize = 12.sp,
+                )
+            }
+            return@GlassCard
+        }
         val highlightBrush = remember(highlight) { ShaderBrush(highlight) }
         val clock = rememberEffectClock(30)
         // SDF 边缘折射：作用于整卡内容（水珠层 + 文字一起被玻璃厚度折射）。
-        val sdf = remember { RainRefractionShader.newShader(RainRefractionShader.SDF)!! }
         val sdfEffect = remember(sdf) { RainRefractionShader.composeEffect(sdf, "content") }
         val density = LocalDensity.current
         val cornerPx = with(density) { Tokens.CardRadius.toPx() }
@@ -82,17 +121,27 @@ fun GlassRaindropsCard(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .graphicsLayer {
-                    RainRefractionShader.applySdfUniforms(
-                        shader = sdf,
-                        width = size.width,
-                        height = size.height,
-                        cornerRadiusPx = cornerPx,
-                        refractionHeightPx = refractHeightPx,
-                        refractionAmountPx = refractAmountPx,
-                    )
-                    renderEffect = sdfEffect
-                },
+                // ⚠️ uniforms 用 `onSizeChanged` 驱动，**不要**在 graphicsLayer 的 block 里读 `size`。
+                //
+                // 为什么：这张卡由 `AnimatedVisibility + expandVertically` 展开，首帧高度是 **0**；
+                // 而 graphicsLayer 的 block 只在「布局尺寸」这个上游事件上重跑。实测那一帧
+                // `size=0x0` 被写进 uSize，此后不再刷新 → 旧 SDF 里 `gradRadius = min(r*1.5, 0) = 0`
+                // → `normalize(0)` = NaN → `content.eval(NaN)` → **整卡（水珠层 + 文字）全透明**，
+                // 就是装机截图里那块 176dp 的空白。
+                // `onSizeChanged` 在尺寸真正确定时（展开动画的每一帧）都会回调，拿到的必是真实尺寸。
+                .onSizeChanged { sz ->
+                    if (sz.width > 1 && sz.height > 1) {
+                        RainRefractionShader.applySdfUniforms(
+                            shader = sdf,
+                            width = sz.width.toFloat(),
+                            height = sz.height.toFloat(),
+                            cornerRadiusPx = cornerPx,
+                            refractionHeightPx = refractHeightPx,
+                            refractionAmountPx = refractAmountPx,
+                        )
+                    }
+                }
+                .graphicsLayer { renderEffect = sdfEffect },
         ) {
             Canvas(modifier = Modifier.matchParentSize()) {
                 RainRefractionShader.applyHighlightUniforms(
@@ -103,6 +152,9 @@ fun GlassRaindropsCard(
                     intensity = intensity,
                     night = night,
                     visibility = 1f,
+                    // 卡片上的水珠要比全屏折射小一号：全屏标定的网格搬到 176dp 卡上
+                    // 珠子偏大偏糊（实机截图像灰白斑点），1.6 倍缩放后才是"玻璃雨滴"。
+                    dropSizeMul = 1.6f,
                 )
                 drawRect(brush = highlightBrush)
             }
@@ -141,5 +193,6 @@ fun GlassRaindropsCard(
 /** SDF 折射带厚度：距边缘此距离内参与折射（玻璃厚度）。 */
 private val SdfRefractionHeight = 20.dp
 
-/** SDF 折射偏移幅度：边缘处内容最大偏移像素（玻璃"鼓起"的折射量）。 */
-private val SdfRefractionAmount = 12.dp
+/** SDF 折射偏移幅度：边缘处内容最大偏移像素（玻璃"鼓起"的折射量）。
+ *  12dp 时卡片左下角的标题被横向拉伸得偏重（实测截图），降到 9dp 后仍有玻璃厚度感且文字可读。 */
+private val SdfRefractionAmount = 9.dp

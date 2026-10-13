@@ -1,6 +1,7 @@
 package com.dailyweather.app.ui.components
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -11,8 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import com.dailyweather.app.scene.AnimatedSkyGradient
 import com.dailyweather.app.scene.SceneBridge
+import com.dailyweather.app.scene.skyStopsFor
 import com.dailyweather.app.ui.theme.LocalSky
 import com.dailyweather.app.ui.theme.SkyPalette
 import com.dailyweather.app.viewmodel.WeatherViewModel
@@ -41,8 +42,20 @@ fun WeatherSkyBackground(vm: WeatherViewModel, content: @Composable () -> Unit) 
     val sky = SkyPalette.of(scene)
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // 天空（渐变 + 云帧 + 时段 tint），与主界面一致。
-        AnimatedSkyGradient(scene, Modifier.matchParentSize())
+        // 天空：静态三段渐变（天顶→中段→地平线）。子页不需要动效，
+        // 主界面的 3D 云/粒子由 GL 场景承担（v0.1.52 起 Canvas 精灵帧已删除）。
+        val stops = skyStopsFor(scene.phase, scene.overcast)
+        Box(
+            Modifier
+                .matchParentSize()
+                .background(
+                    Brush.verticalGradient(
+                        0f to stops.zenith,
+                        stops.midStop to stops.mid,
+                        1f to stops.horizon,
+                    ),
+                ),
+        )
         // 可读性暗角：顶部最重（压住状态栏 + 标题），向下渐隐；晴天亮天空也保证白字可读。
         Canvas(Modifier.matchParentSize()) {
             drawRect(

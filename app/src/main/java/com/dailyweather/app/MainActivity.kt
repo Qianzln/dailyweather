@@ -1,6 +1,8 @@
 package com.dailyweather.app
 
 import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -45,8 +47,29 @@ import com.dailyweather.app.viewmodel.WeatherViewModel
  */
 class MainActivity : ComponentActivity() {
 
+    /** 权限回调与 onResume 都要用，先于 setContent 创建。 */
+    private lateinit var vm: WeatherViewModel
+
+    /**
+     * 首装定位修复（2026-10-12）：权限回调不再是空 lambda。
+     * 用户点「允许」的瞬间补一次定位刷新——否则要退出重进 App 定位才生效。
+     * VM 在 onCreate 里先于弹窗创建，回调触发时必定已初始化。
+     */
     private val locationPermission =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { }
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
+            if (result.values.any { it }) {
+                android.util.Log.i("MainActivity", "定位权限已授予 → 补跑定位刷新")
+                vm.onLocationPermissionGranted()
+            } else {
+                android.util.Log.i("MainActivity", "定位权限被拒绝")
+            }
+        }
+
+    /** 通知权限（Android 13+ 运行时权限）：不申请的话三条通知线全部静默失效。 */
+    private val notificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            android.util.Log.i("MainActivity", "POST_NOTIFICATIONS granted=$granted")
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // SplashScreen：必须在 super.onCreate 之前安装（API<31 兼容路径依赖此次安装）。
@@ -64,16 +87,34 @@ class MainActivity : ComponentActivity() {
         val container = (application as DailyWeatherApp).container
         // 视觉校准入口：adb shell am start -n .../.MainActivity --es fixture rain_day
         intent?.getStringExtra("fixture")?.let { com.dailyweather.app.data.Fixture.state = it }
+        vm = WeatherViewModel(container)
         locationPermission.launch(
             arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
         )
+        // 通知权限：Android 13（API 33）起为运行时权限。此前只在 Manifest 声明、从不申请，
+        // 导致「每日早晚报 / 气象预警 / 常驻胶囊」在 13+ 上全部被系统静默丢弃。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS,
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
         setContent {
-            val vm = remember { WeatherViewModel(container) }
             val blue by vm.weatherBlue.collectAsState()
             DailyWeatherTheme {
                 AppNavigation(vm, blueTheme = blue, onLocate = { vm.locateAndRefresh() })
             }
         }
+    }
+
+    /**
+     * 回前台补检定位权限：用户可能在系统设置里授权后直接切回（不经过权限弹窗回调）。
+     * [WeatherViewModel.onLocationPermissionGranted] 自身幂等（已有定位城市/无权限/刷新中都不重复跑）。
+     */
+    override fun onResume() {
+        super.onResume()
+        if (::vm.isInitialized) vm.onLocationPermissionGranted()
     }
 }
 

@@ -59,7 +59,17 @@ class RefreshManager(
                 }
                 lastAttempt[city.id] = now
                 Log.i(TAG, "city_mutex_acquired: cityId=${city.id}, reason=$reason")
-                weatherRepository.refresh(city)
+                // 总预算：单源各自有 12s 超时，两源串行最坏 24s+；这里兜住整体，超预算即判失败。
+                val fetched = kotlinx.coroutines.withTimeoutOrNull(WEATHER_FETCH_TOTAL_TIMEOUT_MS) {
+                    weatherRepository.refresh(city)
+                }
+                if (fetched == null) {
+                    Log.w(TAG, "刷新总预算耗尽（${WEATHER_FETCH_TOTAL_TIMEOUT_MS}ms），判定失败")
+                    return Outcome.Failed(
+                        city.id,
+                        "刷新超时（超过 ${WEATHER_FETCH_TOTAL_TIMEOUT_MS / 1000} 秒）",
+                    )
+                }
                 onRefreshSuccess(city.id)
                 Outcome.Success(city.id)
             }
@@ -100,8 +110,7 @@ class RefreshManager(
 
     /** 应用冷启动/回前台的常规刷新：定位城市有则刷它，否则刷第一个城市。 */
     suspend fun refreshDefault(reason: String): Outcome {
-        val target = cityRepository.currentLocationCity()
-            ?: cityRepository.cities.first().firstOrNull()
+        val target = cityRepository.primaryCity()
             ?: return Outcome.Failed(null, "无城市")
         return refresh(target, reason)
     }

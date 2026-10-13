@@ -12,7 +12,7 @@ enum class SkyPhase { MORNING, DAY, EVENING, NIGHT }
 
 /** 天气状况，粒度取自南风实际支持的场景键。 */
 enum class WeatherKind {
-    CLEAR, PARTLY_CLOUDY, CLOUDY, RAIN, SNOW, SLEET, FOG, WIND, THUNDER;
+    CLEAR, PARTLY_CLOUDY, CLOUDY, RAIN, SNOW, SLEET, FOG, WIND, THUNDER, DUST;
 
     /** 该状况的默认转阴度，喂给天空渐变兜底色。 */
     val baseOvercast: Float
@@ -29,6 +29,7 @@ enum class WeatherKind {
             FOG -> 0.70f
             WIND -> 0.15f
             THUNDER -> 0.95f
+            DUST -> 0.75f
         }
 }
 
@@ -38,9 +39,8 @@ enum class WeatherKind {
  * 这几个字段就是「今天长什么样」的全部真相：谁要画天气都从这里读，
  * 不允许自己再算一遍时段或再判一次天气。
  *
- * 渲染分工（1:1 南风混合方案）：
- * - 天空背景与云层 → PNG 精灵（[SpriteSkyBackground] / [drawSpriteCloudLayer]）
- * - 降水粒子与辉光 → 程序化位图（ParticleSprites，与南风同构）
+ * 渲染分工（v0.1.52 起）：天空/云/太阳/雷帧/雾风 + 雨雪星尘粒子
+ * 全部由 OPPO GL 3D 场景渲染（OppoGlSceneLayer），Canvas 特效层已删除。
  */
 data class WeatherSceneState(
     val kind: WeatherKind,
@@ -65,4 +65,11 @@ data class WeatherSceneState(
 
     val overcast: Float
         get() = (overcastOverride ?: (kind.baseOvercast + intensity * 0.15f)).coerceAtMost(1f)
+}
+
+/** 快照缺强度数据时的默认强度（玻璃雨滴卡兜底用；GL 场景的密度由预设自身数据驱动）。 */
+fun WeatherKind.defaultIntensity(): Float = when (this) {
+    WeatherKind.RAIN, WeatherKind.THUNDER -> 0.55f
+    WeatherKind.SNOW, WeatherKind.SLEET -> 0.40f
+    else -> 0f
 }

@@ -1,0 +1,751 @@
+{
+  "sourceVersion": "16.46.2",
+  "sourceApkSha256": "026ea0187122ddd354c6a33270e027048c957ff0e13320084f677cdbae6599d8",
+  "sourceSha256": {
+    "decoded/jadx/sources/com/oplus/weather/quickcard/utils/BackgroundRes16.java": "99da90b3d9ea9a19b9913255d3109e250618c283d6fa8296466ef622aeda9437",
+    "decoded/jadx/sources/com/oplus/weather/quickcard/utils/CardBackgroundRes.java": "702fee1604c950b0ab898af3c45ee2bda6d0678a89f668f5621a1721ba0b29e2",
+    "decoded/jadx/sources/com/oplus/weather/quickcard/widget/CardBackgroundImageView.java": "dd5a08fd5c3ed28d28cce44bfc80aeb6b909e711615b78715603d0da3dabaaf0"
+  },
+  "exporter": "scripts/export_oppo_widget_art.py",
+  "transform": "Original image bytes copied unchanged; no resizing or recoloring",
+  "composition": {
+    "order": [
+      "original image with recipe alpha",
+      "original BOTTOM_TOP gradient with recipe xfermode"
+    ],
+    "gradientCoordinates": "(0, sourceHeight) -> (0, 0)",
+    "scale": "max(viewWidth/sourceWidth, viewHeight/sourceHeight)",
+    "translate": "(viewWidth-sourceWidth*scale, 0)",
+    "clip": "round rectangle in target view coordinates"
+  },
+  "assets": [
+    {
+      "file": "cloudy_af_small.webp",
+      "resource": "weather_quick_card_cloudy_af_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_cloudy_af_small_16_bg.webp",
+      "sizeBytes": 11526,
+      "sha256": "90b83bad1e30a3fb58f6b362019c54ea0906e6f7fea3cbe3d63a82ff4f258e41"
+    },
+    {
+      "file": "cloudy_morning_nightfall_big.webp",
+      "resource": "weather_quick_card_cloudy_morning_nightfall_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_cloudy_morning_nightfall_big_16_bg.webp",
+      "sizeBytes": 91350,
+      "sha256": "538f3b971dc53f194d06a826c3b6cdd4b044726b84cfcf3c282627dd8bea8b19"
+    },
+    {
+      "file": "cloudy_morning_nightfall_middle.webp",
+      "resource": "weather_quick_card_cloudy_morning_nightfall_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_cloudy_morning_nightfall_middle_16_bg.webp",
+      "sizeBytes": 90916,
+      "sha256": "ff969149cac077444be9d928d05604a7bc8e6dddb4a71c0f8c50e8582f0a6273"
+    },
+    {
+      "file": "cloudy_morning_small.webp",
+      "resource": "weather_quick_card_cloudy_morning_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_cloudy_morning_small_16_bg.webp",
+      "sizeBytes": 12720,
+      "sha256": "e6ed50b30df5b107c2f1031584fb4b1f2d6dbf90ebfd31ba0dc4285b28da62c8"
+    },
+    {
+      "file": "cloudy_night_small.webp",
+      "resource": "weather_quick_card_cloudy_night_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_cloudy_night_small_16_bg.webp",
+      "sizeBytes": 11666,
+      "sha256": "ca326d9d32b53e73490c6abd870bba509866f5d705d2e43bec12ff7dd8eeaf02"
+    },
+    {
+      "file": "cloudy_nightfall_small.webp",
+      "resource": "weather_quick_card_cloudy_nightfall_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_cloudy_nightfall_small_16_bg.webp",
+      "sizeBytes": 12790,
+      "sha256": "21070dd49a66a286404a85ee9edb2e64ebeb00c08451a6484808fb0802103b64"
+    },
+    {
+      "file": "cloudy_noon_af_night_big.webp",
+      "resource": "weather_quick_card_cloudy_noon_af_night_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_cloudy_noon_af_night_big_16_bg.webp",
+      "sizeBytes": 87282,
+      "sha256": "1750d82e09bdf1830ba90ca82119d8af71466dc5d22d9e83b9cbf623f4530547"
+    },
+    {
+      "file": "cloudy_noon_af_night_middle.webp",
+      "resource": "weather_quick_card_cloudy_noon_af_night_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_cloudy_noon_af_night_middle_16_bg.webp",
+      "sizeBytes": 86956,
+      "sha256": "72a93219fa16bffced8b899db36e90679e2d525a14ce76a7051402cac2986f00"
+    },
+    {
+      "file": "cloudy_noon_small.webp",
+      "resource": "weather_quick_card_cloudy_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_cloudy_noon_small_16_bg.webp",
+      "sizeBytes": 11840,
+      "sha256": "3575e786ea6e457c20d00f0bf582ecda8416b90b0d3cc0a29ad884be17b73931"
+    },
+    {
+      "file": "fog_night_small.webp",
+      "resource": "weather_quick_card_fog_night_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_fog_night_small_16_bg.webp",
+      "sizeBytes": 22720,
+      "sha256": "c9919dc281dcd944e54fd227bb9123a36676ed8d54eed2f2ae7f06ac0aee2421"
+    },
+    {
+      "file": "fog_noon_night_big.webp",
+      "resource": "weather_quick_card_fog_noon_night_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_fog_noon_night_big_16_bg.webp",
+      "sizeBytes": 35756,
+      "sha256": "05d24b4de356d1f2a7b9cb850d51957c84b16aa5cfe63f12524344256cbf9faf"
+    },
+    {
+      "file": "fog_noon_night_middle.webp",
+      "resource": "weather_quick_card_fog_noon_night_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_fog_noon_night_middle_16_bg.webp",
+      "sizeBytes": 30176,
+      "sha256": "d5613d10f4aee4e3cab65b0a52d73f810919023a7ec961001a7dc2101e3bc5c5"
+    },
+    {
+      "file": "fog_noon_night_small.webp",
+      "resource": "weather_quick_card_fog_noon_night_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_fog_noon_night_small_16_bg.webp",
+      "sizeBytes": 28414,
+      "sha256": "8500d01eb676922c1c89714db7abc27ec57c725d077c9c06c3dbfeed92e83cf0"
+    },
+    {
+      "file": "hail_noon_big.webp",
+      "resource": "weather_quick_card_hail_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_hail_noon_big_16_bg.webp",
+      "sizeBytes": 5320,
+      "sha256": "7fbb947afbe4d61041a2a1ca4025a11be81a278eb9bf90cc269bed6b1c2843a5"
+    },
+    {
+      "file": "hail_noon_middle.webp",
+      "resource": "weather_quick_card_hail_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_hail_noon_middle_16_bg.webp",
+      "sizeBytes": 4008,
+      "sha256": "db164dae22c6158f95a7bad7b30a7da32d42da895fc323b7a0dee8f03e99c349"
+    },
+    {
+      "file": "hail_noon_small.webp",
+      "resource": "weather_quick_card_hail_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_hail_noon_small_16_bg.webp",
+      "sizeBytes": 2544,
+      "sha256": "7ccfe0392e9a0923d08d6e64b963998291e204961a296dd2b21e17399bf90f86"
+    },
+    {
+      "file": "hail_thunderstorm_big.webp",
+      "resource": "weather_quick_card_hail_thunderstorm_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_hail_thunderstorm_big_16_bg.webp",
+      "sizeBytes": 73154,
+      "sha256": "a99f5a6a0e4f3232ad5b2017c7710097e893b0487c441183563eb2d15800b2da"
+    },
+    {
+      "file": "hail_thunderstorm_middle.webp",
+      "resource": "weather_quick_card_hail_thunderstorm_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_hail_thunderstorm_middle_16_bg.webp",
+      "sizeBytes": 56958,
+      "sha256": "857f7680286d9422508be296008a529344c30afcffe8de1fe703ceae7fdc9f95"
+    },
+    {
+      "file": "heavy_rain_noon_big.webp",
+      "resource": "weather_quick_card_heavy_rain_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_heavy_rain_noon_big_16_bg.webp",
+      "sizeBytes": 17230,
+      "sha256": "1d29a79f1f331d7c16aa2b549ac6ddcbe6eb3ebb3e4e9986d255dbbce58e5650"
+    },
+    {
+      "file": "heavy_rain_noon_middle.webp",
+      "resource": "weather_quick_card_heavy_rain_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_heavy_rain_noon_middle_16_bg.webp",
+      "sizeBytes": 9372,
+      "sha256": "4198bee05d7d26fcce5f501846412a19198fb811813a93a7f6d8d9c3d2dd7cc5"
+    },
+    {
+      "file": "heavy_rain_noon_small.webp",
+      "resource": "weather_quick_card_heavy_rain_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_heavy_rain_noon_small_16_bg.webp",
+      "sizeBytes": 7202,
+      "sha256": "50884cdb2867050e94a0014189169a28ce1840ca1a8c632048d914795f06c65c"
+    },
+    {
+      "file": "heavy_snow_noon_big.webp",
+      "resource": "weather_quick_card_heavy_snow_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_heavy_snow_noon_big_16_bg.webp",
+      "sizeBytes": 10366,
+      "sha256": "0891be57a5d298afa22ca7c900df13e82dae58c745ea65d47ce41576aadb2dfc"
+    },
+    {
+      "file": "heavy_snow_noon_middle.webp",
+      "resource": "weather_quick_card_heavy_snow_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_heavy_snow_noon_middle_16_bg.webp",
+      "sizeBytes": 8578,
+      "sha256": "ec1a2b3728eeca0606865c0d3c555d2469debe7679ec9b56d7f31dfc8d2b024b"
+    },
+    {
+      "file": "heavy_snow_noon_small.webp",
+      "resource": "weather_quick_card_heavy_snow_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_heavy_snow_noon_small_16_bg.webp",
+      "sizeBytes": 5950,
+      "sha256": "b013e22d43fcbcf45380d90d2f6a2921f697a221bf9d29348c3fac5a595592e7"
+    },
+    {
+      "file": "light_snow_noon_big.webp",
+      "resource": "weather_quick_card_light_snow_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_light_snow_noon_big_16_bg.webp",
+      "sizeBytes": 5726,
+      "sha256": "10db53d80b8f10360da69f5a31ac8f40e9b6dcd27d95e7b18b98974fc83a0d20"
+    },
+    {
+      "file": "light_snow_noon_middle.webp",
+      "resource": "weather_quick_card_light_snow_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_light_snow_noon_middle_16_bg.webp",
+      "sizeBytes": 4578,
+      "sha256": "566341fc6f94dc8d75aa5e236b47553622163df07fb5aef9233c85f0d1e63364"
+    },
+    {
+      "file": "light_snow_noon_small.webp",
+      "resource": "weather_quick_card_light_snow_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_light_snow_noon_small_16_bg.webp",
+      "sizeBytes": 3350,
+      "sha256": "fa155f330f9e91cec0beb881954ff7fc658ac19d89dcc5d384db5a0e920a8698"
+    },
+    {
+      "file": "middle_rain_noon_big.webp",
+      "resource": "weather_quick_card_middle_rain_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_middle_rain_noon_big_16_bg.webp",
+      "sizeBytes": 12930,
+      "sha256": "9c69cdca9a4a3711cb8ef911970a0d3911751ec0ff775a7163a98dd54b804302"
+    },
+    {
+      "file": "middle_rain_noon_middle.webp",
+      "resource": "weather_quick_card_middle_rain_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_middle_rain_noon_middle_16_bg.webp",
+      "sizeBytes": 6698,
+      "sha256": "f7b451bce8a56bcbf2faefdd607fb7d85ccb3ea0f9e7a943347ac33e961d131a"
+    },
+    {
+      "file": "middle_rain_noon_small.webp",
+      "resource": "weather_quick_card_middle_rain_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_middle_rain_noon_small_16_bg.webp",
+      "sizeBytes": 5252,
+      "sha256": "cbf98208ccb4dab12d730c1eaa3623ecb4c9479317261f25f2797002826d6a54"
+    },
+    {
+      "file": "middle_snow_noon_big.webp",
+      "resource": "weather_quick_card_middle_snow_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_middle_snow_noon_big_16_bg.webp",
+      "sizeBytes": 7040,
+      "sha256": "92b09f1ca2a833e24267172b31284f63d88ec53965681f6fc52131f262dd5835"
+    },
+    {
+      "file": "middle_snow_noon_middle.webp",
+      "resource": "weather_quick_card_middle_snow_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_middle_snow_noon_middle_16_bg.webp",
+      "sizeBytes": 5708,
+      "sha256": "d38f92981b51c882293143ac9d0feecf7ff1170e0444497b393d4fe9b91c29dd"
+    },
+    {
+      "file": "middle_snow_noon_small.webp",
+      "resource": "weather_quick_card_middle_snow_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_middle_snow_noon_small_16_bg.webp",
+      "sizeBytes": 3884,
+      "sha256": "4a9cc8cc77fceac083dc232367dcdf0ce2af59263439ca502283105e94cd5f98"
+    },
+    {
+      "file": "overcast_morning_nightfall_big.webp",
+      "resource": "weather_quick_card_overcast_morning_nightfall_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_overcast_morning_nightfall_big_16_bg.webp",
+      "sizeBytes": 109968,
+      "sha256": "0ed9c6d9fa9bac10ede38a2f2709b3762f0809ccb6761f22818c47f3d53f1450"
+    },
+    {
+      "file": "overcast_morning_nightfall_middle.webp",
+      "resource": "weather_quick_card_overcast_morning_nightfall_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_overcast_morning_nightfall_middle_16_bg.webp",
+      "sizeBytes": 110628,
+      "sha256": "e0bae5a9f522c28899377833c9a77c51b32dc96f5b7759d982124b897d9fb734"
+    },
+    {
+      "file": "overcast_morning_small.webp",
+      "resource": "weather_quick_card_overcast_morning_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_overcast_morning_small_16_bg.webp",
+      "sizeBytes": 21552,
+      "sha256": "ba492f5ef225c648abc33dd509ff637315aa030b2b8059f44bfb6235dffa9a9c"
+    },
+    {
+      "file": "overcast_night_small.webp",
+      "resource": "weather_quick_card_overcast_night_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_overcast_night_small_16_bg.webp",
+      "sizeBytes": 21718,
+      "sha256": "0f31575b6c8703ac0df98abdab7c775165172b7a37a5fc06bba6f2e209736393"
+    },
+    {
+      "file": "overcast_nightfall_small.webp",
+      "resource": "weather_quick_card_overcast_nightfall_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_overcast_nightfall_small_16_bg.webp",
+      "sizeBytes": 21592,
+      "sha256": "57962efd394ab29be69cac3ca11d6725efe9aefc7b141c302f2b1806db1a17b0"
+    },
+    {
+      "file": "overcast_noon_night_big.webp",
+      "resource": "weather_quick_card_overcast_noon_night_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_overcast_noon_night_big_16_bg.webp",
+      "sizeBytes": 124412,
+      "sha256": "1b567d3f1b16a187335be9e98cd2d03db0aefb6ac3a9c2abfc93f0ce0c2f3e2e"
+    },
+    {
+      "file": "overcast_noon_night_middle.webp",
+      "resource": "weather_quick_card_overcast_noon_night_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_overcast_noon_night_middle_16_bg.webp",
+      "sizeBytes": 125722,
+      "sha256": "5eefb9ec3c935292a0cae2613970ebdb0af8744a8da965fe6c7d36e47e45f8ba"
+    },
+    {
+      "file": "overcast_noon_small.webp",
+      "resource": "weather_quick_card_overcast_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_overcast_noon_small_16_bg.webp",
+      "sizeBytes": 21306,
+      "sha256": "f2962471f9c8e6153c0f251343fbd7296d003dce24d9ae5117abf6e5c43d2484"
+    },
+    {
+      "file": "partly_cloudy_af_small.webp",
+      "resource": "weather_quick_card_partly_cloudy_af_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_partly_cloudy_af_small_16_bg.webp",
+      "sizeBytes": 4726,
+      "sha256": "077174fc8fe9be8458c31d30b687fc8c49ec391140f721dfbfc6de1f4964ecf4"
+    },
+    {
+      "file": "partly_cloudy_morning_big.png",
+      "resource": "weather_quick_card_partly_cloudy_morning_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_partly_cloudy_morning_big_16_bg.png",
+      "sizeBytes": 64657,
+      "sha256": "658ff409910e5fd3760e64306e53fa0e44fe9c1e395738c06259faea48798145"
+    },
+    {
+      "file": "partly_cloudy_morning_middle.png",
+      "resource": "weather_quick_card_partly_cloudy_morning_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_partly_cloudy_morning_middle_16_bg.png",
+      "sizeBytes": 65236,
+      "sha256": "251f14eb55d432865be6cb17d853b44154d5c0f8cd29ae093a70ca7eeffc3c05"
+    },
+    {
+      "file": "partly_cloudy_morning_small.webp",
+      "resource": "weather_quick_card_partly_cloudy_morning_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_partly_cloudy_morning_small_16_bg.webp",
+      "sizeBytes": 4338,
+      "sha256": "b2de9d73dcec2f53b0a513aa1b407df25d41e6364f085d298baf37472ef74e04"
+    },
+    {
+      "file": "partly_cloudy_night_small.webp",
+      "resource": "weather_quick_card_partly_cloudy_night_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_partly_cloudy_night_small_16_bg.webp",
+      "sizeBytes": 10430,
+      "sha256": "3e27d1e460f6897f1c01835f1e6e687b55f55a184820b03afe2355dc6135ab8a"
+    },
+    {
+      "file": "partly_cloudy_nightfall_small.webp",
+      "resource": "weather_quick_card_partly_cloudy_nightfall_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_partly_cloudy_nightfall_small_16_bg.webp",
+      "sizeBytes": 4180,
+      "sha256": "97c7a5bb973d385a90d6ea75ae354d58a8066df815204a3dc0e37c73f5307057"
+    },
+    {
+      "file": "partly_cloudy_noon_big.png",
+      "resource": "weather_quick_card_partly_cloudy_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_partly_cloudy_noon_big_16_bg.png",
+      "sizeBytes": 64857,
+      "sha256": "47ace7f034971a1e5a37ac1d2da00a1418ca49d7a78d347bbe5e4ec52a1c517a"
+    },
+    {
+      "file": "partly_cloudy_noon_middle.png",
+      "resource": "weather_quick_card_partly_cloudy_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_partly_cloudy_noon_middle_16_bg.png",
+      "sizeBytes": 64287,
+      "sha256": "58171d5dc7eccc8335c63678931882471c14523a0bb8902519efb46bfebd71e5"
+    },
+    {
+      "file": "partly_cloudy_noon_small.webp",
+      "resource": "weather_quick_card_partly_cloudy_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_partly_cloudy_noon_small_16_bg.webp",
+      "sizeBytes": 6114,
+      "sha256": "b96424599722f61b009316b885ad5d022158e7a83a7e8681f7fcb3d2ca10f00a"
+    },
+    {
+      "file": "rain_noon_big.webp",
+      "resource": "weather_quick_card_rain_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_rain_noon_big_16_bg.webp",
+      "sizeBytes": 8636,
+      "sha256": "6d2539a349b5c6b9856f7f3b27982fe3d6eac091b0891b0fd5c09627cc481b2c"
+    },
+    {
+      "file": "rain_noon_middle.webp",
+      "resource": "weather_quick_card_rain_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_rain_noon_middle_16_bg.webp",
+      "sizeBytes": 4246,
+      "sha256": "eb58ca8e43e8bc82aebdf2bc8812166986f1d381fa3b54f9bf18c3ea10126fdc"
+    },
+    {
+      "file": "rain_noon_small.webp",
+      "resource": "weather_quick_card_rain_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_rain_noon_small_16_bg.webp",
+      "sizeBytes": 3630,
+      "sha256": "9371c45df613e7f3b7a5a1b303e38417cdc3ca139638f7afe26f41c622a21da7"
+    },
+    {
+      "file": "sand_dust_big.webp",
+      "resource": "weather_quick_card_sand_dust_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sand_dust_big_16_bg.webp",
+      "sizeBytes": 13696,
+      "sha256": "fccdec8318399c26ab263b9cd1c2941cfb9e580b5e79804f6578c7b35c286f18"
+    },
+    {
+      "file": "sand_dust_middle.webp",
+      "resource": "weather_quick_card_sand_dust_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sand_dust_middle_16_bg.webp",
+      "sizeBytes": 10772,
+      "sha256": "0211270b3020542e4d6e266705561ffdd1cb380efcc8589448a88921ee2ad2ed"
+    },
+    {
+      "file": "sand_dust_small.webp",
+      "resource": "weather_quick_card_sand_dust_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sand_dust_small_16_bg.webp",
+      "sizeBytes": 6946,
+      "sha256": "b305a219e7c05a6290b42b5093e43ca724c7b902f6875f7be848a2dc8d170547"
+    },
+    {
+      "file": "sleeting_big.webp",
+      "resource": "weather_quick_card_sleeting_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sleeting_big_16_bg.webp",
+      "sizeBytes": 14672,
+      "sha256": "8d942da19c6e834a3a583a15e15a8b7091a50d586570ecd5ddff56a99ccf6f1e"
+    },
+    {
+      "file": "sleeting_middle.webp",
+      "resource": "weather_quick_card_sleeting_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sleeting_middle_16_bg.webp",
+      "sizeBytes": 10240,
+      "sha256": "32d75b38947372708338d12975b234e0c9d7e79c7e6096cb95fa32a0a6737198"
+    },
+    {
+      "file": "sleeting_small.webp",
+      "resource": "weather_quick_card_sleeting_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sleeting_small_16_bg.webp",
+      "sizeBytes": 7864,
+      "sha256": "cf4946bd4eeded5509790c45f2ab470cac33d3b2b53ab56a035f051ba8695856"
+    },
+    {
+      "file": "smog_big.webp",
+      "resource": "weather_quick_card_smog_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_smog_big_16_bg.webp",
+      "sizeBytes": 44804,
+      "sha256": "a8a4ba29caab3f79acbb8542cab2a891dd7fd8cb395901d3f1b3829634e4290f"
+    },
+    {
+      "file": "smog_middle.webp",
+      "resource": "weather_quick_card_smog_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_smog_middle_16_bg.webp",
+      "sizeBytes": 30302,
+      "sha256": "f68b01b38e4a14a4ee161a72fad7d78e7be390a78af10b7cba1d394cf2d3b404"
+    },
+    {
+      "file": "smog_night_small.webp",
+      "resource": "weather_quick_card_smog_night_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_smog_night_small_16_bg.webp",
+      "sizeBytes": 22268,
+      "sha256": "c1650262ec216b3f30e2440e5d1b13e8488346acd3757ed197f61d29f21f6f2c"
+    },
+    {
+      "file": "smog_small.webp",
+      "resource": "weather_quick_card_smog_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_smog_small_16_bg.webp",
+      "sizeBytes": 27042,
+      "sha256": "9737891b2c1ed90b1a559bb9d97904ec5185e1e12593440baf13ab0e73f7696b"
+    },
+    {
+      "file": "storm_big.webp",
+      "resource": "weather_quick_card_storm_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_storm_big_16_bg.webp",
+      "sizeBytes": 47326,
+      "sha256": "55070d84ab1773868cf22c2d3d8869dda83cacf2fc864220eb9b1ad301763a11"
+    },
+    {
+      "file": "storm_middle.webp",
+      "resource": "weather_quick_card_storm_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_storm_middle_16_bg.webp",
+      "sizeBytes": 40466,
+      "sha256": "3c5ea3e0f4e0261e7bc599e61efd130fdad7f2b26630969a267dcb56fac37e35"
+    },
+    {
+      "file": "storm_night_small.webp",
+      "resource": "weather_quick_card_storm_night_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_storm_night_small_16_bg.webp",
+      "sizeBytes": 19184,
+      "sha256": "eda65c84d7b6a1497b1f09c303ad1fc83b6ac80cc2cadb39797084a6760613c0"
+    },
+    {
+      "file": "storm_small.webp",
+      "resource": "weather_quick_card_storm_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_storm_small_16_bg.webp",
+      "sizeBytes": 25690,
+      "sha256": "925534048f80fae18fac258c6938739f61b7decff200e5752babc0c7113e0f90"
+    },
+    {
+      "file": "sunday_af_big.webp",
+      "resource": "weather_quick_card_sunday_af_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_af_big_16_bg.webp",
+      "sizeBytes": 6052,
+      "sha256": "f9d40fbc5345970633bde854c27df405af92b04c7b22e81a18750e952e7c7c9f"
+    },
+    {
+      "file": "sunday_af_middle.webp",
+      "resource": "weather_quick_card_sunday_af_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_af_middle_16_bg.webp",
+      "sizeBytes": 4918,
+      "sha256": "f7443b57f934423bc54eb2ba3ac9a49a87aa99adffa48563a95e5c6cbb1a261a"
+    },
+    {
+      "file": "sunday_af_small.webp",
+      "resource": "weather_quick_card_sunday_af_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_af_small_16_bg.webp",
+      "sizeBytes": 2668,
+      "sha256": "f9d5e62969e588649f731a5f68b46efba055738781577c1802c6c1b95c314880"
+    },
+    {
+      "file": "sunday_dawn_big.webp",
+      "resource": "weather_quick_card_sunday_dawn_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_dawn_big_16_bg.webp",
+      "sizeBytes": 65826,
+      "sha256": "20db5a6c4748e273c0211627c2aac1fa6c3a51188b0cd5ef8caf5492a3001d21"
+    },
+    {
+      "file": "sunday_dawn_middle.webp",
+      "resource": "weather_quick_card_sunday_dawn_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_dawn_middle_16_bg.webp",
+      "sizeBytes": 54292,
+      "sha256": "9c8cd5567168e26ee182a0d4a00282ff1ac6066eac89d43ca3f89c8efa21c315"
+    },
+    {
+      "file": "sunday_dawn_small.webp",
+      "resource": "weather_quick_card_sunday_dawn_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_dawn_small_16_bg.webp",
+      "sizeBytes": 36108,
+      "sha256": "e55d60bbc177040ec086628345928116570b36270f7873d7b154b385a9c2dd91"
+    },
+    {
+      "file": "sunday_evening_big.webp",
+      "resource": "weather_quick_card_sunday_evening_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_evening_big_16_bg.webp",
+      "sizeBytes": 58816,
+      "sha256": "05778242a3dd09711f460de88532914ed79df6fb46b651771106fbf6f8557175"
+    },
+    {
+      "file": "sunday_evening_middle.webp",
+      "resource": "weather_quick_card_sunday_evening_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_evening_middle_16_bg.webp",
+      "sizeBytes": 55314,
+      "sha256": "273a6c7146b69ce03d7631cde000c3ca57d9208cdb8f85d9a967ff403ac0a873"
+    },
+    {
+      "file": "sunday_evening_small.webp",
+      "resource": "weather_quick_card_sunday_evening_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_evening_small_16_bg.webp",
+      "sizeBytes": 38766,
+      "sha256": "045889c9838317cc1230946acc838fd0a97f9b200f40953e496021601323298b"
+    },
+    {
+      "file": "sunday_morning_big.webp",
+      "resource": "weather_quick_card_sunday_morning_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_morning_big_16_bg.webp",
+      "sizeBytes": 59912,
+      "sha256": "cda0e3045ae290d90215928e34788346f65336def40fc3221fd2d94e15f42c34"
+    },
+    {
+      "file": "sunday_morning_middle.webp",
+      "resource": "weather_quick_card_sunday_morning_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_morning_middle_16_bg.webp",
+      "sizeBytes": 56382,
+      "sha256": "0f68f162ae18daae978abef831e81cd0ccaa3dc928378f0d3e3dd3a5f37f9a69"
+    },
+    {
+      "file": "sunday_morning_small.webp",
+      "resource": "weather_quick_card_sunday_morning_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_morning_small_16_bg.webp",
+      "sizeBytes": 35200,
+      "sha256": "9a6a3a1779ff6f6321bdc680c8126e19afbf2a64f94bc87a0e347fd04a46904d"
+    },
+    {
+      "file": "sunday_night_big.webp",
+      "resource": "weather_quick_card_sunday_night_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_night_big_16_bg.webp",
+      "sizeBytes": 62596,
+      "sha256": "787bc96069c7f9fd6e8737f594b5e4d80e223526d85d1f8daad182de0778f8b4"
+    },
+    {
+      "file": "sunday_night_middle.webp",
+      "resource": "weather_quick_card_sunday_night_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_night_middle_16_bg.webp",
+      "sizeBytes": 56722,
+      "sha256": "cf7e04b59268fcc4a63bc3349fcf82758b2ed36bc0924a05719d1db02796c1a2"
+    },
+    {
+      "file": "sunday_night_small.webp",
+      "resource": "weather_quick_card_sunday_night_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_night_small_16_bg.webp",
+      "sizeBytes": 40372,
+      "sha256": "8b87db255d684d0d4f913b151610b449e595639257c5173de4542294927c3789"
+    },
+    {
+      "file": "sunday_nightfall_big.webp",
+      "resource": "weather_quick_card_sunday_nightfall_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_nightfall_big_16_bg.webp",
+      "sizeBytes": 58736,
+      "sha256": "5363898c90f37256277efb518e44c09be2ee736142ac7ac2f071f3b4119cb7dd"
+    },
+    {
+      "file": "sunday_nightfall_middle.webp",
+      "resource": "weather_quick_card_sunday_nightfall_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_nightfall_middle_16_bg.webp",
+      "sizeBytes": 55972,
+      "sha256": "7bb8867ed1e29ab6768acbfe08635eddff744d1af14000fcf4a68186f8c0e0b7"
+    },
+    {
+      "file": "sunday_nightfall_small.webp",
+      "resource": "weather_quick_card_sunday_nightfall_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_nightfall_small_16_bg.webp",
+      "sizeBytes": 35764,
+      "sha256": "ba8324a0054fe2770d2e6e9774a3855b13dcb148f77e7b01d79edb724f7ee287"
+    },
+    {
+      "file": "sunday_noon_big.webp",
+      "resource": "weather_quick_card_sunday_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_noon_big_16_bg.webp",
+      "sizeBytes": 6206,
+      "sha256": "7eeb49c787817ceb61bbeb771164794c7ad6eedb670cc3cf6468b9e5f639b046"
+    },
+    {
+      "file": "sunday_noon_middle.webp",
+      "resource": "weather_quick_card_sunday_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_noon_middle_16_bg.webp",
+      "sizeBytes": 5036,
+      "sha256": "abb07ab9a475f2293c6efd3bc348c159b8d6fc3272fadad566a3ce65371dd19c"
+    },
+    {
+      "file": "sunday_noon_small.webp",
+      "resource": "weather_quick_card_sunday_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunday_noon_small_16_bg.webp",
+      "sizeBytes": 2750,
+      "sha256": "8ddaaada4a92d247e8497b61b6dea12b46cf76a3f44ad65cf9cfae5edde8ce69"
+    },
+    {
+      "file": "sunrise_golden_big.webp",
+      "resource": "weather_quick_card_sunrise_golden_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunrise_golden_big_16_bg.webp",
+      "sizeBytes": 60536,
+      "sha256": "5efcf21ff9726574c08f836d27b6a8708cf3c403556ee5f423102b27275eca51"
+    },
+    {
+      "file": "sunrise_golden_middle.webp",
+      "resource": "weather_quick_card_sunrise_golden_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunrise_golden_middle_16_bg.webp",
+      "sizeBytes": 61482,
+      "sha256": "47d6b20f7a2ac0aa97b4e6de013e80e6d4a9756fc640e7b2089c45e027bccff4"
+    },
+    {
+      "file": "sunrise_golden_small.webp",
+      "resource": "weather_quick_card_sunrise_golden_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunrise_golden_small_16_bg.webp",
+      "sizeBytes": 16122,
+      "sha256": "d6b22c67dfa79525eff838a618e1073d44b1a2e14465071a5adeea310780564e"
+    },
+    {
+      "file": "sunset_glow_big.webp",
+      "resource": "weather_quick_card_sunset_glow_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunset_glow_big_16_bg.webp",
+      "sizeBytes": 60354,
+      "sha256": "d81d15848fba6faa045ca07a5e9ee21cc18763b29d789aa2b9c70df37ad5818f"
+    },
+    {
+      "file": "sunset_glow_middle.webp",
+      "resource": "weather_quick_card_sunset_glow_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunset_glow_middle_16_bg.webp",
+      "sizeBytes": 57844,
+      "sha256": "30ba4f25dbb3587b67ebaf0e1b7bc5855f401453366923377ac45bf88f44e2f0"
+    },
+    {
+      "file": "sunset_glow_small.webp",
+      "resource": "weather_quick_card_sunset_glow_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_sunset_glow_small_16_bg.webp",
+      "sizeBytes": 20736,
+      "sha256": "ca4dce68aeaea0e4ce3a8d14b4b41f02ec79f471c75c497de8bcead386695418"
+    },
+    {
+      "file": "thunder_hail_noon_big.webp",
+      "resource": "weather_quick_card_thunder_hail_noon_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_thunder_hail_noon_big_16_bg.webp",
+      "sizeBytes": 9940,
+      "sha256": "d2326eb0eb43fe8b5cc6a55de659cc3e6cf6a1ef48802cd4aa7eda0d598012b4"
+    },
+    {
+      "file": "thunder_hail_noon_middle.webp",
+      "resource": "weather_quick_card_thunder_hail_noon_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_thunder_hail_noon_middle_16_bg.webp",
+      "sizeBytes": 7020,
+      "sha256": "f5ffe3f07c932b5987e9b38a9e2ba24f86bf5aa39aba435ba79b49e86bc05640"
+    },
+    {
+      "file": "thunder_hail_noon_small.webp",
+      "resource": "weather_quick_card_thunder_hail_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_thunder_hail_noon_small_16_bg.webp",
+      "sizeBytes": 5088,
+      "sha256": "98e539c844d166dc60f8f8b64c16839a883bcc5f1332117a1206f9446cf28cd3"
+    },
+    {
+      "file": "thundershower_big.webp",
+      "resource": "weather_quick_card_thundershower_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_thundershower_big_16_bg.webp",
+      "sizeBytes": 71748,
+      "sha256": "16069b85a1e86a8d1d6a9482154d32000d70b612f0e0bdc0c0aa6fa21fde11ae"
+    },
+    {
+      "file": "thundershower_middle.webp",
+      "resource": "weather_quick_card_thundershower_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_thundershower_middle_16_bg.webp",
+      "sizeBytes": 60686,
+      "sha256": "51a3028f5bd4aa5cfd0d561d80c8e7a0bd8262210a2568155f362c3f4b75f1a3"
+    },
+    {
+      "file": "thundershower_small.webp",
+      "resource": "weather_quick_card_thundershower_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_thundershower_small_16_bg.webp",
+      "sizeBytes": 55618,
+      "sha256": "c22cc5b4f0a324ac24108aa13372ae10b51209faa7601aea2d0d57aec64425ee"
+    },
+    {
+      "file": "thunderstorm_noon_small.webp",
+      "resource": "weather_quick_card_thunderstorm_noon_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_thunderstorm_noon_small_16_bg.webp",
+      "sizeBytes": 54162,
+      "sha256": "07a9238af2c8396b9d33db217e52fa6bb10a89ac892595879642059a206facec"
+    },
+    {
+      "file": "wind_big.webp",
+      "resource": "weather_quick_card_wind_big_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_wind_big_16_bg.webp",
+      "sizeBytes": 12312,
+      "sha256": "acc268eda00aea0609175cb2f9aab146ac2d150c16f4110e7a52e111452d5f16"
+    },
+    {
+      "file": "wind_middle.webp",
+      "resource": "weather_quick_card_wind_middle_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_wind_middle_16_bg.webp",
+      "sizeBytes": 11198,
+      "sha256": "e1d922ea40eef04df658fa25d50d48c2b7b70ad1226beaafb0cb395a93dff40a"
+    },
+    {
+      "file": "wind_small.webp",
+      "resource": "weather_quick_card_wind_small_16_bg",
+      "source": "decoded/apktool/res/drawable-xxxhdpi/weather_quick_card_wind_small_16_bg.webp",
+      "sizeBytes": 8746,
+      "sha256": "bc51f777cb1c2f060072e9009fd7ae69f3ff522b7ca408dfc7c89afd5678bfe0"
+    }
+  ]
+}

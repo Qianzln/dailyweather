@@ -3,8 +3,10 @@ package com.dailyweather.app.scene
 import android.graphics.RenderEffect
 import android.graphics.RuntimeShader
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.graphics.asComposeRenderEffect
+import com.dailyweather.app.BuildConfig
 
 /**
  * 降雨折射着色器（v0.1.30 · P0）—— 南风 GlassRainDropsCard 的底层引擎。
@@ -25,6 +27,8 @@ import androidx.compose.ui.graphics.asComposeRenderEffect
  */
 @RequiresApi(33)
 object RainRefractionShader {
+
+    private const val TAG = "RainRefractionShader"
 
     /**
      * 公共函数库（两个 shader 共用）：三维哈希噪声、锯齿波、静止水珠、滑落水滴。
@@ -133,6 +137,11 @@ object RainRefractionShader {
         uniform float uIntensity;
         uniform float uNight;
         uniform float uVisibility;
+        // COMMON 的 Drops()/DropLayer() 会用到下面这 6 个，缺一个就是 AGSL 编译错误。
+        // ⚠️ 曾漏掉 uRunningDropSize（RainRefractionShader.kt:52 的 `uv /= uRunningDropSize;`），
+        // 表现为**雨天/雪天/雷天一进首页就崩溃**：
+        //   IllegalArgumentException: error: 31: unknown identifier 'uRunningDropSize'
+        uniform float uRunningDropSize;
         uniform float uRunningDropSpeed;
         uniform float uRunningDropAmount;
         uniform float uStaticDropSpeed;
@@ -146,11 +155,25 @@ object RainRefractionShader {
             float t = uTime * 2.3 * 0.2;
             float staticDrops = smoothstep(-0.5, 1.0, uIntensity) * 2.0;
             float c = Drops(uv, t, staticDrops, uIntensity);
-            // 水珠体积感：强度上半提亮为冷白高光、下半压暗成玻璃阴影。
-            float hi = smoothstep(0.35, 0.95, c);
-            float3 base = (uNight > 0.5) ? float3(0.60, 0.70, 0.85) : float3(0.93, 0.97, 1.0);
-            float3 col = base * (0.30 + 0.70 * hi) - float3(0.05, 0.06, 0.08) * (1.0 - hi);
-            return half4(col, c * 0.85 * uVisibility);
+            // 玻璃水珠 = **轮廓光**，不是实心贴片。
+            // 旧实现把水珠mask（c）直接当 alpha 填一块冷灰色（夜间 0.60,0.70,0.85 × 0.55），
+            // 装机看就是"一坨坨灰白斑点"（2026-10-12 截图复现），完全不像水。
+            // 现在对 c 做双向有限差分得水珠法线，只点亮/压暗边缘：
+            //   hi    = 左上入射光的镜面高光（水珠上缘一道亮弧）
+            //   shade = 右下缘的玻璃暗边
+            //   body  = 珠体极淡的冷色（0.06），保持"透明水"而不是"灰漆"。
+            float e = 0.0015;
+            float cx = Drops(uv + float2(e, 0.0), t, staticDrops, uIntensity);
+            float cy = Drops(uv + float2(0.0, e), t, staticDrops, uIntensity);
+            float2 n = normalize(float2(c - cx, c - cy) + float2(1e-5, 1e-5));
+            float mask = smoothstep(0.05, 0.35, c);
+            float hi = pow(clamp(dot(n, normalize(float2(-0.55, 0.83))), 0.0, 1.0), 6.0) * mask;
+            float shade = pow(clamp(dot(n, normalize(float2(0.60, -0.80))), 0.0, 1.0), 3.0) * mask;
+            float body = smoothstep(0.25, 0.60, c);
+            float3 lit = (uNight > 0.5) ? float3(0.72, 0.83, 1.00) : float3(1.00, 1.00, 1.00);
+            float3 col = lit * hi + float3(0.02, 0.03, 0.05) * shade + lit * body * 0.10;
+            float alpha = (hi * 0.60 + shade * 0.22 + body * 0.06) * uVisibility;
+            return half4(col, alpha);
         }
     """
 
@@ -179,67 +202,34 @@ object RainRefractionShader {
             }
         }
 
-        float circleMap(float x) { return 1.0 - sqrt(1.0 - x * x); }
+        float circleMap(float x) {
+            // ⚠️ 必须 clamp：`1.0 - x*x` 一旦为负，sqrt 返回 NaN，
+            // 经 `d -> refractedCoord` 传染后 `content.eval(NaN)` 整层输出透明。
+            // 实测症状：**整个卡片（含水珠层与文字）全空白**。
+            float t = clamp(1.0 - x * x, 0.0, 1.0);
+            return 1.0 - sqrt(t);
+        }
 
         half4 main(float2 coord) {
+            // 兜底：尺寸/厚度还没设好（首帧）或非法时**直通**，绝不让 NaN 流出去。
+            if (uSize.x <= 1.0 || uSize.y <= 1.0 || uRefractionHeight <= 0.5) {
+                return content.eval(coord);
+            }
             float2 halfSize = uSize * 0.5;
             float2 centeredCoord = coord - halfSize;
-            float radius = uCornerRadius;
+            float radius = min(uCornerRadius, min(halfSize.x, halfSize.y));
             float sd = sdRoundedRect(centeredCoord, halfSize, radius);
             if (-sd >= uRefractionHeight) return content.eval(coord);
             sd = min(sd, 0.0);
             float d = circleMap(1.0 - -sd / uRefractionHeight) * uRefractionAmount;
-            float gradRadius = min(radius * 1.5, min(halfSize.x, halfSize.y));
+            float gradRadius = max(min(radius * 1.5, min(halfSize.x, halfSize.y)), 0.5);
             float2 grad = normalize(gradSdRoundedRect(centeredCoord, halfSize, gradRadius));
-            float2 refractedCoord = coord + d * grad;
+            float2 refractedCoord = clamp(coord + d * grad, float2(0.0), uSize - float2(1.0));
             return content.eval(refractedCoord);
         }
     """
 
-    /** 全屏折射 uniforms（文档 3.2 精确公式；m = intensity 0–1）。 */
-    fun applyRefractionUniforms(
-        shader: RuntimeShader,
-        width: Float,
-        height: Float,
-        timeSec: Float,
-        intensity: Float,
-        visibility: Float,
-    ) {
-        val m = intensity.coerceIn(0f, 1f)
-        shader.setFloatUniform("uResolution", width, height)
-        shader.setFloatUniform("uTime", timeSec)
-        shader.setFloatUniform("uStaticDropSize", 1f)
-        shader.setFloatUniform("uStaticDropAmount", 1.3f * m + 0.5f)
-        shader.setFloatUniform("uStaticDropSpeed", 0.4f * m + 0.9f)
-        shader.setFloatUniform("uRunningDropSize", 1f)
-        shader.setFloatUniform("uRunningDropAmount", 1.6f * m + 0.7f)
-        shader.setFloatUniform("uRunningDropSpeed", m * 0.5f + 0.85f)
-        shader.setFloatUniform("uVisibility", visibility.coerceIn(0f, 1f))
-    }
-
-    /** 玻璃卡高光 uniforms。 */
-    fun applyHighlightUniforms(
-        shader: RuntimeShader,
-        width: Float,
-        height: Float,
-        timeSec: Float,
-        intensity: Float,
-        night: Boolean,
-        visibility: Float,
-    ) {
-        val m = intensity.coerceIn(0.2f, 1f)
-        shader.setFloatUniform("uResolution", width, height)
-        shader.setFloatUniform("uTime", timeSec)
-        shader.setFloatUniform("uIntensity", m)
-        shader.setFloatUniform("uNight", if (night) 1f else 0f)
-        shader.setFloatUniform("uVisibility", visibility.coerceIn(0f, 1f))
-        shader.setFloatUniform("uStaticDropSize", 1f)
-        shader.setFloatUniform("uStaticDropAmount", 1.3f * m + 0.5f)
-        shader.setFloatUniform("uStaticDropSpeed", 0.4f * m + 0.9f)
-        shader.setFloatUniform("uRunningDropSize", 1f)
-        shader.setFloatUniform("uRunningDropAmount", 1.6f * m + 0.7f)
-        shader.setFloatUniform("uRunningDropSpeed", m * 0.5f + 0.85f)
-    }
+    private var lastLoggedSize = ""
 
     /** SDF 边缘折射 uniforms。 */
     fun applySdfUniforms(
@@ -254,14 +244,105 @@ object RainRefractionShader {
         shader.setFloatUniform("uCornerRadius", cornerRadiusPx)
         shader.setFloatUniform("uRefractionHeight", refractionHeightPx)
         shader.setFloatUniform("uRefractionAmount", refractionAmountPx)
+        // 诊断：仅在 debug 且尺寸**发生变化**时打印一次（排查"整卡空白"，见 GlassRaindropsCard）。
+        if (BuildConfig.DEBUG) {
+            val tag = "${width}x${height}"
+            if (tag != lastLoggedSize) {
+                lastLoggedSize = tag
+                Log.i(
+                    TAG,
+                    "SDF uniforms: size=$tag corner=$cornerRadiusPx " +
+                        "refractH=$refractionHeightPx amount=$refractionAmountPx",
+                )
+            }
+        }
     }
 
     /** API 33+ 才有 RuntimeShader；此判定集中一处，调用方不必重复写版本分支。 */
     fun supported(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
-    /** 便捷：创建 RuntimeShader（仅 API 33+，否则 null）。 */
-    fun newShader(source: String): RuntimeShader? =
-        if (supported()) RuntimeShader(source) else null
+    /**
+     * 水珠网格的「参考高度」：MIUI `rain_drop_new` 的 `uStaticDropSize / uRunningDropSize = 1.0`
+     * 是**按 1080×2400 全屏**标定的（Drops 里 `uv *= 40.0 / size`，即每 60px 一颗静止水珠）。
+     *
+     * AGSL 的 `uv = (xy - 0.5*res) / res.y` 让网格数量**只随层高变化**，所以同一套参数搬到
+     * 462px 高的玻璃卡上，水珠会密 5 倍——实测看起来像噪点雪花，而不是"雨滴打在玻璃上"。
+     *
+     * 按「每 60px 一颗」反解：`size = 2400 / 层高`。
+     * 全屏时（height=2400）恰好退回 **1.0**，与原版参数**完全一致**（天空层折射不受影响）；
+     * 卡片（height=462）得到 5.2 → 水珠疏密与全屏同源。
+     */
+    private fun dropScaleFor(height: Float): Float =
+        if (height > 1f) (2400f / height).coerceAtLeast(1f) else 1f
+
+    /** 全屏折射 uniforms（文档 3.2 精确公式；m = intensity 0–1）。 */
+    fun applyRefractionUniforms(
+        shader: RuntimeShader,
+        width: Float,
+        height: Float,
+        timeSec: Float,
+        intensity: Float,
+        visibility: Float,
+    ) {
+        val m = intensity.coerceIn(0f, 1f)
+        val dropScale = dropScaleFor(height)
+        shader.setFloatUniform("uResolution", width, height)
+        shader.setFloatUniform("uTime", timeSec)
+        shader.setFloatUniform("uStaticDropSize", dropScale)
+        shader.setFloatUniform("uStaticDropAmount", 1.3f * m + 0.5f)
+        shader.setFloatUniform("uStaticDropSpeed", 0.4f * m + 0.9f)
+        shader.setFloatUniform("uRunningDropSize", dropScale)
+        shader.setFloatUniform("uRunningDropAmount", 1.6f * m + 0.7f)
+        shader.setFloatUniform("uRunningDropSpeed", m * 0.5f + 0.85f)
+        shader.setFloatUniform("uVisibility", visibility.coerceIn(0f, 1f))
+    }
+
+    /**
+     * 玻璃卡高光 uniforms。
+     *
+     * @param dropSizeMul 水珠尺寸倍率（>1 = 更小的水珠）。MIUI 的 `Drops` 网格是按
+     *   全屏标定的，卡片上即使按 [dropScaleFor] 反解，珠子仍偏大偏糊（实机截图像雪花噪点）；
+     *   卡片传 1.6 让珠子收小到"玻璃上的雨滴"尺度，全屏折射保持 1.0 与原版一致。
+     */
+    fun applyHighlightUniforms(
+        shader: RuntimeShader,
+        width: Float,
+        height: Float,
+        timeSec: Float,
+        intensity: Float,
+        night: Boolean,
+        visibility: Float,
+        dropSizeMul: Float = 1f,
+    ) {
+        val m = intensity.coerceIn(0.2f, 1f)
+        val dropScale = dropScaleFor(height) * dropSizeMul.coerceAtLeast(0.5f)
+        shader.setFloatUniform("uResolution", width, height)
+        shader.setFloatUniform("uTime", timeSec)
+        shader.setFloatUniform("uIntensity", m)
+        shader.setFloatUniform("uNight", if (night) 1f else 0f)
+        shader.setFloatUniform("uVisibility", visibility.coerceIn(0f, 1f))
+        shader.setFloatUniform("uStaticDropSize", dropScale)
+        shader.setFloatUniform("uStaticDropAmount", 1.3f * m + 0.5f)
+        shader.setFloatUniform("uStaticDropSpeed", 0.4f * m + 0.9f)
+        shader.setFloatUniform("uRunningDropSize", dropScale)
+        shader.setFloatUniform("uRunningDropAmount", 1.6f * m + 0.7f)
+        shader.setFloatUniform("uRunningDropSpeed", m * 0.5f + 0.85f)
+    }
+
+    /**
+     * 便捷：创建 RuntimeShader（仅 API 33+，否则 null）。
+     *
+     * ⚠️ 必须吞掉编译异常：AGSL 在**运行时**才编译，`RuntimeShader(source)` 一旦源码有
+     * （如漏声明 uniform）就抛 `IllegalArgumentException`——这不是异常分支，而是**必崩**。
+     * 实测：`HIGHLIGHT` 漏了 `uRunningDropSize` 时，雨天/雪天/雷天一进首页就闪退。
+     * 降级为 null（只是没有雨滴效果）远好于崩溃。
+     */
+    fun newShader(source: String): RuntimeShader? {
+        if (!supported()) return null
+        return runCatching { RuntimeShader(source) }
+            .onFailure { Log.e(TAG, "AGSL 编译失败，降级为无雨滴效果：${it.message}") }
+            .getOrNull()
+    }
 
     /** 便捷：包装成 Compose graphicsLayer 可用的 RenderEffect（仅 API 33+）。 */
     fun composeEffect(

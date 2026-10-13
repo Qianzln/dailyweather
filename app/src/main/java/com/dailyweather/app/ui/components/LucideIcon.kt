@@ -40,11 +40,24 @@ object IconRegistry {
     private fun parse(stream: InputStream): ImageVector? {
         val xml = android.util.Xml.newPullParser().also { it.setInput(stream, null) }
         val paths = mutableListOf<List<PathNode>>()
+        // 每个子元素**自己**声明的 stroke-width / stroke-linecap。
+        // ⚠️ SVG 允许把描边属性写在 `<path>` 上而不是 `<svg>` 上——只读 svg 层会漏：
+        //   `assets/lucide/plus.svg` 的 `<svg>` 里没有 stroke-width，`<path stroke-width="2.2">` 才有，
+        //   于是 strokeWidth=0 → 走「填充」分支 → 一条只有描边没有面积的路径**什么都不画**，
+        //   顶栏「添加城市」按钮变成一个**空玻璃圆**（用户反馈「这个部分我不知道是什么、冗余」）。
+        //   全库 54 个图标里 39 个写在 `<svg>`、13 个纯填充、2 个（plus / check-filled）写在子元素上。
+        val pathStroke = mutableListOf<Pair<Float, Boolean>>()
         var viewBox: List<Float> = emptyList()
         var strokeWidth = 0f
         var roundCap = false
 
         fun attr(n: String) = xml.getAttributeValue(null, n)
+
+        /** 记录一个图元：路径节点 + 它自己的描边属性（0 表示继承 `<svg>` 层）。 */
+        fun addElement(nodes: List<PathNode>) {
+            paths += nodes
+            pathStroke += (attr("stroke-width")?.toFloatOrNull() ?: 0f) to (attr("stroke-linecap") == "round")
+        }
 
         var event = xml.eventType
         while (event != org.xmlpull.v1.XmlPullParser.END_DOCUMENT) {
@@ -56,26 +69,32 @@ object IconRegistry {
                         strokeWidth = attr("stroke-width")?.toFloatOrNull() ?: 0f
                         roundCap = attr("stroke-linecap") == "round"
                     }
-                    "path" -> attr("d")?.let { paths += addPathNodes(it) }
-                    "circle" -> paths += circleNodes(
-                        attr("cx")?.toFloatOrNull() ?: 0f,
-                        attr("cy")?.toFloatOrNull() ?: 0f,
-                        attr("r")?.toFloatOrNull() ?: 0f,
+                    "path" -> attr("d")?.let { addElement(addPathNodes(it)) }
+                    "circle" -> addElement(
+                        circleNodes(
+                            attr("cx")?.toFloatOrNull() ?: 0f,
+                            attr("cy")?.toFloatOrNull() ?: 0f,
+                            attr("r")?.toFloatOrNull() ?: 0f,
+                        ),
                     )
-                    "line" -> paths += listOf(
-                        PathNode.MoveTo(attr("x1")?.toFloatOrNull() ?: 0f, attr("y1")?.toFloatOrNull() ?: 0f),
-                        PathNode.LineTo(attr("x2")?.toFloatOrNull() ?: 0f, attr("y2")?.toFloatOrNull() ?: 0f),
+                    "line" -> addElement(
+                        listOf(
+                            PathNode.MoveTo(attr("x1")?.toFloatOrNull() ?: 0f, attr("y1")?.toFloatOrNull() ?: 0f),
+                            PathNode.LineTo(attr("x2")?.toFloatOrNull() ?: 0f, attr("y2")?.toFloatOrNull() ?: 0f),
+                        ),
                     )
-                    "polyline" -> paths += polylineNodes(attr("points") ?: "")
-                    "polygon" -> paths += polylineNodes(attr("points") ?: "") + PathNode.Close
+                    "polyline" -> addElement(polylineNodes(attr("points") ?: ""))
+                    "polygon" -> addElement(polylineNodes(attr("points") ?: "") + PathNode.Close)
                     "rect" -> {
                         val x = attr("x")?.toFloatOrNull() ?: 0f
                         val y = attr("y")?.toFloatOrNull() ?: 0f
                         val w = attr("width")?.toFloatOrNull() ?: 0f
                         val h = attr("height")?.toFloatOrNull() ?: 0f
-                        paths += listOf(
-                            PathNode.MoveTo(x, y), PathNode.LineTo(x + w, y),
-                            PathNode.LineTo(x + w, y + h), PathNode.LineTo(x, y + h), PathNode.Close,
+                        addElement(
+                            listOf(
+                                PathNode.MoveTo(x, y), PathNode.LineTo(x + w, y),
+                                PathNode.LineTo(x + w, y + h), PathNode.LineTo(x, y + h), PathNode.Close,
+                            ),
                         )
                     }
                 }
@@ -97,17 +116,21 @@ object IconRegistry {
             viewportWidth = side,
             viewportHeight = side,
         ).apply {
-            paths.forEach { nodes ->
+            paths.forEachIndexed { i, nodes ->
                 val shifted = if (dx == 0f && dy == 0f) nodes else nodes.map { it.moved(dx, dy) }
-                if (strokeWidth > 0f) {
+                // 元素级优先，缺省继承 `<svg>` 层（见 parse() 里 plus.svg 的坑）。
+                val (own, ownRound) = pathStroke[i]
+                val effWidth = if (own > 0f) own else strokeWidth
+                val effRound = ownRound || roundCap
+                if (effWidth > 0f) {
                     addPath(
                         pathData = shifted,
                         pathFillType = PathFillType.NonZero,
                         stroke = SolidColor(Color.Black),
                         fill = null,
-                        strokeLineWidth = strokeWidth,
-                        strokeLineCap = if (roundCap) StrokeCap.Round else StrokeCap.Butt,
-                        strokeLineJoin = if (roundCap) StrokeJoin.Round else StrokeJoin.Miter,
+                        strokeLineWidth = effWidth,
+                        strokeLineCap = if (effRound) StrokeCap.Round else StrokeCap.Butt,
+                        strokeLineJoin = if (effRound) StrokeJoin.Round else StrokeJoin.Miter,
                     )
                 } else {
                     addPath(

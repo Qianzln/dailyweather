@@ -34,6 +34,8 @@ class AmapGeo(private val proxy: CloudProxy) {
                     "extensions" to "all",
                     "radius" to "200",
                 ),
+                // 地理命名是轻量端点：不拖住主天气刷新，5s 拿不到就放弃（回落"我的位置"）。
+                timeoutMs = CloudProxy.LIGHT_TIMEOUT_MS,
             )
         }.onFailure { Log.w(TAG, "amap-regeo 失败: ${it.message}") }.getOrNull() ?: return null
         val root = JSONObject(body)
@@ -71,6 +73,8 @@ class AmapGeo(private val proxy: CloudProxy) {
         val body = proxy.get(
             "/geo/amap-district",
             mapOf("keywords" to keyword, "subdistrict" to "0", "extensions" to "base"),
+            // 搜索是交互式请求：5s 超时让用户尽快看到内置城市表兜底结果。
+            timeoutMs = CloudProxy.LIGHT_TIMEOUT_MS,
         )
         val root = JSONObject(body)
         if (root.optString("status") != "1") {

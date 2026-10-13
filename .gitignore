@@ -22,3 +22,18 @@ node_modules/
 .kotlin/
 # 逆向解包产物（原版 APK 提取，体积大不入库）
 docs/skypulse_4.3.64/res_raw/
+
+# 本地环境与构建缓存（不入库）
+.gradle_local/
+.tmp/
+.tmp-native/
+android-sdk-w/
+com/
+build_full.txt
+build_info.txt
+build_stacktrace.txt
+app/build.gradle.kts.tmp
+
+# 逆向参考资料（体积大/版权敏感，不入库）
+01 复刻内容/
+skypulse_refs/

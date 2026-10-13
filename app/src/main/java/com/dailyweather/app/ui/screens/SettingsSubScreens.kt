@@ -46,6 +46,10 @@ fun NotificationSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
     val morning by vm.settingFlow(WeatherViewModel.SettingKey.DAILY_MORNING).collectAsState(false)
     val evening by vm.settingFlow(WeatherViewModel.SettingKey.DAILY_EVENING).collectAsState(false)
     val urgent by vm.settingFlow(WeatherViewModel.SettingKey.URGENT).collectAsState(false)
+    // 天气变化提醒三项：此前只有存储键、没有消费者也没有入口（拨不到 = 完全空转）。
+    val tempChange by vm.settingFlow(WeatherViewModel.SettingKey.TEMP_CHANGE).collectAsState(false)
+    val wind by vm.settingFlow(WeatherViewModel.SettingKey.WIND).collectAsState(false)
+    val extreme by vm.settingFlow(WeatherViewModel.SettingKey.EXTREME).collectAsState(false)
 
     SettingsScaffold("通知设置", onBack) {
         GroupCard {
@@ -57,6 +61,16 @@ fun NotificationSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
             SwitchRow("早晚天气通知", morning || evening, onToggle = { vm.setDailyBoth(it) })
             SwitchRow("气象预警推送", urgent, divider = false, onToggle = { vm.setSetting(WeatherViewModel.SettingKey.URGENT, it) })
         }
+        SectionHeader("天气变化提醒")
+        GroupCard {
+            SwitchRow("气温骤变", tempChange,
+                onToggle = { vm.setSetting(WeatherViewModel.SettingKey.TEMP_CHANGE, it) })
+            SwitchRow("大风", wind,
+                onToggle = { vm.setSetting(WeatherViewModel.SettingKey.WIND, it) })
+            SwitchRow("极端天气", extreme, divider = false,
+                onToggle = { vm.setSetting(WeatherViewModel.SettingKey.EXTREME, it) })
+        }
+        Footnote("气温骤变：当日气温与早先相差 ≥5℃ 时提醒；大风：风力 ≥39 km/h；极端：最高 ≥35℃ 或最低 ≤−10℃。均在刷新到新数据后判定，每天各至多一次。")
     }
 }
 
@@ -66,24 +80,32 @@ fun AppearanceSettingsScreen(vm: WeatherViewModel, onBack: () -> Unit) {
     val aqi by vm.boolSetting(SettingsKeys.SHOW_AQI, true).collectAsState(true)
     val sun by vm.boolSetting(SettingsKeys.SHOW_SUN, true).collectAsState(true)
     val detail by vm.boolSetting(SettingsKeys.SHOW_DETAIL, true).collectAsState(true)
+    val precip by vm.boolSetting(SettingsKeys.SHOW_MINUTELY, true).collectAsState(true)
+    val trend by vm.boolSetting(SettingsKeys.SHOW_TREND, false).collectAsState(false)
+    val radar by vm.boolSetting(SettingsKeys.SHOW_RADAR, false).collectAsState(false)
+    val alert by vm.boolSetting(SettingsKeys.SHOW_ALERT, true).collectAsState(true)
+    val hourly by vm.boolSetting(SettingsKeys.SHOW_HOURLY, true).collectAsState(true)
     val orderRaw by vm.stringSetting(SettingsKeys.CARD_ORDER, "").collectAsState("")
 
-    // 排序列表只含真实渲染的卡片：SUMMARY 是 Hero 区、RADAR 已不上首页，都过滤掉。
+    // 排序列表只含真实渲染的卡片：SUMMARY 是 Hero 区。
+    // 过滤口径统一走 HomeCards.nonCardIds（与 SettingsStore.homeCardsFlow 同源）。
     val order = remember(orderRaw) {
         val saved = orderRaw.split(",").mapNotNull { runCatching { HomeCardId.valueOf(it) }.getOrNull() }
-            .filter { it != HomeCardId.SUMMARY && it != HomeCardId.RADAR }
-        (saved + HomeCards.defaultOrder)
-            .filter { it != HomeCardId.SUMMARY && it != HomeCardId.RADAR }
-            .distinct()
+        (saved + HomeCards.defaultOrder).distinct().filter { it !in HomeCards.nonCardIds }
     }
     var picked by remember { mutableStateOf<HomeCardId?>(null) }
 
     SettingsScaffold("外观", onBack) {
         SectionHeader("主页卡片")
         GroupCard {
+            SwitchRow("分钟级降水", precip, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_MINUTELY, it) })
             SwitchRow("空气质量", aqi, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_AQI, it) })
+            SwitchRow("逐小时预报", hourly, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_HOURLY, it) })
             SwitchRow("日出日落", sun, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_SUN, it) })
             SwitchRow("气象详情", detail, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_DETAIL, it) })
+            SwitchRow("天气趋势", trend, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_TREND, it) })
+            SwitchRow("台风雷达", radar, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_RADAR, it) })
+            SwitchRow("气象预警", alert, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_ALERT, it) })
             SwitchRow("生活建议", life, divider = false, onToggle = { vm.setBoolSetting(SettingsKeys.SHOW_LIFE, it) })
         }
         Footnote("控制主页各卡片的显示与隐藏")

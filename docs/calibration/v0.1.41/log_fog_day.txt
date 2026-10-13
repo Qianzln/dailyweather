@@ -1,0 +1,11 @@
+########## fog_day ##########
+10-08 23:34:56.589 12777 12797 I OppoSceneKey: 已加载 22 个组 / 62 个键
+10-08 23:34:57.860 12777 12796 I OppoScene: 已加载 64 个预设 / 583 个实体，用时 1455ms
+10-08 23:34:58.905 12777 12813 I OppoGlCaps: GLES 3.1  compute=true  gles32=false  maxTex=16384  ver=OpenGL ES 3.1 (4.5.0 Core Profile Context 23.19.23.13.250826)
+10-08 23:34:58.909 12777 12813 I OppoParticles: 跳过粒子：需要 GLES 3.2（当前 3.1）
+10-08 23:34:58.912 12777 12813 I OppoRenderer: 场景键切换: (无) -> 1_6_sunny-night
+10-08 23:34:59.361 12777 12777 I WeatherScreen: GL 天空就绪=true
+10-08 23:34:59.898 12777 12813 I OppoRenderer: 贴图预热 44 张，用时 986ms
+10-08 23:35:05.027 12777 12813 I OppoRenderer: 场景键切换: 1_6_sunny-night -> 1_2_sunny-noon
+10-08 23:35:05.406 12777 12777 I WeatherRepository: doRefreshWeather: fixture=fog_day 已注入，不走网络
+10-08 23:35:05.505 12777 12813 I OppoRenderer: 场景键切换: 1_2_sunny-noon -> 17_2_fog-noon

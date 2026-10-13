@@ -16,11 +16,14 @@ object Tokens {
     // ---- 首页卡片矩阵 ----
     /** 卡片左右边距：实测卡片占 x48..x1224。 */
     val ScreenMargin = 16.dp
-    /** 卡片间距：实测 25px，略增为 10dp 以改善呼吸感。 */
-    val CardGap = 10.dp
+    /** 卡片间距：南风实测 25px（约 8dp）。v0.1.33 观感反馈 10dp 太挤（卡片连成片），提到 14dp。
+     *  2026-01 对比南风截图发现 14dp 仍偏紧凑，卡与卡之间缺少呼吸感；提到 18dp，接近南风真实间距。
+     *  v0.1.46：用户反馈偏紧凑，提到 22dp。
+     *  v0.1.47-GL：GL 3D 云层背景更显眼，22dp 过宽破坏整体构图；降到 16dp 更均衡。 */
+    val CardGap = 16.dp
     // ---- 统一圆角系统 ----
-    /** 大卡片圆角：首页主卡片、设置卡 */
-    val CardRadius = 22.dp
+    /** 大卡片圆角：首页主卡片、设置卡。v0.1.33：22dp 改 28dp（宽卡片上 22dp 观感偏方，与设置卡 28dp 同档）。 */
+    val CardRadius = 28.dp
     /** 中等圆角：详情卡、雷达卡、AQI 卡 */
     val MediumRadius = 18.dp
     /** 小圆角：按钮、胶囊标签、图标底板 */
@@ -29,8 +32,11 @@ object Tokens {
     val MiniRadius = 6.dp
     /** 城市名胶囊圆角 */
     val PillRadius = 16.dp
-    /** [实测] 卡面 = 天空叠 0xB830465A：白天与夜间两组实测值都能由它推出，常数黑叠层推不出。 */
-    val CardFill = Color(0xB830465A)
+    /** [实测] 卡面 = 天空叠 0xB830465A：白天与夜间两组实测值都能由它推出，常数黑叠层推不出。
+     *  v0.1.47-GL2：GL云层启用后，原alpha=0xB8(72%)过于实，即使在Haze模式下填色仍显厚重。
+     *  降到 0x60(37%)：玻璃感更强，云层透出更多。配合CARD_HAZE_FILL_ALPHA=0.22使用。
+     *  v0.1.48：进一步降至CardFill本身alpha=0x59(35%)，GL云背景更透亮。 */
+    val CardFill = Color(0x5930465A)
     /** 卡片顶部亮边：实测卡上沿有一条 2–3px 的高光。 */
     val CardStroke = Color(0x1FFFFFFF)
 

@@ -1,0 +1,1226 @@
+{
+  "source": "OPPO weather 16.46.2 assets/weather.coz2",
+  "sourceArchiveSha256": "2f1fbffa776f5fd321ad24b286b2a66c26cb54154ad7ab3af7c1233606a7d2da",
+  "sourceScenes": [
+    {
+      "path": "MainScene",
+      "sha256": "c259134152ecf7f20daa38954cdfd578a0206ada03064e41991366c09f20378e"
+    },
+    {
+      "path": "prefab/0_0_empty",
+      "sha256": "395267d0d5a3b825ee8515ee28dabfcea8d3e39064555d6bc4d39072a0129cea"
+    },
+    {
+      "path": "prefab/101_1_cloudy-dawn-s",
+      "sha256": "18a4cf0e0cc66ad77251591370a0a63475279d9377353b867f6810b454ca0c3a"
+    },
+    {
+      "path": "prefab/101_4_cloudy-sunset-s",
+      "sha256": "0d4ba0b2cc70b87308ff7579915a21999401d1e19579764a9ee52b600abbcae2"
+    },
+    {
+      "path": "prefab/10_2_L-snow-noon",
+      "sha256": "27742303cb966b101fb33e8ebadd0a14dfb9e01e1239ddf0bfe4141cc0c96a33"
+    },
+    {
+      "path": "prefab/10_6_L-snow-night",
+      "sha256": "9c3f079e7c611cc79efbadc57ce929e106e9b82d879ea31df4b91ead610894b1"
+    },
+    {
+      "path": "prefab/11_2_M-snow-noon",
+      "sha256": "5f582b32b52fcedd162e396edae1ae2f3d9644d77e909782de276e1c6b3644ce"
+    },
+    {
+      "path": "prefab/11_6_M-snow-night",
+      "sha256": "dd8f801c5c5430450ae4b55d7541da520e52244f89bc871a8d57d953e3fbbd92"
+    },
+    {
+      "path": "prefab/12_2_H-snow-noon",
+      "sha256": "510aafa7dbe0b84b5c98d849efb8185359427e5cc237a03d4415a45082ab678a"
+    },
+    {
+      "path": "prefab/12_6_H-snow-night",
+      "sha256": "be6973e48a246ed651214a7b26620514972488009c4bc7557a65d25976817b51"
+    },
+    {
+      "path": "prefab/14_2_dust-noon",
+      "sha256": "8b32363f8d6f82b6c87fefea4fca53fe6ea757dfb168647aad3d0bac5232bee3"
+    },
+    {
+      "path": "prefab/14_6_dust-night",
+      "sha256": "acbc29dcaaa4596f734bb7db59ed56b950ea689ee0cb3589a2cb424c2bdce683"
+    },
+    {
+      "path": "prefab/15_2_haze-noon",
+      "sha256": "1f740e1f330e05264b63de373231802458c10995c0edf44573f57f3c4c232866"
+    },
+    {
+      "path": "prefab/15_6_haze-night",
+      "sha256": "352d0c664a9370dae006082cfd665b67b5223c3c92465f47babd5df4686fe35f"
+    },
+    {
+      "path": "prefab/16_2_R-snow-noon",
+      "sha256": "e09020859ca1f8206465b867ba72306341b53c7dd6904b912d323d8fa32c90d2"
+    },
+    {
+      "path": "prefab/16_6_R-snow-night",
+      "sha256": "8e4df52239c1370e1e2c37f775670d68cae87db9daeda84164815ae8c998cb9f"
+    },
+    {
+      "path": "prefab/17_2_fog-noon",
+      "sha256": "1b76c56fb4d10372144eff0c706f23639b7fc1b90cdeb3be9ca0fa53c79ba873"
+    },
+    {
+      "path": "prefab/17_6_fog-night",
+      "sha256": "2c29dc01d444c9b0c37adfb366101c835a76d3017a238717b1936f8134613435"
+    },
+    {
+      "path": "prefab/18_2_rainhail-noon",
+      "sha256": "b58e23c7a172f13e6f9e55a03f5c4d1af30f75a1c94badb00f174af0d7914928"
+    },
+    {
+      "path": "prefab/18_6_rainhail-night",
+      "sha256": "fa725c9c8695ca24a55f35e76db39dfaf66b016c32880e6ade1315783a2900a4"
+    },
+    {
+      "path": "prefab/19_2_wind-noon",
+      "sha256": "a2810180a7874e1947ab51cfd6dc12b8f625f704a191a452ed62c9904ca8d278"
+    },
+    {
+      "path": "prefab/19_6_wind-night",
+      "sha256": "83346d69884addeec0ba85936c0724d8e10bc3852afb722bcabc7f83dafdd7f5"
+    },
+    {
+      "path": "prefab/1_0_sunny-dawn",
+      "sha256": "7e9ee6635dfaf318c5d74914bd45925fa517f4bf58fbc400c48b66c2e8141928"
+    },
+    {
+      "path": "prefab/1_1_sunny-morning",
+      "sha256": "a9192f07ee32b32115d6fb94476e0a19ae674a988d52f30f71d4aab12099e11e"
+    },
+    {
+      "path": "prefab/1_2_sunny-noon",
+      "sha256": "0957ea6cac8e5764bfb0193927716bab4122d4cb356f1797ceb58adf7b5dc23f"
+    },
+    {
+      "path": "prefab/1_3_sunny-afternoon",
+      "sha256": "447f879564c3e77647dfc19a9a460210d9bd244cd86ee67c103ef4bbcfdb9a4c"
+    },
+    {
+      "path": "prefab/1_4_sunny-sunset",
+      "sha256": "06aa141b0f056845a4ba8ee4a73d09eac80fefc979d9fad6148f005091de6d31"
+    },
+    {
+      "path": "prefab/1_5_sunny-even",
+      "sha256": "b2dc16ea5e3d7c6899db9713961f5989274d2eeb89249c7319408ae5f4832113"
+    },
+    {
+      "path": "prefab/1_6_sunny-night",
+      "sha256": "ac77a3b650175950726727da620ff74c975874eac9fc6124a99b9f868656066a"
+    },
+    {
+      "path": "prefab/20_2_storm-noon",
+      "sha256": "c7bd759b2881339ed5e93e37715c298e9add914370eb19b0cbf7affa9d5202dd"
+    },
+    {
+      "path": "prefab/20_6_storm-night",
+      "sha256": "faa5e32269899dbea9cf30f23495f73ea5fcef13d22d24b0f0343a6360db0027"
+    },
+    {
+      "path": "prefab/21_2_thunder-noon",
+      "sha256": "ee89e0b831e326c21984e4e0ce7e6d069815a8ae047a2865d80db1cc3a20d913"
+    },
+    {
+      "path": "prefab/21_6_thunder-night",
+      "sha256": "c0a3f036946658380eb48bb0ac1e0c35f91efe8639bf914099f56035e5662436"
+    },
+    {
+      "path": "prefab/2_2_hail-noon",
+      "sha256": "650981e4ab88f7887f791daf0b7401be9602d12ec0053e3ade7c6228fdfb7334"
+    },
+    {
+      "path": "prefab/2_6_hail-night",
+      "sha256": "a0f8b92bda07950c60a5305f2314a225f4449498b96318cc388e5d412ae4f123"
+    },
+    {
+      "path": "prefab/55_0_m_sunny-dawn",
+      "sha256": "938f62ddf476e59d814ed3b20fe0426483cc1cfce684366c7e1f8c73509aa640"
+    },
+    {
+      "path": "prefab/55_1_m_sunny-morning",
+      "sha256": "c24b973c48ec31feb023edaa12ce291e0d282fc7dcf070026c0987e9006188bd"
+    },
+    {
+      "path": "prefab/55_2_m_sunny-noon",
+      "sha256": "0fb569e48f7f3f4ebd5c792724c4bfb5772e8c8fbf8cdf4e78b7bfe07c9cc118"
+    },
+    {
+      "path": "prefab/55_3_m_sunny-afternoon",
+      "sha256": "d616b145510af5bb79a06d05dd116fce500b8d5c2c58ca731d21fff9271fbc98"
+    },
+    {
+      "path": "prefab/55_4_m_sunny-sunset",
+      "sha256": "7b35f2b539e174d7ccacd8a42835a24bcde004553afdc627ad6319bd82c53043"
+    },
+    {
+      "path": "prefab/55_5_m_sunny-evening",
+      "sha256": "55c05d498900bb3def465ff91fdfd6985e8cf5188aedd38c3d1211d2c5de27a4"
+    },
+    {
+      "path": "prefab/55_6_m_sunny-night",
+      "sha256": "eca9dfc1cc2782f7ec04241b482794d3d148cffd38d5832c110d178c6c356876"
+    },
+    {
+      "path": "prefab/56_1_cloudy-morning",
+      "sha256": "07d638e3eb7c6626a3e037aa7d28140c87739aa766e516c6d623d503f65dc25d"
+    },
+    {
+      "path": "prefab/56_2_cloudy-noon",
+      "sha256": "4d7f6a76c1184663eb038bfcad612f222ec3adfc0f1b0d034e2fa36a11770988"
+    },
+    {
+      "path": "prefab/56_3_cloudy-afternoon",
+      "sha256": "7ed03b13070e2cef0b10d8017c3e78c1f3dffe904e6745aeea9ad9a0b50d68f0"
+    },
+    {
+      "path": "prefab/56_4_cloudy-sunset",
+      "sha256": "d78669e1f391d5375108bf61e4f0e02b370d9d88b6d3537d603f09c750a204cb"
+    },
+    {
+      "path": "prefab/56_6_cloudy-night",
+      "sha256": "b6d9dacd3a60ce2c280301226e18112fe5a7906b9beee05873a47b2c5c67ef11"
+    },
+    {
+      "path": "prefab/58_1_cloudy-morning",
+      "sha256": "1bb1f5ad873fe9339523149d2c547aa0cf267aa38be53af67e729d8bc8effa96"
+    },
+    {
+      "path": "prefab/58_2_cloudy-noon",
+      "sha256": "298b019fad6d811b0e7c1b42d1d7b8ea7151f92f116dcf2c087f496c7a07126f"
+    },
+    {
+      "path": "prefab/58_3_cloudy-afternoon",
+      "sha256": "7baaa56d3126952aa01b8192c273993420775e16e64b64aaf9c12bd6c0e40479"
+    },
+    {
+      "path": "prefab/58_4_cloudy-sunset",
+      "sha256": "0ebc5355b98f6428d07d73057381d135f60f9c8b040c10c2914f45a6d532d54d"
+    },
+    {
+      "path": "prefab/58_6_cloudy-night",
+      "sha256": "e52a49d9ace88c0e9f486b5e0b4021c772f5ee890536ca3a080d11973441bf64"
+    },
+    {
+      "path": "prefab/5_1_overcast-morning",
+      "sha256": "5fee784c4b36538ab4256a3bfd99386fb55848cb85e366347935050934d92d7c"
+    },
+    {
+      "path": "prefab/5_2_overcast-noon",
+      "sha256": "6d55417653f103ed61712f767d96e456d4510230da52dcf76079b2a13e512fa6"
+    },
+    {
+      "path": "prefab/5_4_overcast-sunset",
+      "sha256": "88670085e2502536bd3f1e08644a8f3db1690bbd616a63077962b36c6ccaef26"
+    },
+    {
+      "path": "prefab/5_6_overcast-night",
+      "sha256": "71a1b9253c5db590bebaaba7201b3e7fcd6e60280c22a49254b9cc9d7eb1637f"
+    },
+    {
+      "path": "prefab/6_2_L-rain-noon",
+      "sha256": "71db97a79bdd22473f7046db4b0f889129834b6a736c69b88cd4808c52f9e3bd"
+    },
+    {
+      "path": "prefab/6_6_L-rain-night",
+      "sha256": "2b1a10863bda2dc0c278f5c50d8cc1ac97b56876a6ba5e2fbbf71cf6df4b9674"
+    },
+    {
+      "path": "prefab/7_2_M-rain-noon",
+      "sha256": "bacfa18ad08086b572b094be73a0e856df22134bc8a7de211f65830932e26a4b"
+    },
+    {
+      "path": "prefab/7_6_M-rain-night",
+      "sha256": "6ad8b6012fd00a43d21b191a23c5235ca5e651d1eb349155d9fe9db3b03a3974"
+    },
+    {
+      "path": "prefab/8_2_H-rain-noon",
+      "sha256": "0a595a79bad21ef283e7767541881dfe55b3673dd8d44457e757e1651e575c77"
+    },
+    {
+      "path": "prefab/8_6_H-rain-night",
+      "sha256": "1bcf810d7b6a080903efd0a3a937d8c1dd56488a71dd467bc804b6ff6b5098fb"
+    },
+    {
+      "path": "prefab/9_2_T-rain-noon",
+      "sha256": "88695156799ef23c6e051e3eaacc8f4a048079b05466c7e5574142353ea52e22"
+    },
+    {
+      "path": "prefab/9_6_T-rain-night",
+      "sha256": "7676e8ff14caae25d95826c32b48fde4f95f8f412880baa9ac32af88c71f44fa"
+    }
+  ],
+  "files": [
+    {
+      "file": "shader/04365fa19cac8a82379a156662713b96.glsl",
+      "sha256": "d69e5272727b406a01a2832d6ea8a98d9eff7531a86767ea90358c78477b5379",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/0577e6883fb4f7ee75d7c2055aad1d94.glsl",
+      "sha256": "8c8e63ce1e9dafb0b756cb26c0066ca2f07e65155967c2c5e643b95f6729ef75",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/1e0cb9368d623f072e5aabca9bc8a756.glsl",
+      "sha256": "44c8de0d00fb526d6b4a9ed1db186fa06219f7cbd9c36482c0d6855b3920d3c2",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/2b3be3ae751cb3f20d7f8f7e1ec3a0b5.glsl",
+      "sha256": "34e7971f33dbef4c124e034566fee091eca067c9d1d0d0f3c96754388a35f444",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/415afc4a64ce21f7a5c744fba97be1e8.glsl",
+      "sha256": "2dd72c2d618e3963b8445795d345ca9fce4e15e710892b23d01274393683214f",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/4d79ccd421527f9ab9fc5b871b4a2e58.glsl",
+      "sha256": "f45703627ef1962efd23c88d64c1dff3d8164340138e4a7e3f48f342fa4e2040",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/56de31756e4cebb2f31789a6643c2813.glsl",
+      "sha256": "4ec3e5743716dd88d20faa39bc962bfdc4fdd77a9077e765df98ef5e9e304c31",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/6c5a7f8ca53553dd1057066bbc761ecc.glsl",
+      "sha256": "40d85d154ab8b5e0773d5459c48235f196589900c5444d46af9453a2ad85d67b",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/73e64f270c9c999e1213eaafae4a5e69.glsl",
+      "sha256": "b7fdbb7ebce6635a5bae07efdc0a8ca054dc8a4f53f84e192507f412466405b2",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/7a9ae7b1afb946896b06f96678ba0552.glsl",
+      "sha256": "aab8f935e1867fb644fbe8ddd789835206db8d3b8ad9016981ff82d6fc29bcad",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/7ab38f3deef4b92668dbaeeece5e7c69.glsl",
+      "sha256": "963f592b1c237e772d4ae12901789da11ed13d19f48456b19fbe3574cc249c72",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/838a81187162c68ec494a7e8cbacda4b.glsl",
+      "sha256": "e4fc855d5bf6b0a84616bdf6a9f22ff774406c4db661909197179e2a3fd46196",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/858a92de76a55d808bab5a35e3054e69.glsl",
+      "sha256": "0280426a1a6ba17b6dcb1f25b5f0f61435cbe1bddcbfffa1477a4444e5cca307",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/890d3be773f5fa11a88b315953b78990.glsl",
+      "sha256": "a698c2b34ce7f676ace7500a566032556ee803760ff6887e2660446de0eff2e8",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/997acfe60992b18ed916cb93e11e667f.glsl",
+      "sha256": "89469618479376323b1ae343601bcbe6de555af0bacb41c18e270983f7212990",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/9d623d35de0e36da077e62707eb8b261.glsl",
+      "sha256": "93c83c5741a99559497b33a127047b6d7fec4f9a71d8a2e7a58dff27faeca44b",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/9dc6c25f4cde7f275d35cedaa9fb90d3.glsl",
+      "sha256": "24dac768ff8ef3a78749602296d9f14c9eb35f75a0255d6bb330a3def14292d5",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/9e8d87a7410c1cddcf158e9873eecfaf.glsl",
+      "sha256": "a70ac38c4350a57e7e4afabfe85950faad077ea33728fd71cf4bafba54d270ff",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/aac314413ec04af7fe7c4af8676148cd.glsl",
+      "sha256": "f34a5be00e3ca1f4c9f2d4160ea4739c60701b0b9dba4736f762b0bdd5ff27bb",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/c76bada65fa1d6f2ef13a3197635f58f.glsl",
+      "sha256": "61c69bbaf12a83a2555c15827ce582f247f23f970aa4b1efe9604f7a5e451daa",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/c909cd6d29d3f0917583596b29e26c29.glsl",
+      "sha256": "15b37930d8490e351398f5269a7aa64a5c21a02e354e8827833f66657c0305e4",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/cea10cdaffd67a68c62664a0b1625fc7.glsl",
+      "sha256": "1db3795765361898730e397838bbc4487a1f61c7d09fc0a021b789b5f3f08b32",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/d3241b6422acb2209e4b55735689427d.glsl",
+      "sha256": "89feddff7682f895c54953a3c40b7a48974d3a8979ab5c90722f113bed343e87",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/d43874ce04050e35a3937439b8520b8b.glsl",
+      "sha256": "fb3521878ffd66d1b2d41a8a2ae1d4e0a31ccd50b92158f2cbd1df848cfd4587",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/dcfc946ab887bd298d869f3628fc5441.glsl",
+      "sha256": "2971ee88a0736b72c654dbdcfcb00d9e804afb1d1d3e4f6349396bd2286aff7d",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/df75fa4d986d540f6e3c27d13ae7e079.glsl",
+      "sha256": "cb0b640e2a3dc7c2333dd938159781fc9a1f72e1e79e6f90e06bca3582d185bd",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/ecd8500a3e7ec8091595b8fc1aaebeb1.glsl",
+      "sha256": "ca5338faabc3705c357d757081ac3d270cb170badee5feec456e7a262267bdae",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/f4a2a2108ad47e3e75eca43b37075b9c.glsl",
+      "sha256": "30a88c03ecab5200bedb8e81d7c5f6830afff0178ab1ebcdd9cd220e448c08ea",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/f6f2184705c3cd1d6c12eafabd0858d0.glsl",
+      "sha256": "2dd943d742690b901da90cd92a1b9a2f72ee2a05650348c853f00f520ed777c2",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/fcbe30c3bc3c5176172597fdc697ce17.glsl",
+      "sha256": "299036abdd5ae741a1dad326d47a637d0da8d2f02ab5ee789d461a5965bb75c1",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/fd7979772e7e6c7f1106650488a34a0e.glsl",
+      "sha256": "78b80c101129172b6b36540294953ff4a580b9f0e01aa475bf69cf3220170d68",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "shader/fed3c29f561094cb30decd6ff176bbaa.glsl",
+      "sha256": "a0719c49001183f782c652e4288fdb074f0ce2fbce4a1f015779d12c1df0db67",
+      "kind": "original-render-shader"
+    },
+    {
+      "file": "compute/0dbbf207-3081-4a85-81de-774a34ba65ef.cs",
+      "sha256": "43606d27658ef907498162c1cf5aa3b614bfa4a002ccca997356f360a9d5b3cb",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/193af0d5-6b57-41bf-aaba-269aa0d77ff5.cs",
+      "sha256": "d437021be92502014e06ecd0b7a4dbef2bbd8ea6af9c7b14c1ea7bf96cb8bafa",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/1af0a7e7-2fe9-4d5e-907d-2cce43e74552.cs",
+      "sha256": "87301d6600224f74cca0ead0f66096b15c85d6030955c1d27bd17c2f081f2b53",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/1e5d11da-4d81-4772-9421-2d576def0ecc.cs",
+      "sha256": "2b56af6db173746e054c6a44d0d8828ca7519ef133537c7b1d651696795e56d3",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/258eed29-7b38-4384-bd2f-3dbe906a1731.cs",
+      "sha256": "3d236ca9f3bace6d2185b9df3cfef0cbf312fb7b980745a5a2dd34e28fe199f9",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/260610a1-4939-400b-ae82-2cdba0c291bc.cs",
+      "sha256": "4470ed9c4a8fbb6173bfa5632e5d11e62e20c72e3bc66216506314e9a523b002",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/302bd34f-6f79-453f-bd72-29e4d71b3e96.cs",
+      "sha256": "edd6fcb97d89ce96698d6e9ae61b0c0969803fd0bbf2116536418f4bb183aac5",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/332e7974-efba-4522-877e-82097136ca7a.cs",
+      "sha256": "b18ce014a19227c233ee5a8b134868bf82e6974262674a45cea36e83640e42e1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/38c73277-ad30-4fc6-9b10-05f107baed52.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/3afcadf3-eea0-4845-85f9-09e61f2e8f93.cs",
+      "sha256": "d437021be92502014e06ecd0b7a4dbef2bbd8ea6af9c7b14c1ea7bf96cb8bafa",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/40c4e521-a9dd-4996-883c-316a08dfb808.cs",
+      "sha256": "43606d27658ef907498162c1cf5aa3b614bfa4a002ccca997356f360a9d5b3cb",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/4b864d3e-6eb5-4bf6-9dce-671b7c9a480a.cs",
+      "sha256": "cadfa5f03ed8de4a068baddf832565d2f4db53adfcc99481ffef2657fae2aa30",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/505f3293-711c-4c97-af54-03a64ed93157.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/5e57b39f-66c8-43bc-9214-7275d0d4c238.cs",
+      "sha256": "43606d27658ef907498162c1cf5aa3b614bfa4a002ccca997356f360a9d5b3cb",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/63b0f274-5ead-49cd-82e2-5306f8b06b06.cs",
+      "sha256": "43606d27658ef907498162c1cf5aa3b614bfa4a002ccca997356f360a9d5b3cb",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/77d23453-8791-4f41-b5e9-dddd8653f500.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/800fc3fe-2189-4c8d-b236-5e789e30fd02.cs",
+      "sha256": "63ef88c984d14c1861f9b5451939c9762a0b5295cd9e05db62faeda869cb8d68",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/8413ca11-8678-45b1-9861-401ca4a3d7b0.cs",
+      "sha256": "34e9dcb45596a3cbbd5b8e52fae2916f247fc5599d40bc1568dc91f0914fd14b",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/8b913f0e-9038-4760-8b4d-d1b6bbf79ff2.cs",
+      "sha256": "d437021be92502014e06ecd0b7a4dbef2bbd8ea6af9c7b14c1ea7bf96cb8bafa",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/8e0566e2-8b10-4c92-aae9-093060bfcca5.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/91f06c24-3da0-49f2-bee4-1c6674563d43.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/94df8339-eba5-49bd-be3b-ec0cd3a189cd.cs",
+      "sha256": "176cff63cdce4dc522fc8d9db0e684fa4b30aeafe653186edf9607655dd1b96d",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/950d13d5-9f77-4877-965c-2983733dc7b2.cs",
+      "sha256": "d437021be92502014e06ecd0b7a4dbef2bbd8ea6af9c7b14c1ea7bf96cb8bafa",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/95311f48-27e3-4580-a1fd-a4f9a49087ba.cs",
+      "sha256": "43606d27658ef907498162c1cf5aa3b614bfa4a002ccca997356f360a9d5b3cb",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/955a3980-1e5f-4226-9713-4d1e9b0270d7.cs",
+      "sha256": "fb17651cb87a14a8a27e070fa1428b9a55eea2bfbcc4f20d9618da4e60e57364",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/9b9dfdd6-3ae0-4f88-84ed-f10dad7a14f8.cs",
+      "sha256": "d437021be92502014e06ecd0b7a4dbef2bbd8ea6af9c7b14c1ea7bf96cb8bafa",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/a19af0a6-7c83-4fb5-90c6-737b41a7cb77.cs",
+      "sha256": "fb17651cb87a14a8a27e070fa1428b9a55eea2bfbcc4f20d9618da4e60e57364",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/a4e25323-4a9b-4773-9d45-1803a2d9e2d8.cs",
+      "sha256": "037d6f5b74b161b240519dde76ffe3c11239f7421bb2a10a48bd185f11766370",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/ab25ee17-9a0d-42eb-94a4-534bc1d98c3f.cs",
+      "sha256": "d437021be92502014e06ecd0b7a4dbef2bbd8ea6af9c7b14c1ea7bf96cb8bafa",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/adcb8d1c-db02-491b-9319-89add0584e45.cs",
+      "sha256": "34e9dcb45596a3cbbd5b8e52fae2916f247fc5599d40bc1568dc91f0914fd14b",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/bd577b21-18fa-4719-aff1-68b347d41aa1.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/bfa2310c-f9b2-4751-9be2-67da9478e651.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/c098df2d-e6bb-4291-8c12-a6734c4080ec.cs",
+      "sha256": "43606d27658ef907498162c1cf5aa3b614bfa4a002ccca997356f360a9d5b3cb",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/c32c2fc5-5f9d-4a81-b6ac-7d6f230dbe1f.cs",
+      "sha256": "d437021be92502014e06ecd0b7a4dbef2bbd8ea6af9c7b14c1ea7bf96cb8bafa",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/cffc02ee-b205-4fb0-a2f3-fefc1285dbf1.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/d3fd9cbd-1386-4b44-9a4c-08212c121001.cs",
+      "sha256": "43606d27658ef907498162c1cf5aa3b614bfa4a002ccca997356f360a9d5b3cb",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/d6b7efae-5d46-4f5c-a6df-021e1f927300.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/d8dd7a79-2948-4689-b226-3c6d8d9ab15a.cs",
+      "sha256": "968b745b8e9045993e944723a9db2face4eed8b1595c2750ddcb7a8424819901",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/e536c549-12a7-4f10-875b-1a8ab9cb80d7.cs",
+      "sha256": "c0c4b92695f8efe62b8135dc6e7471f3e7347206489f82d3b82c12a776773b32",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/e563a22c-9835-412f-9f97-84696375e17b.cs",
+      "sha256": "cadfa5f03ed8de4a068baddf832565d2f4db53adfcc99481ffef2657fae2aa30",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/fd9c9432-8ab5-4dd3-841e-3bc7d004c836.cs",
+      "sha256": "43606d27658ef907498162c1cf5aa3b614bfa4a002ccca997356f360a9d5b3cb",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/0dbbf207-3081-4a85-81de-774a34ba65ef/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/0dbbf207-3081-4a85-81de-774a34ba65ef/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/193af0d5-6b57-41bf-aaba-269aa0d77ff5/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/332e7974-efba-4522-877e-82097136ca7a/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/38c73277-ad30-4fc6-9b10-05f107baed52/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/38c73277-ad30-4fc6-9b10-05f107baed52/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/3afcadf3-eea0-4845-85f9-09e61f2e8f93/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/40c4e521-a9dd-4996-883c-316a08dfb808/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/40c4e521-a9dd-4996-883c-316a08dfb808/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/4b864d3e-6eb5-4bf6-9dce-671b7c9a480a/effect0.cs",
+      "sha256": "d46d9ab5c5bdbbab17a53ae7f1080439ae3dbd4b183fd096897cf4e26f678a95",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/505f3293-711c-4c97-af54-03a64ed93157/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/505f3293-711c-4c97-af54-03a64ed93157/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/5e57b39f-66c8-43bc-9214-7275d0d4c238/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/5e57b39f-66c8-43bc-9214-7275d0d4c238/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/63b0f274-5ead-49cd-82e2-5306f8b06b06/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/63b0f274-5ead-49cd-82e2-5306f8b06b06/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/77d23453-8791-4f41-b5e9-dddd8653f500/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/77d23453-8791-4f41-b5e9-dddd8653f500/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/800fc3fe-2189-4c8d-b236-5e789e30fd02/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/8b913f0e-9038-4760-8b4d-d1b6bbf79ff2/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/8e0566e2-8b10-4c92-aae9-093060bfcca5/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/8e0566e2-8b10-4c92-aae9-093060bfcca5/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/91f06c24-3da0-49f2-bee4-1c6674563d43/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/91f06c24-3da0-49f2-bee4-1c6674563d43/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/94df8339-eba5-49bd-be3b-ec0cd3a189cd/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/950d13d5-9f77-4877-965c-2983733dc7b2/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/95311f48-27e3-4580-a1fd-a4f9a49087ba/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/95311f48-27e3-4580-a1fd-a4f9a49087ba/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/955a3980-1e5f-4226-9713-4d1e9b0270d7/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/955a3980-1e5f-4226-9713-4d1e9b0270d7/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/9b9dfdd6-3ae0-4f88-84ed-f10dad7a14f8/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/a19af0a6-7c83-4fb5-90c6-737b41a7cb77/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/a19af0a6-7c83-4fb5-90c6-737b41a7cb77/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/a4e25323-4a9b-4773-9d45-1803a2d9e2d8/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/ab25ee17-9a0d-42eb-94a4-534bc1d98c3f/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/bd577b21-18fa-4719-aff1-68b347d41aa1/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/bd577b21-18fa-4719-aff1-68b347d41aa1/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/bfa2310c-f9b2-4751-9be2-67da9478e651/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/bfa2310c-f9b2-4751-9be2-67da9478e651/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/c098df2d-e6bb-4291-8c12-a6734c4080ec/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/c098df2d-e6bb-4291-8c12-a6734c4080ec/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/c32c2fc5-5f9d-4a81-b6ac-7d6f230dbe1f/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/cffc02ee-b205-4fb0-a2f3-fefc1285dbf1/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/cffc02ee-b205-4fb0-a2f3-fefc1285dbf1/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/d3fd9cbd-1386-4b44-9a4c-08212c121001/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/d3fd9cbd-1386-4b44-9a4c-08212c121001/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/d6b7efae-5d46-4f5c-a6df-021e1f927300/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/d6b7efae-5d46-4f5c-a6df-021e1f927300/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/d8dd7a79-2948-4689-b226-3c6d8d9ab15a/effect0.cs",
+      "sha256": "bed33f4247775b423255893c5991947812e89386ccc900d2212f5cb140de63b1",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/e536c549-12a7-4f10-875b-1a8ab9cb80d7/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/e536c549-12a7-4f10-875b-1a8ab9cb80d7/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/e563a22c-9835-412f-9f97-84696375e17b/effect0.cs",
+      "sha256": "d46d9ab5c5bdbbab17a53ae7f1080439ae3dbd4b183fd096897cf4e26f678a95",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/fd9c9432-8ab5-4dd3-841e-3bc7d004c836/effect0.cs",
+      "sha256": "5cc1eed9cecdef097511f24cea7ef9f42054c726ce49a3aaa3863b55cc529781",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "compute/fd9c9432-8ab5-4dd3-841e-3bc7d004c836/effect1.cs",
+      "sha256": "cb311332ed9d834a903e4f2fec718e2aa1e2c6bf804996dda6a2f1e61d17ff82",
+      "kind": "original-compute-shader"
+    },
+    {
+      "file": "textures/particle/snow-p.png",
+      "sha256": "390c072660fd1a923e33fd5172d9aaaf92a26e20eb484323098fd5fd95c4465f",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/particle/snow-p.astc",
+      "originalSha256": "53e2e89aeca0ad30184eef44e15d56e5902aab8ef7d2a1d793f0d9abefcd7e17"
+    },
+    {
+      "file": "textures/sun/5.png",
+      "sha256": "8c625f2f3e55bafa42beb28423e20e4af4c09237c161f63c6bf3fc76a990ca3f",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/sun/5.astc",
+      "originalSha256": "4680cb6ffc5a83832970db23c371990fa5d64c2b4240a05e644b378e5cceaabb"
+    },
+    {
+      "file": "textures/sun/3.png",
+      "sha256": "1f8e13296aca0670edf5a10db293ca2a98e1b6dde2bcf3b93043af7740f6c1af",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/sun/3.astc",
+      "originalSha256": "3d4d2bc4ebfa7203577e0c66f2b1875fe5fb2673583b1786dba8c8b1e23b0d50"
+    },
+    {
+      "file": "textures/cloud_b/b_04_normal.png",
+      "sha256": "515e048d0237e21cfcd2ec00602708865eecf209c79c86583d32bc70f6344908",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_b/b_04_normal.astc",
+      "originalSha256": "22cb99d5d89dd804fec278a4b7c9d8ea6cca3341c247f6414b790200fa81ed4a"
+    },
+    {
+      "file": "textures/sun/4.png",
+      "sha256": "b3b5ec024c6007cad72af5c64bdbe4f46dbedb573917c2130b2cda3186996172",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/sun/4.astc",
+      "originalSha256": "cb4e08f388966c9ac3eac344f94a0020e3b58e7320b37a3350c27af5bb809d60"
+    },
+    {
+      "file": "textures/cloud_b/b_03_normal.png",
+      "sha256": "5d4ca447546cee87b78d19261a6c199f02303a0efcdb9173720641119449f0be",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_b/b_03_normal.astc",
+      "originalSha256": "6387186625cbeea966bcbae3c4a3b03730abb558be20d3666e2c34e3a92c24d6"
+    },
+    {
+      "file": "textures/cloud_d/C_small00001.png",
+      "sha256": "98774c51fdedddaf75bda24d3e50bc7b24416355180cba2e2a92f5a7c9c2dc69",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_d/C_small00001.astc",
+      "originalSha256": "432511a324d9b8b5cabe6281099c9a10ba1d4b761a86539a6c58c6a79b44a9ad"
+    },
+    {
+      "file": "textures/cloud_b/b_09_normal.png",
+      "sha256": "906ba853fbb3aa170f0cc0adcbed8d1119a50f90ef3ac7d58b4042e4f8028df5",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_b/b_09_normal.astc",
+      "originalSha256": "e53dd4a844f399544875bdec4a33c2eb8755f74d50345feb20deaa303418b1b0"
+    },
+    {
+      "file": "textures/cloud_c/c_03_normal.png",
+      "sha256": "5f6d5a190bb06eb0d0e5df50c36470e6fc8aceb9a32a244576c44428d1d7d12f",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/c_03_normal.astc",
+      "originalSha256": "55d18051ad9ca3ff0e8cb05632308f6769fbc6903d837a9f40c3499d45d8d06f"
+    },
+    {
+      "file": "textures/sun/sun_halo_04.png",
+      "sha256": "4d3619b6430b01d6e3faaa9a6359ee3d3dfcb050accfca21ae1739dbac902eeb",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/sun/sun_halo_04.astc",
+      "originalSha256": "a39ca996d82220f64788fc6bc1ad4b69a0fa8dbf46404e9f12f5677de2fbe21c"
+    },
+    {
+      "file": "textures/sun/sun_halo_03.png",
+      "sha256": "f0ff0da4ac0d228db8eceebca1536457ea1701594bb6ef350b263a1a19bbb72d",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/sun/sun_halo_03.astc",
+      "originalSha256": "09d604f824714055e045822a19e4a95268e4a0b5896767e03d66a71324514cc5"
+    },
+    {
+      "file": "textures/sun/2.png",
+      "sha256": "5d1c881b48185381a36afe5398d7b66aa256a7b762e430032aff9aab7a9302e1",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/sun/2.astc",
+      "originalSha256": "ce57bad43e1e0b9014fb55f106b803cb69a1e4b9b9e2a8ae2d32b59e7b880fa3"
+    },
+    {
+      "file": "textures/cloud_c/C_lowdensity02.png",
+      "sha256": "aead8f7df90ec4fb99180871f7c8701a43c18852aa890b54ab6570c84413347b",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/C_lowdensity02.astc",
+      "originalSha256": "8d607cfab32512a1c36684acf76d08d2161931c014cdab0ca9a20c27d29f599a"
+    },
+    {
+      "file": "textures/cloud_c/C_small00003.png",
+      "sha256": "06d5afbc54d613ca816d60f004c6edb06f45dbaa194af1fa5552ca638e65a88d",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/C_small00003.astc",
+      "originalSha256": "159f93651a958981540ede5cce68f0f9612de48a2125666ec50a39113f0e0d51"
+    },
+    {
+      "file": "textures/cloud_a/Cloud_B01.png",
+      "sha256": "01d39eab1d7bac6686c1d90a04e483d4d75881585aae037a0c1c6cd021a344e8",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_a/Cloud_B01.astc",
+      "originalSha256": "15ae83aa5506c5c8033dfd6b286c380d6c7ba32cacee4a9de4b11564e181144a"
+    },
+    {
+      "file": "textures/cloud_c/c_05_normal.png",
+      "sha256": "d1e81ba8adee6412c680eae366039c5823387736dc19a44b2bbdcd7143fe06b6",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/c_05_normal.astc",
+      "originalSha256": "970312d0ea2d45f8bb2631ecad6cf924d74e70786808d1b790a08af5b4adc9ed"
+    },
+    {
+      "file": "textures/sun/1.png",
+      "sha256": "539ec1a53d1aa50d3a83565cfe9ba9974896b68fcb45a95aa63f257c58e0cdb1",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/sun/1.astc",
+      "originalSha256": "fb1e7db0ece71c1394098ca5ff0a6ad98d2a6c75c790d83b113756c1e6487005"
+    },
+    {
+      "file": "textures/star/star-noise.png",
+      "sha256": "e24119d4a1cc0c33170afd655d6b17d8b6d09090d7337c69e3d86aab7483a21a",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/star/star-noise.astc",
+      "originalSha256": "83cd1d071cbd94f82d322d317a275b110c73039b58a5e0141f5f8daa83e7b88e"
+    },
+    {
+      "file": "textures/moon/Moon.png",
+      "sha256": "10bb2425938e476833bc9b4f1fcae21180707e77be2404f8773ada09ce882c01",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/moon/Moon.astc",
+      "originalSha256": "2fb4452e7fe880dea8a14d0845c8afbf90a5d84e13cc722f3d6a9ac02dec1846"
+    },
+    {
+      "file": "textures/cloud_c/C_lowdensity00.png",
+      "sha256": "d03f1442831b0c88ed32c402ae161ea15b35287eecc1023c99399c54eff9e99b",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/C_lowdensity00.astc",
+      "originalSha256": "a496cb5b08306baf9ad4eec9a06e83c964d3bb0f9ffa93756751e455e5024bec"
+    },
+    {
+      "file": "textures/thunder/thunder_02.png",
+      "sha256": "49aa8ee084c57af011a50aa461c0a8b2f69bacabf598951b6dd401da52525029",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/thunder/thunder_02.astc",
+      "originalSha256": "52fd4723a0566a35572d5adc3b3699ccd6c18185ac40e66d12b568a93c163986"
+    },
+    {
+      "file": "textures/particle/star3.png",
+      "sha256": "641b50e418c371fa49e07e9c45b36b9b749d06d93a81e57030914dc42273881c",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/particle/star3.astc",
+      "originalSha256": "074a7bc3a0b868d421448565342eafcc43d87e45346e8f5dfb9797f1c7b5c64a"
+    },
+    {
+      "file": "textures/cloud_a/Cloud_B07.png",
+      "sha256": "da1be0f46682b1c423a5536001bea901bcf4eb27c45a4ed886a9fb923578fb81",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_a/Cloud_B07.astc",
+      "originalSha256": "f3c02a4bf6e1cabe05713429a2648fbdafe5dcefc1880b88d7cd62e8904b320b"
+    },
+    {
+      "file": "textures/cloud_a/a_04_normal.png",
+      "sha256": "c5531a2986b8de00260ae82e1e650415123cdf7920e10749b4a6e1cbb319d6bc",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_a/a_04_normal.astc",
+      "originalSha256": "964744e05748474f3fd461eb8df48237cf846296f0e6434a03e11d645c15a238"
+    },
+    {
+      "file": "textures/thunder/thunder_03.png",
+      "sha256": "0d11f68114c3229e5cd50da9cc4e48183b1ffbec70f713455468fc1dec856cd9",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/thunder/thunder_03.astc",
+      "originalSha256": "44f257cbbf458006fc585df6bb5dc512a915bedb00b2c2376e527a8b5463e8b5"
+    },
+    {
+      "file": "textures/sun/sun_02.png",
+      "sha256": "16cfc4c90141489f7edcbc8489c0e177ae92adc17df950a8cdeb2d3d107ba27a",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/sun/sun_02.astc",
+      "originalSha256": "c01c8b1a43915deb3bbef472b5620f051e2664e4179e468cdc5215b4824c9b3f"
+    },
+    {
+      "file": "textures/thunder/flash.png",
+      "sha256": "686d1c3347a6e6e3310ce1d45da7dd80f596f5ef3456df173dc9e0e54b5f7cbd",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/thunder/flash.astc",
+      "originalSha256": "f8071828f3963639d57c9817f512b992c73fa8d74823e71d4e6b2b40ba9df5ba"
+    },
+    {
+      "file": "textures/thunder/thunder_00.png",
+      "sha256": "08a350284222a1cdaddf48531578a68217fb8b81a11085afae19cf866cabb9a0",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/thunder/thunder_00.astc",
+      "originalSha256": "9e9c6f08245d2977ca1cd8a21c52ca7d30b804875a7db5d34acb85b2b93f6d44"
+    },
+    {
+      "file": "textures/cloud_a/a_02_normal.png",
+      "sha256": "bfbbb46912d523943da7de9f6d5bb5581c8b8d7f4d5067a0fccfac7e877c7f38",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_a/a_02_normal.astc",
+      "originalSha256": "60ddf1065f6725781048d9f905475ad61003509454a99447aedb5c5b79e09fc3"
+    },
+    {
+      "file": "textures/cloud_c/C_lowdensity01.png",
+      "sha256": "39f05c54a61ab4a841e50d4fc2d5eaa6701fb7738d7599b694b3dbfe498982d0",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/C_lowdensity01.astc",
+      "originalSha256": "fd81f38f5709437f7016ac13407c87862f2233a1954f3730163969bd1eedb91c"
+    },
+    {
+      "file": "textures/cloud_c/Cloud_E04.png",
+      "sha256": "2413ac3bbb3319dc028e31a16595c79f7963f349211a3e8e84abd86138ab8f6b",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/Cloud_E04.astc",
+      "originalSha256": "b671de31868b819aec3e3858f3310e88ad6f9424acb12da7b825d1fb624529f6"
+    },
+    {
+      "file": "textures/noise/noise.png",
+      "sha256": "1b1e34040b718e354beff6b5a7ee096703a9eb8e7b551c7b06a5cb933fcbd001",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/noise/noise.astc",
+      "originalSha256": "67a60ba46c4c120d0797566f0d8d17f91cbbe0fe1566e54c02995b11dd7996bc"
+    },
+    {
+      "file": "textures/cloud_b/Cloud_A13.png",
+      "sha256": "337df087255e2633400d874cb206ef2756a01866545150cd9ef98da6cb23202a",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_b/Cloud_A13.astc",
+      "originalSha256": "c17fddbfea444a4d9dd3d83e00224a2c4fcfe22ddad5c2a96e30a96084eac5ff"
+    },
+    {
+      "file": "textures/wind/wind.png",
+      "sha256": "9a338b42773a8ea6117d3893737608a865ae58a4690eec9c17ac44ee734bd265",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/wind/wind.astc",
+      "originalSha256": "de8ef60a38781e1fedf3329b8773bb91c115469de4a5adca64e84f40c6a8e4ba"
+    },
+    {
+      "file": "textures/thunder/thunder_04.png",
+      "sha256": "b794112ded1ab6cd7e981eec5a163caca7da4eb1ecfbb590d4b66c52144c494c",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/thunder/thunder_04.astc",
+      "originalSha256": "cd96baeda57fe424c7e60775da598c2681d33f1da19b0da8ae77b30ead8c4785"
+    },
+    {
+      "file": "textures/thunder/thunder_01.png",
+      "sha256": "ab977f84026e96cd849c3239a5916bec7bcea21453d4336d78548154581b090a",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/thunder/thunder_01.astc",
+      "originalSha256": "cbb979ea9a2c4a1369b8f98229c2a0df87832b9c1dbad61369627be2cb68e604"
+    },
+    {
+      "file": "textures/noise/blue-noise.png",
+      "sha256": "0a06e419719847955ce80bd11dad082cf9c9521039f5fe3101af744c7e261dcc",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/noise/blue-noise.astc",
+      "originalSha256": "09c82e331fc274f274b34996d26ba5b57bca25a2511ac5679f8fb72dd2a5cc95"
+    },
+    {
+      "file": "textures/cloud_d/C_small00000.png",
+      "sha256": "b3df484594959838855634e402ea670555d4cc7f1b38fd41c88627b743044411",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_d/C_small00000.astc",
+      "originalSha256": "3106eef4457689c79ce8116ec333a6cd3f1733301dfd8fecaf4b3424b292fd31"
+    },
+    {
+      "file": "textures/cloud_d/C_small00004.png",
+      "sha256": "8a93c52d59425b5b0294364a50f8d8615a0e118e415c9683d09c5efda68b6411",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_d/C_small00004.astc",
+      "originalSha256": "a1fc8d8a8f40cca5c968ed7a03ceac851c308b159187f18cf900fe9675423570"
+    },
+    {
+      "file": "textures/cloud_b/b_02_normal.png",
+      "sha256": "b520cae5bbf1cd17dc2cc798067de4c2fc28616d24e2ed7ff7cb690ac6b1fe5b",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_b/b_02_normal.astc",
+      "originalSha256": "50fc4e8e73e0549ef276bc6ea6fb7267693b7e5cf4152d3ecee7337e3a5c3daa"
+    },
+    {
+      "file": "textures/cloud_c/C_lowdensity04.png",
+      "sha256": "bf7f97ae1cc0042986ae8c1a8583c37c8ee45cb10ce2baaf298b6c17fbf123e9",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/C_lowdensity04.astc",
+      "originalSha256": "0b2b4f07ebeabdf850b7f92f61d7bc9087737f5d9a3e64a90d6e3097f617cf68"
+    },
+    {
+      "file": "textures/cloud_c/c_04_normal.png",
+      "sha256": "8fed16ab30d2aa4f4a95bb529945b640768f0eaad6e1d326d792920282e90c87",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/c_04_normal.astc",
+      "originalSha256": "a00a44929856687eff979d879dabd0d4053a3ad5c7a54f777bbcee357c6527df"
+    },
+    {
+      "file": "textures/particle/rain-p.png",
+      "sha256": "0a48ed2326661ee2b3cb82780820bcabf86c9d441b83d94c57ba3bddb893eb06",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/particle/rain-p.astc",
+      "originalSha256": "ddb337627383696b0ea8a955c0b32dbf764654e100236c0bed34b554f9e6a2f6"
+    },
+    {
+      "file": "textures/cloud_c/C_small00006.png",
+      "sha256": "560196abb45071d1f5d7c8af14f7aa162f4adcbb365394dde741b6a89f8e0761",
+      "kind": "decoded-original-texture",
+      "originalPath": "root/cloud_c/C_small00006.astc",
+      "originalSha256": "03e164dd0f0d5e41f6f08518eb5911d6854fd62b999811190142782efe699558"
+    },
+    {
+      "file": "pack.json",
+      "sha256": "53654f3604cf56006e292e20042fc170fb2c8edd6a129c7dba41092c6d47b08d",
+      "kind": "trimmed-original-scene-graph"
+    }
+  ],
+  "counts": {
+    "scenes": 64,
+    "presets": 62,
+    "textures": 89,
+    "uniquePngFiles": 44,
+    "renderShaders": 32,
+    "computeShaders": 95
+  },
+  "notes": [
+    "The PNG files are exact decoded source RGBA channels, including normal-map alpha.",
+    "ASTC decoding uses the documented offline decoder; source and output hashes are retained.",
+    "The private COE native runtime is replaced by SkyPulse GLES scene controllers.",
+    "Original render shaders are kept as evidence; only ES 3.2 stage interface syntax needs ES 3.0 adaptation."
+  ]
+}

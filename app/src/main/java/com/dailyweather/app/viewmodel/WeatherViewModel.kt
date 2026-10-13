@@ -196,17 +196,10 @@ class WeatherViewModel(private val container: AppContainer) {
             container.settings.locationEnabled.collect { enabled ->
                 if (enabled) {
                     if (container.cityRepository.currentLocationCity() == null) locateAndRefresh()
-                    // 持续位移监听：真实位置移动超过阈值（默认 500m）就重新逆地理命名并刷新天气，
-                    // 让"定位"随移动自动更新，而非只在启动/手动刷新时定一次位。
-                    if (container.locationCoordinator.hasPermission()) {
-                        container.locationCoordinator.startMoveWatcher(onMove = { _ ->
-                            scope.launch {
-                                container.refreshManager.refreshCurrentLocation("location-moved")
-                            }
-                        })
-                    }
+                    startMoveWatcherIfNeeded()
                 } else {
                     container.locationCoordinator.stopMoveWatcher()
+                    moveWatcherStarted = false
                     if (container.cityRepository.currentLocationCity() != null) {
                         container.cityRepository.remove("current")
                     }
@@ -217,6 +210,12 @@ class WeatherViewModel(private val container: AppContainer) {
 
     private val observed = HashSet<String>()
     private var coldStartRefreshDone = false
+
+    /** 刷新进行中又来的定位请求（首装授权回调最常见）：排队等当前刷新结束补跑。 */
+    private var pendingLocate = false
+
+    /** 位移监听是否已注册：首装时权限晚于 init 到达，靠 [onLocationPermissionGranted] 补。 */
+    private var moveWatcherStarted = false
 
     private fun observeCity(cityId: String) {
         if (!observed.add(cityId)) return
@@ -244,13 +243,29 @@ class WeatherViewModel(private val container: AppContainer) {
     fun cityFor(cityId: String?): City? = cityId?.let { id -> cities.value.firstOrNull { it.id == id } }
 
     // ---- 语音播报 ----
-    /** 播报当前天气（温度/现象/昼夜）。设置里「开启语音播报」开启后由刷新调用。 */
+    /** 是否正在播报 —— 驱动播报均衡器动画与按钮语义（南风 isSpeaking 的等价物）。 */
+    val ttsSpeaking = container.ttsSpeaker.speaking.stateIn(scope, SharingStarted.Eagerly, false)
+
+    /** 播报当前天气（南风式文案：「为您播报：{城市}，{现象}，当前{温度}度，今天最低{min}，最高{max}。」）。
+     *  设置里「开启语音播报」开启后由刷新调用。 */
     fun speakWeather() {
         val snap = snapshotFor(selectedCityId) ?: return
+        val city = cityFor(selectedCityId)
+        val zone = city?.zone ?: java.time.ZoneId.systemDefault()
         val desc = com.dailyweather.app.ui.components.SkyconMap.desc(snap.currentSkycon)
         val temp = snap.currentTemp.toInt()
-        val text = "当前${temp}度，$desc。"
+        val today = snap.daily.firstOrNull { it.date.take(10) == java.time.LocalDate.now(zone).toString() }
+            ?: snap.daily.firstOrNull()
+        val range = today?.let {
+            "，今天最低${com.dailyweather.app.data.Units.temp(it.tempMin)}，最高${com.dailyweather.app.data.Units.temp(it.tempMax)}"
+        } ?: ""
+        val text = "为您播报：${city?.name ?: "当前城市"}，$desc，当前${temp}度$range。"
         container.ttsSpeaker.speak(text)
+    }
+
+    /** 播报开关（南风 TTS 控件 d0 等价物）：播报中再点 → 停止；未播报 → 开始。 */
+    fun toggleSpeakWeather() {
+        if (ttsSpeaking.value) container.ttsSpeaker.stop() else speakWeather()
     }
 
     fun refreshCurrent() {
@@ -268,6 +283,7 @@ class WeatherViewModel(private val container: AppContainer) {
                     maybeSpeakAfterRefresh()
                 }
             }
+            drainPendingLocate()
         }
     }
 
@@ -276,8 +292,45 @@ class WeatherViewModel(private val container: AppContainer) {
         if (container.settings.speechEnabled.first()) speakWeather()
     }
 
+    /**
+     * 定位权限授予后的补跑入口（2026-10-12 实机 bug）：首装时系统权限弹窗总在
+     * ViewModel init **之后**才出现，旧 MainActivity 的权限回调是空 lambda——
+     * 用户点「允许」后没有任何动作，定位要等退出重进 App 才刷新。
+     * 现在权限回调与 onResume 都调这里：起位移监听 + 补一次定位刷新。幂等。
+     */
+    fun onLocationPermissionGranted() {
+        if (!container.locationCoordinator.hasPermission()) return
+        startMoveWatcherIfNeeded()
+        // currentLocationCity() 是 suspend：放进协程里判，避免把入口变成 suspend。
+        scope.launch {
+            if (container.cityRepository.currentLocationCity() == null) locateAndRefresh()
+        }
+    }
+
+    /** 位移监听要有权限才能注册；首装时权限晚到，在这里补。设置关闭时不注册。幂等。 */
+    private fun startMoveWatcherIfNeeded() {
+        if (moveWatcherStarted || !container.locationCoordinator.hasPermission()) return
+        moveWatcherStarted = true
+        scope.launch {
+            if (!container.settings.locationEnabled.first()) {
+                moveWatcherStarted = false
+                return@launch
+            }
+            container.locationCoordinator.startMoveWatcher(onMove = { _ ->
+                scope.launch {
+                    container.refreshManager.refreshCurrentLocation("location-moved")
+                }
+            })
+        }
+    }
+
     fun locateAndRefresh() {
-        if (refreshing) return
+        if (refreshing) {
+            // 冷启动刷新还在跑时授权回调就到：记住这次定位请求，当前刷新结束补跑，
+            // 不能直接丢——否则首装就是"授权了但没定位"。
+            pendingLocate = true
+            return
+        }
         refreshing = true
         scope.launch {
             val isFirstTime = container.cityRepository.currentLocationCity() == null
@@ -293,7 +346,15 @@ class WeatherViewModel(private val container: AppContainer) {
                     message = null
                 }
             }
+            drainPendingLocate()
         }
+    }
+
+    /** 刷新期间排队的定位请求，在刷新收尾时补跑一次。 */
+    private fun drainPendingLocate() {
+        if (!pendingLocate) return
+        pendingLocate = false
+        locateAndRefresh()
     }
 
     fun selectCity(cityId: String) {

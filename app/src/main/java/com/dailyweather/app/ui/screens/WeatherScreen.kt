@@ -68,20 +68,16 @@ import androidx.compose.ui.unit.sp
 import com.dailyweather.app.advice.LifeAdviceFrom
 import com.dailyweather.app.data.HomeCardId
 import com.dailyweather.app.data.Units
+import com.dailyweather.app.data.visibilityText
 import com.dailyweather.app.data.model.WeatherSnapshot
-import com.dailyweather.app.scene.AnimatedSkyGradient
 import com.dailyweather.app.scene.SceneBridge
+import com.dailyweather.app.scene.oppo.gl.OppoGlSceneLayer
 import com.dailyweather.app.scene.rememberWeatherCloudiness
 import com.dailyweather.app.scene.rememberWeatherKindState
-import com.dailyweather.app.scene.LocalEffectQuality
-import com.dailyweather.app.scene.LocalWeatherEffectDrawEnabled
 import com.dailyweather.app.scene.EffectQuality
-import com.dailyweather.app.scene.RainRefractionShader
 import com.dailyweather.app.scene.WeatherEffectFps
-import com.dailyweather.app.scene.WeatherEffectHost
 import com.dailyweather.app.scene.WeatherKind
 import com.dailyweather.app.scene.defaultIntensity
-import com.dailyweather.app.scene.rememberEffectClock
 import com.dailyweather.app.ui.components.GlassCard
 import com.dailyweather.app.ui.components.GlassRaindropsCard
 import com.dailyweather.app.ui.components.SkyconMap
@@ -146,16 +142,38 @@ fun WeatherScreen(
     // 天空渐变插值与卡片色（SkyPalette.of），顶区亮度只随云量平滑走，不再随快照跳。
     val cloudiness = rememberWeatherCloudiness(sceneRaw.overcast)
     val kindSticky = rememberWeatherKindState(cloudiness, sceneRaw.kind)
-    val scene = remember(sceneRaw, kindSticky, cloudiness) {
+    // 场景对象：只在稳定的视觉维度（kind/云量/时段）变化时重建，避免快照刷新触发天空重绘。
+    // 注意：sceneRaw 本身随快照高频重建，但 scene 只在其稳定投影变化时才重建。
+    val scenePhase = sceneRaw.phase
+    val scene = remember(kindSticky, cloudiness, scenePhase) {
         sceneRaw.copy(kind = kindSticky, overcastOverride = cloudiness)
     }
     val sky = SkyPalette.of(scene)
 
+    // OPPO GL 3D 场景键（62 预设之一）。Canvas/PNG 兜底已删除，GL 是唯一渲染通道。
+    //
+    // ⚠️ 2026-10-12 实机 bug 修复：旧写法把键存进 `remember { mutableStateOf(...) }`，
+    // 键列表里没有「场景组表就绪」——冷启动时 scene_map.json 还在 IO 线程解析，
+    // `oppoSceneKeyOf` 返回 null 后被永久记住，GL 天空整页不亮（纯蓝底），
+    // 只有手动刷新产生新 snapshot 才重算。现在：
+    // 1) 收集 [OppoSceneKey.readyFlow]，组表就绪瞬间触发重算；
+    // 2) 分钟级 ticker：时段槽位（日出/日落分档）随时间切换，不刷新也要跟上；
+    // 3) 普通 remember 直接返回 String?，不再套 mutableStateOf（少一层状态、少一类失步）。
+    val oppoAssetsReady by com.dailyweather.app.scene.oppo.OppoSceneKey.readyFlow
+        .collectAsState(initial = com.dailyweather.app.scene.oppo.OppoSceneKey.ready)
+    val minuteTick = remember { mutableStateOf(System.currentTimeMillis() / 60_000L) }
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(30_000L)
+            minuteTick.value = System.currentTimeMillis() / 60_000L
+        }
+    }
+    val oppoSceneKey = remember(snapshot, scenePhase, kindSticky, cityZone, oppoAssetsReady, minuteTick.value) {
+        SceneBridge.oppoSceneKeyOf(snapshot, cityZone)
+    }
+
     CompositionLocalProvider(
         LocalSky provides sky,
-        // 「天气动效」开关 + 省电模式 → 整个粒子层的绘制开关。
-        LocalWeatherEffectDrawEnabled provides (motion && !powerSave),
-        LocalEffectQuality provides effectQuality,
     ) {
         // 下拉刷新（material3）：刷新走当前城市 refreshCurrent，定位仍走右上按钮。
         val pullState = androidx.compose.material3.pulltorefresh.rememberPullToRefreshState()
@@ -167,61 +185,30 @@ fun WeatherScreen(
         ) {
         Box(modifier = Modifier.fillMaxSize()) {
             val scrollState = rememberScrollState()
-            // 南风双 HazeState 之天空层：顶栏毛玻璃的模糊源（采样天空渐变+动效）。
+            // 南风双 HazeState 之天空层：顶栏/卡片毛玻璃的模糊源。
+            // Canvas 特效层已整体删除（全 GL 渲染，2026-10-12 全天气审核），
+            // 采样源留空 = 顶栏/卡片直接透出 GL 天空。
             val skyHaze = remember { dev.chrisbanes.haze.HazeState() }
-            // 南风 P0：降雨折射（MIUI rain_drop_new 移植）——雨类天气整片天空被雨滴
-            // 法线扭曲（"透过水滴看世界"）。uVisibility 随天气切换 900ms 渐变，
-            // uniforms 在 draw 阶段按 precip 帧率更新（RenderEffect 创建后仍可改）。
+            // 玻璃雨滴卡的展示条件（雨/雷/雨夹雪）。
             val rainKinds = remember { setOf(WeatherKind.RAIN, WeatherKind.THUNDER, WeatherKind.SLEET) }
-            val refractionVisible by androidx.compose.animation.core.animateFloatAsState(
-                targetValue = if (scene.kind in rainKinds) 1f else 0f,
-                animationSpec = androidx.compose.animation.core.tween(
-                    900,
-                    easing = androidx.compose.animation.core.LinearEasing,
-                ),
-                label = "rainRefractionVis",
-            )
-            val precipClock = rememberEffectClock(effectQuality.fps.precip)
-            val refractionShader = remember { RainRefractionShader.newShader(RainRefractionShader.REFRACTION) }
-            val refractionEffect = remember(refractionShader) {
-                refractionShader?.let { RainRefractionShader.composeEffect(it, "uTex") }
-            }
 
             Box(modifier = Modifier.matchParentSize()) {
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .hazeSource(skyHaze)
-                        .graphicsLayer {
-                            if (refractionShader != null && refractionVisible > 0.01f) {
-                                RainRefractionShader.applyRefractionUniforms(
-                                    shader = refractionShader,
-                                    width = size.width,
-                                    height = size.height,
-                                    timeSec = precipClock.floatValue,
-                                    intensity = if (scene.intensity > 0f) scene.intensity else 0.55f,
-                                    visibility = refractionVisible,
-                                )
-                                renderEffect = refractionEffect
-                            } else {
-                                renderEffect = null
-                            }
-                        },
-                ) {
-                    AnimatedSkyGradient(scene, Modifier.matchParentSize())
-                    // 天气切换时的交叉淡入淡出（对齐南风 effectTimeline：约 900ms 过渡），
-                    // 新旧两层粒子互相淡入淡出，而不是"雨突然停了"。
-                    androidx.compose.animation.Crossfade(
-                        targetState = scene.kind to scene.phase,
-                        animationSpec = androidx.compose.animation.core.tween(900),
-                        label = "weatherEffectCrossfade",
-                        modifier = Modifier.matchParentSize(),
-                    ) { key ->
-                        val (kind, phase) = key
-                        val faded = scene.copy(kind = kind, phase = phase)
-                        WeatherEffectHost(faded, Modifier.matchParentSize())
-                    }
-                }
+            // OPPO GL 3D 场景层 = 唯一天空/天气渲染通道（南风 v4.3.99 COE 引擎）：
+            // 62 预设（天空渐变 + 3D 云 + 太阳/雷帧/雾风 quad）+ compute 粒子
+            // （雨 rainfront/rain 双层、雪、沙尘、星星、流星，GLES 3.2）。
+            // ⚠️ 必须放在 hazeSource Box 之外：TextureView 的 EGL 初始化
+            // 在离屏合成（hazeSource 的 renderNode）中会失败。
+            OppoGlSceneLayer(
+                presetKey = oppoSceneKey,
+                modifier = Modifier.matchParentSize(),
+                // 云层漂移走 cloud 档（跟满设备刷新率），不是 ambient 半速率档：
+                // 120Hz 屏上 ambient=60 会让云的噪声位移看起来"一顿一顿"。
+                targetFps = effectQuality.fps.cloud.coerceAtLeast(1).toInt(),
+                // 「天气动效」开关：关掉 = GL 停帧（预设切换/尺寸变化仍补一帧静态画面）。
+                paused = !motion,
+            )
+            // Haze 采样源保留但留空：顶栏/卡片毛玻璃采样透明层，直接透出 GL 天空。
+            Box(modifier = Modifier.matchParentSize().hazeSource(skyHaze))
 
                 Column(
                     modifier = Modifier
@@ -289,7 +276,8 @@ fun WeatherScreen(
                             }
                             source.takeIf { it.isNotBlank() }?.let { src ->
                                 Row(
-                                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                                    // 与卡片间距统一走 spacedBy(CardGap)，不再额外加 8dp。
+                                    modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.Center,
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
@@ -626,12 +614,19 @@ private fun DayRow(
         offset == 1 -> "明天"
         else -> WEEKDAYS[date!!.dayOfWeek.value - 1]
     }
+    val isToday = offset == 0
     Row(
-        modifier = Modifier.fillMaxWidth().height(48.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .then(
+                if (isToday) Modifier.background(sky.cardFill.copy(alpha = 0.12f))
+                else Modifier
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.width(53.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(label, color = sky.textPrimary, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+            Text(label, color = if (isToday) Tokens.PrecipCyan else sky.textPrimary, fontSize = 15.sp, fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium)
             Text(
                 text = date?.format(DateTimeFormatter.ofPattern("M月d日", Locale.CHINA)).orEmpty(),
                 color = Tokens.TextTertiary,
@@ -1102,7 +1097,7 @@ private fun DetailCard(snapshot: WeatherSnapshot) {
         ("风速" to if (rt.windSpeed > 0) Units.windText(rt.windSpeed) else "—") to "wind-ios",
         ("湿度" to "${(rt.humidity * 100).roundToInt()}%") to "humidity-ios",
         ("气压" to if (rt.pressureHpa > 0) Units.pressureText(rt.pressureHpa) else "—") to "pressure-ios",
-        ("能见度" to if (rt.visibilityKm > 0) Units.visibilityText(rt.visibilityKm) else "—") to "visibility-ios",
+        ("能见度" to if (rt.visibilityKm > 0) visibilityText(rt.visibilityKm) else "—") to "visibility-ios",
         ("紫外线" to if (rt.uvIndex > 0) rt.uvIndex.roundToInt().toString() else "—") to "uv-sun-ios",
     )
     GlassCard(
@@ -1162,3 +1157,4 @@ internal fun SpectrumBar(
         drawCircle(Color(0xFF3A4254), radius = h * 0.34f, center = Offset(x, h / 2f))
     }
 }
+

@@ -42,14 +42,14 @@ private val IMMEDIATE_KINDS = setOf(
  */
 @Composable
 fun rememberWeatherCloudiness(target: Float): Float {
-    val anim = remember { Animatable(target.coerceIn(0f, 1f)) }
+    // 关键：用 target 作为 remember key，确保目标值变化时创建新的 Animatable 并立即钉住，
+    // 而不是复用旧动画（旧动画的起始值与新目标不匹配，导致跳变）。
+    val anim = remember(target) { Animatable(target.coerceIn(0f, 1f)) }
     LaunchedEffect(target) {
         val goal = target.coerceIn(0f, 1f)
         if ((goal - anim.value).let { it < 0.005f && it > -0.005f }) {
-            anim.snapTo(goal) // 差异可忽略：直接钉住，不起动画
+            anim.snapTo(goal)
         } else {
-            // 1-e^(-t/1.5) 的形态：起步快（前 1.5s 走 63%）、长尾慢收。
-            // CubicBezier(0.3, 0, 0.3, 1) 在 30% 时间走 ~55% 行程，形态最接近。
             anim.animateTo(
                 goal,
                 animationSpec = tween(
@@ -79,7 +79,9 @@ fun rememberWeatherKindState(
 ): WeatherKind {
     if (snapshotKind in IMMEDIATE_KINDS) return snapshotKind
 
-    var kind by rememberSaveable { mutableStateOf(snapshotKind) }
+    // 关键：snapshotKind 必须作为 remember 的 key，否则 snapshotKind 变化时
+    // kind 不会重置到正确的初始值，导致滞回状态与数据脱节。
+    var kind by rememberSaveable(snapshotKind) { mutableStateOf(snapshotKind) }
     var confirm by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(cloudiness, snapshotKind) {

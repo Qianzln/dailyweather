@@ -1,24 +1,27 @@
 package com.dailyweather.app.data
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import kotlin.math.roundToInt
 
 /**
- * 单位换算与格式化。
+ * 单位换算与格式化（Compose State 版）。
  *
  * **快照里永远存上游原值**（温度 °C、风速 km/h、气压 hPa、降水 mm），
  * 只在显示这一层换算。理由：派生规则（生活建议、穿衣、感冒风险）全部按 °C 与
  * km/h 定的阈值，一旦把换算后的值存进快照，用户改一次单位这些阈值就全错位了。
- * 所以换算发生在且只发生在 `Units.*Text` 里。
+ * 所以换算发生在且只发生在 [Units.*Text] 里。
  *
- * 值由 `DailyWeatherApp` 从 DataStore 持续同步，界面直接读，不必层层传参。
+ * 使用 Compose [mutableStateOf] 包裹各字段，设置页切换单位后**首页立即重组**，
+ * 不必手动切页面再回来。
  */
 object Units {
 
-    @Volatile var temperature = "C"
-    @Volatile var wind = "KMH"
-    @Volatile var pressure = "HPA"
-    @Volatile var precipitation = "MM"
-    @Volatile var visibility = "KM"
+    var temperature by mutableStateOf("C")
+    var wind by mutableStateOf("KMH")
+    var pressure by mutableStateOf("HPA")
+    var precipitation by mutableStateOf("MM")
 
     /** 摄氏 → 当前温度单位下的数值。 */
     fun tempValue(celsius: Double): Double =
@@ -75,15 +78,12 @@ object Units {
         else -> "${hpa.roundToInt()} hPa"
     }
 
-    fun visibilityText(km: Double): String = if (visibility == "MI") {
-        "${"%.1f".format(km * 0.621371)} mi"
-    } else {
-        "${km.roundToInt()} km"
-    }
-
     fun precipitationText(mm: Double): String = if (precipitation == "IN") {
         "${"%.2f".format(mm / 25.4)} in"
     } else {
         "${"%.1f".format(mm)} mm"
     }
 }
+
+/** visibility 固定 km（数据源不稳定，不补齐 MI 开关）。 */
+fun visibilityText(km: Double): String = "${km.roundToInt()} km"

@@ -25,6 +25,10 @@ val hasReleaseSigning = releaseStoreFile.exists() && releaseStorePassword.isNotB
 
 // 首个正式版先不混淆（依赖零反射、体积不敏感）；上架版再开 minify 并补规则。
 android {
+    packagingOptions {
+        exclude("assets/dexopt/baseline.prof")
+        exclude("assets/dexopt/baseline.profm")
+    }
     namespace = "com.dailyweather.app"
     compileSdk = 37
 
@@ -32,8 +36,8 @@ android {
         applicationId = "com.dailyweather.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 29
-        versionName = "0.1.30"
+        versionCode = 55
+        versionName = "0.1.55"
         buildConfigField("String", "CAIYUN_TOKEN", "\"${keys.getProperty("caiyun_token", "")}\"")
         buildConfigField("String", "AMAP_KEY", "\"${keys.getProperty("amap_key", "")}\"")
         // CloudBase 云代理（与微风天气同一已打通链路）：彩云/和风/小米/高德唯一出口
@@ -119,3 +123,6 @@ dependencies {
     // Haze 毛玻璃（南风同款库）：真·采样模糊，顶栏无缝融合天空（v0.1.30 对齐逆向文档）
     implementation("dev.chrisbanes.haze:haze:1.6.1")
 }
+
+
+

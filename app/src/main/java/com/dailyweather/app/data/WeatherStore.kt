@@ -10,6 +10,8 @@ import com.dailyweather.app.data.model.WeatherSnapshot
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -27,13 +29,25 @@ data class City(
     val cityName: String = "",
     val districtName: String = "",
     val coordinateVerified: Boolean = false,
-    /** 城市当地时区（对齐南风 cityTimeContext）；空串回退设备默认时区。 */
+    /** 城市当地时区（对齐南风 cityTimeContext）；空串时按经度兜底，见 [zone]。 */
     val timeZoneId: String = "",
 ) {
+    /**
+     * 城市当地时区。
+     *
+     * ⚠️ 缺 `timeZoneId` 时**不能**回退设备时区：数据源给的 `sunrise`/`sunset` 是**当地**时刻，
+     * 而 `now` 若取设备时区，两者就会「两地时间混用」。实测（模拟器定位在加州、设备时区 UTC、
+     * 城市时区为空）：当地下午被当成别的时段，选出 `1_3_sunny-afternoon` 这类**错键**。
+     * 所以按经度兜底（每 15° 一个时区），对时段槽位的分段粒度（≈67min）足够。
+     */
     val zone: java.time.ZoneId
         get() = if (timeZoneId.isNotBlank()) {
-            runCatching { java.time.ZoneId.of(timeZoneId) }.getOrDefault(java.time.ZoneId.systemDefault())
-        } else java.time.ZoneId.systemDefault()
+            runCatching { java.time.ZoneId.of(timeZoneId) }.getOrDefault(fallbackZone())
+        } else fallbackZone()
+
+    private fun fallbackZone(): java.time.ZoneId =
+        runCatching { java.time.ZoneId.of(inferZoneId(longitude, latitude)) }
+            .getOrDefault(java.time.ZoneId.systemDefault())
 
     fun toJson(): JSONObject = JSONObject()
         .put("id", id).put("name", name)
@@ -45,6 +59,18 @@ data class City(
         .put("timeZoneId", timeZoneId)
 
     companion object {
+        /**
+         * 按坐标推断时区 id（用于数据源未提供时区时兜底）。
+         *
+         * 中国境内统一返回 `Asia/Shanghai`（行政上是单一时区，跨 5 个地理时区）；
+         * 其余按经度每 15° 一个时区。误差 ≤1h（夏令时另算），对时段槽位足够。
+         */
+        fun inferZoneId(longitude: Double, latitude: Double): String {
+            if (longitude in 73.0..135.0 && latitude in 3.0..54.0) return "Asia/Shanghai"
+            val hours = kotlin.math.round(longitude / 15.0).toInt().coerceIn(-12, 14)
+            return java.time.ZoneOffset.ofTotalSeconds(hours * 3600).id
+        }
+
         fun fromJson(o: JSONObject) = City(
             id = o.getString("id"),
             name = o.getString("name"),
@@ -94,12 +120,21 @@ class WeatherStore(private val context: Context) {
 
     suspend fun getSnapshot(cityId: String): WeatherSnapshot? = snapshotOf(ds.data.first(), cityId)
 
+    /**
+     * 写快照。按 cityId 加锁串行化 —— 同一城市的并发刷新（手动刷新 / 组件 Worker /
+     * 通知 Worker 三路都可能触发）若不串行，DataStore 的读改写会互相覆盖。
+     * 阶段二换 Room 后由 SQLite 乐观锁接管（对齐南风 `UPDATE ... WHERE responseJson=?`）。
+     */
     suspend fun putSnapshot(cityId: String, source: String, snapshot: WeatherSnapshot) {
-        ds.edit {
-            it[weatherRawKey(cityId)] = SnapshotCodec.toJson(snapshot).put("source", source).toString()
-            it[weatherTsKey(cityId)] = snapshot.fetchedAt
+        writeLocks.computeIfAbsent(cityId) { Mutex() }.withLock {
+            ds.edit {
+                it[weatherRawKey(cityId)] = SnapshotCodec.toJson(snapshot).put("source", source).toString()
+                it[weatherTsKey(cityId)] = snapshot.fetchedAt
+            }
         }
     }
+
+    private val writeLocks = java.util.concurrent.ConcurrentHashMap<String, Mutex>()
 
     suspend fun snapshotSource(cityId: String): String? =
         ds.data.first()[weatherRawKey(cityId)]

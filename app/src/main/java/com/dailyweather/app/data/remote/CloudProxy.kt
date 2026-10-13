@@ -25,24 +25,32 @@ class CloudProxy(baseRaw: String) {
 
     val isConfigured: Boolean get() = baseURL.isNotBlank()
 
-    suspend fun get(path: String, params: Map<String, String> = emptyMap()): String =
-        fetchRaw(path, params, "application/json")
+    suspend fun get(
+        path: String,
+        params: Map<String, String> = emptyMap(),
+        /** 单次请求超时。轻量端点（地理反查/搜索）用 [LIGHT_TIMEOUT_MS]，主天气用默认 10s。 */
+        timeoutMs: Int = TIMEOUT_MS,
+    ): String = fetchRaw(path, params, "application/json", timeoutMs)
 
-    suspend fun getBytes(path: String, params: Map<String, String> = emptyMap()): ByteArray =
-        fetchBytes(path, params, "image/*")
+    suspend fun getBytes(path: String, params: Map<String, String> = emptyMap(), timeoutMs: Int = TIMEOUT_MS): ByteArray =
+        fetchBytes(path, params, "image/*", timeoutMs)
 
     /** 取字节数组及其状态码；404 用于"该帧已不在可用列表"这类语义判定。 */
-    suspend fun getBytesWithStatus(path: String, params: Map<String, String> = emptyMap()): Pair<Int, ByteArray> =
+    suspend fun getBytesWithStatus(
+        path: String,
+        params: Map<String, String> = emptyMap(),
+        timeoutMs: Int = TIMEOUT_MS,
+    ): Pair<Int, ByteArray> =
         withContext(Dispatchers.IO) {
             require(isConfigured) { "云代理未配置（keys.properties 的 cloudbase_proxy_url 为空）" }
-            val (code, bytes) = doFetch(path, params, "image/*")
+            val (code, bytes) = doFetch(path, params, "image/*", timeoutMs)
             code to bytes
         }
 
-    private suspend fun fetchRaw(path: String, params: Map<String, String>, accept: String): String =
+    private suspend fun fetchRaw(path: String, params: Map<String, String>, accept: String, timeoutMs: Int): String =
         withContext(Dispatchers.IO) {
             require(isConfigured) { "云代理未配置（keys.properties 的 cloudbase_proxy_url 为空）" }
-            val (code, bytes) = doFetch(path, params, accept)
+            val (code, bytes) = doFetch(path, params, accept, timeoutMs)
             if (code !in 200..299) {
                 Log.w(TAG, "GET $path → HTTP $code")
                 throw ProxyHttpException("云代理 HTTP $code ($path)")
@@ -50,10 +58,10 @@ class CloudProxy(baseRaw: String) {
             bytes.decodeToString()
         }
 
-    private suspend fun fetchBytes(path: String, params: Map<String, String>, accept: String): ByteArray =
+    private suspend fun fetchBytes(path: String, params: Map<String, String>, accept: String, timeoutMs: Int): ByteArray =
         withContext(Dispatchers.IO) {
             require(isConfigured) { "云代理未配置（keys.properties 的 cloudbase_proxy_url 为空）" }
-            val (code, bytes) = doFetch(path, params, accept)
+            val (code, bytes) = doFetch(path, params, accept, timeoutMs)
             if (code !in 200..299) {
                 Log.w(TAG, "GET $path → HTTP $code")
                 throw ProxyHttpException("云代理 HTTP $code ($path)")
@@ -62,15 +70,15 @@ class CloudProxy(baseRaw: String) {
         }
 
     /** 共享的 HTTP 连接逻辑。返回 (status code, body bytes)。 */
-    private fun doFetch(path: String, params: Map<String, String>, accept: String): Pair<Int, ByteArray> {
+    private fun doFetch(path: String, params: Map<String, String>, accept: String, timeoutMs: Int): Pair<Int, ByteArray> {
         val query = params.entries.joinToString("&") { (k, v) ->
             "$k=${URLEncoder.encode(v, "UTF-8")}"
         }
         val url = URL(baseURL + path + if (query.isEmpty()) "" else "?$query")
         val conn = url.openConnection() as HttpURLConnection
         return try {
-            conn.connectTimeout = TIMEOUT_MS
-            conn.readTimeout = TIMEOUT_MS
+            conn.connectTimeout = timeoutMs
+            conn.readTimeout = timeoutMs
             conn.requestMethod = "GET"
             conn.setRequestProperty("Accept", accept)
             val code = conn.responseCode
@@ -84,7 +92,12 @@ class CloudProxy(baseRaw: String) {
 
     companion object {
         private const val TAG = "CloudProxy"
+
+        /** 主天气接口默认超时。 */
         const val TIMEOUT_MS = 10_000
+
+        /** 轻量端点（地理反查 / 城市搜索）超时——对齐南风分接口 5s 的口径。 */
+        const val LIGHT_TIMEOUT_MS = 5_000
     }
 }
 

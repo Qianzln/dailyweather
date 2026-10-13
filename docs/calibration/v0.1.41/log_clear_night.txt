@@ -1,0 +1,9 @@
+########## clear_night ##########
+10-08 23:31:58.215 12125 12144 I OppoSceneKey: 已加载 22 个组 / 62 个键
+10-08 23:31:59.514 12125 12143 I OppoScene: 已加载 64 个预设 / 583 个实体，用时 1450ms
+10-08 23:32:00.597 12125 12158 I OppoGlCaps: GLES 3.1  compute=true  gles32=false  maxTex=16384  ver=OpenGL ES 3.1 (4.5.0 Core Profile Context 23.19.23.13.250826)
+10-08 23:32:00.601 12125 12158 I OppoParticles: 跳过粒子：需要 GLES 3.2（当前 3.1）
+10-08 23:32:00.603 12125 12158 I OppoRenderer: 场景键切换: (无) -> 1_6_sunny-night
+10-08 23:32:01.145 12125 12125 I WeatherScreen: GL 天空就绪=true
+10-08 23:32:01.847 12125 12158 I OppoRenderer: 贴图预热 44 张，用时 1242ms
+10-08 23:32:06.634 12125 12125 I WeatherRepository: doRefreshWeather: fixture=clear_night 已注入，不走网络

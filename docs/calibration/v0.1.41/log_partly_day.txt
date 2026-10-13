@@ -1,0 +1,11 @@
+########## partly_day ##########
+10-08 23:32:27.759 12223 12244 I OppoSceneKey: 已加载 22 个组 / 62 个键
+10-08 23:32:29.084 12223 12242 I OppoScene: 已加载 64 个预设 / 583 个实体，用时 1560ms
+10-08 23:32:30.201 12223 12266 I OppoGlCaps: GLES 3.1  compute=true  gles32=false  maxTex=16384  ver=OpenGL ES 3.1 (4.5.0 Core Profile Context 23.19.23.13.250826)
+10-08 23:32:30.206 12223 12266 I OppoParticles: 跳过粒子：需要 GLES 3.2（当前 3.1）
+10-08 23:32:30.206 12223 12266 I OppoRenderer: 场景键切换: (无) -> 1_6_sunny-night
+10-08 23:32:30.672 12223 12223 I WeatherScreen: GL 天空就绪=true
+10-08 23:32:31.197 12223 12266 I OppoRenderer: 贴图预热 44 张，用时 990ms
+10-08 23:32:35.924 12223 12266 I OppoRenderer: 场景键切换: 1_6_sunny-night -> 1_1_sunny-morning
+10-08 23:32:36.269 12223 12223 I WeatherRepository: doRefreshWeather: fixture=partly_day 已注入，不走网络
+10-08 23:32:36.372 12223 12266 I OppoRenderer: 场景键切换: 1_1_sunny-morning -> 58_3_cloudy-afternoon

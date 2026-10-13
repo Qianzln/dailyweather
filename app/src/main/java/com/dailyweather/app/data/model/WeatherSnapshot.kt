@@ -115,7 +115,12 @@ data class WeatherSnapshot(
         val pressureHpa: Double,
     )
 
-    val currentSkycon: String get() = realtime?.skycon ?: hourly.firstOrNull()?.skycon ?: "CLEAR_DAY"
+    /** 当前天气码：realtime → hourly 首点 → daily 首点 → 时段推断（白天CLEAR/夜CLEAR_NIGHT）。
+     *  绝不用 CLEAR_DAY 硬兜底——夜间/阴天/雨天各自有自己的 fallback。 */
+    val currentSkycon: String get() = realtime?.skycon
+        ?: hourly.firstOrNull()?.skycon
+        ?: daily.firstOrNull()?.skycon
+        ?: if (java.time.LocalTime.now().hour in 6..17) "CLEAR_DAY" else "CLEAR_NIGHT"
     val currentTemp: Double get() = realtime?.temperature ?: hourly.firstOrNull()?.temperature ?: 0.0
 }
 
@@ -256,3 +261,4 @@ object CaiyunParser {
         java.time.OffsetDateTime.parse(iso).toInstant().toEpochMilli()
     }.getOrElse { 0L }
 }
+

@@ -29,19 +29,21 @@ amap_key=高德Web服务key
 ## 当前状态（阶段一 + 数据源接通，2026-10-02）
 
 **数据源已接通并模拟器实测出真数据**：全部天气/地理请求经 CloudBase 云函数
-`weatherProxy`（与微风天气同一已打通链路），凭据只在云函数环境变量，APK 零 Key：
+`weatherProxy`（与微风天气同一已打通链路；函数源在 `D:\DEV\wui\cloud\weatherProxy`），
+凭据只存在于云函数环境变量，APK 零 Key：
 
-- **彩云 v2.6 综合天气（主源）**：`/weather/caiyun`（HMAC 签名在云端；`caiyun_token`
-  可选 BYOK 走个人额度）；响应透传，解析对齐 v2.6 真实结构（result 包裹 + 扁平数值
-  + ISO 时间），实测北京 17° 多云夜/日出 07:08/48h/五日全出
-- **和风天气（备源）**：`qweather-now` / `qweather-72h` / `qweather-7d`，
-  iconCode→skycon 映射复用图标链路；AQI/预警不可用（诚实置空）
-- **小米天气（第三源）**：`/weather/xiaomi-geo` 反查 locationKey → `/weather/xiaomi`
-  综合天气；{value,unit} 包裹字段已适配
+- **小米天气 wtr-v3（主源）**：`/weather/xiaomi-geo` 反查 locationKey → `/weather/xiaomi`
+  综合天气；一次给全实况 + 逐小时 + 逐日 + AQI 六项，且**不随 days 截断**。
+  `{value,unit}` 包裹字段已适配；`current.weather` 是天气代码字符串，走内置码表
+- **彩云 v2.6（辅源）**：`/weather/caiyun`（HMAC 签名在云端；`caiyun_token` 可选 BYOK
+  走个人额度）。只补小米给不了的三样：**分钟级短临描述、气象预警、逐小时降水概率**。
+  共享 Key 的 `dailysteps` 硬上限 3 天且静默截断，故逐日不依赖它
 - **高德 Web 服务**：`/geo/amap-regeo`（四级命名，WGS-84→GCJ-02 转换在
   `CoordinateTransform`）+ `/geo/amap-district`（城市搜索主路，内置 49 城拼音兜底）
-- ProviderChain：彩云失败自动降级和风、再降级小米；缓存为归一化快照
-  （SnapshotCodec）+ 来源标签，下游（UI/组件/通知）对上游无感
+- **ProviderChain = 小米（主）+ 彩云（补字段）**，不是"谁先成功用谁"：先取小米作 base，
+  再用 `mergeGaps()` 只填空缺字段、不覆盖已有值。小米失败才退化成彩云独撑（逐日只剩 3 天）。
+  缓存为归一化快照（SnapshotCodec）+ 来源标签，下游（UI/组件/通知）对上游无感
+- 云函数里仍有和风（`qweather-*`）与雷达路由，但 **App 侧已不再使用和风**
 
 已实现并模拟器验收通过：
 

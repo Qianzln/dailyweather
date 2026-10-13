@@ -1,0 +1,5963 @@
+{
+  "version": 1,
+  "sourceVersion": "16.46.2",
+  "slotPeriods": [
+    3,
+    0,
+    1,
+    4,
+    2,
+    5,
+    259
+  ],
+  "sizeTypes": {
+    "small": 0,
+    "middle": 1,
+    "big": 2
+  },
+  "featureFlags": {
+    "useLastPartlyCloudy": true
+  },
+  "tables": {
+    "SUNNY": {
+      "normal": {
+        "small": [
+          {
+            "file": "sunday_dawn_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "sunday_dawn_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "sunday_dawn_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "sunday_dawn_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "sunday_dawn_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "sunday_dawn_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "MOSTLY_SUNNY": {
+      "normal": {
+        "small": [
+          {
+            "file": "sunday_dawn_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "sunday_dawn_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "sunday_dawn_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "sunday_dawn_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "sunday_dawn_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "sunday_dawn_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_morning_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_noon_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_af_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_evening_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "sunday_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "CLOUDY": {
+      "normal": {
+        "small": [
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_morning_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_morning_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_morning_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_morning_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunrise_golden_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunset_glow_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "sunrise_golden_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunset_glow_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "sunrise_golden_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunset_glow_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ]
+      }
+    },
+    "MOSTLY_CLOUDY": {
+      "normal": {
+        "small": [
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_morning_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_morning_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_morning_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_morning_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunrise_golden_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunset_glow_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "sunrise_golden_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunset_glow_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_noon_af_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "sunrise_golden_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sunset_glow_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "cloudy_noon_af_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ]
+      }
+    },
+    "PARTLY_CLOUDY": {
+      "normal": {
+        "small": [
+          {
+            "file": "partly_cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "partly_cloudy_morning_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_morning_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "partly_cloudy_morning_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_morning_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "partly_cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_af_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "partly_cloudy_morning_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_morning_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "partly_cloudy_noon_middle.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "partly_cloudy_morning_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_morning_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "partly_cloudy_noon_big.png",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ]
+      }
+    },
+    "OVERCAST": {
+      "normal": {
+        "small": [
+          {
+            "file": "overcast_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          },
+          {
+            "file": "overcast_morning_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_morning_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          },
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          }
+        ],
+        "big": [
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          },
+          {
+            "file": "overcast_morning_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_morning_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          },
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "overcast_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_morning_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_nightfall_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          },
+          {
+            "file": "overcast_morning_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_morning_nightfall_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          },
+          {
+            "file": "overcast_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          }
+        ],
+        "big": [
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          },
+          {
+            "file": "overcast_morning_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_morning_nightfall_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          },
+          {
+            "file": "overcast_noon_night_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 153
+          }
+        ]
+      }
+    },
+    "LIGHT_RAIN": {
+      "normal": {
+        "small": [
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "MODERATE_RAIN": {
+      "normal": {
+        "small": [
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "HEAVY_RAIN": {
+      "normal": {
+        "small": [
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_rain_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "THUNDER_SHOWER": {
+      "normal": {
+        "small": [
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thundershower_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "THUNDERSTORM": {
+      "normal": {
+        "small": [
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunderstorm_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_thunderstorm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "LIGHT_SNOW": {
+      "normal": {
+        "small": [
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "light_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "MODERATE_SNOW": {
+      "normal": {
+        "small": [
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "middle_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "HEAVY_SNOW": {
+      "normal": {
+        "small": [
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "heavy_snow_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "SLEET": {
+      "normal": {
+        "small": [
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sleeting_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "FOG": {
+      "normal": {
+        "small": [
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "fog_noon_night_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "fog_noon_night_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ]
+      }
+    },
+    "SMOG": {
+      "normal": {
+        "small": [
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "smog_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "smog_middle.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 255
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          },
+          {
+            "file": "smog_big.webp",
+            "needCover": true,
+            "mode": "SCREEN",
+            "alpha": 128
+          }
+        ]
+      }
+    },
+    "DUST": {
+      "normal": {
+        "small": [
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          }
+        ],
+        "big": [
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          },
+          {
+            "file": "sand_dust_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          }
+        ],
+        "big": [
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          },
+          {
+            "file": "sand_dust_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 153
+          }
+        ]
+      }
+    },
+    "HAIL": {
+      "normal": {
+        "small": [
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "THUNDER_HAIL": {
+      "normal": {
+        "small": [
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "big": [
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "thunder_hail_noon_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ]
+      }
+    },
+    "WIND": {
+      "normal": {
+        "small": [
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "wind_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "wind_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ]
+      }
+    },
+    "STORM": {
+      "normal": {
+        "small": [
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ]
+      },
+      "unusual": {
+        "small": [
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_night_small.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          }
+        ],
+        "middle": [
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "storm_middle.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ],
+        "big": [
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 255
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          },
+          {
+            "file": "storm_big.webp",
+            "needCover": true,
+            "mode": "DST_OVER",
+            "alpha": 128
+          }
+        ]
+      }
+    }
+  }
+}

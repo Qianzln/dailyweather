@@ -29,25 +29,34 @@ class DailyWeatherApp : Application() {
         container = AppContainer(this)
         NotificationChannels.ensureAll(this)
         // 冷启动预热（对齐南风 SkyPulseApp 的"天气资源预热"）：
-        // 1) 程序化粒子（辉光/雨滴流星/24 帧雪花）——后台线程生成位图；
-        // 2) 南风 PNG 精灵（11 张天空帧 + 8 张云精灵）——IO 线程解码进 LruCache。
-        // 首帧组合时缓存已热，主线程只做 cache.get，动画零卡顿进入。
-        com.dailyweather.app.scene.ParticleSprites.prewarm(this)
-        com.dailyweather.app.scene.SpriteAssets.prewarm(this)
+        // 1) 南风 v4.3.99 的 OPPO 场景图（64 预设 / 560 实体 / 725 KB JSON）——IO 线程解析一次。
+        //    未就绪时渲染器保持上一帧场景，不会白屏。
+        com.dailyweather.app.scene.oppo.OppoSceneRegistry.prewarm(this)
+        // 4) 场景键映射表（组号 → 时段 → 键，来自南风 w7/p0 的静态表 + w7/z0 的时段算法）。
+        com.dailyweather.app.scene.oppo.OppoSceneKey.prewarm(this)
         scheduleBackgroundWork()
         syncUnits()
         Log.i(TAG, "DailyWeatherApp ready")
     }
 
-    /** WorkManager 任务网格（对齐南风：widget_periodic / notification_periodic）。 */
+    /** WorkManager 任务网格（对齐南风：widget_periodic / notification_periodic）。
+     *  全部带「有网才跑」约束——离线时任务挂起而不是空跑一轮。
+     *  Widget 周期任务移到 [WidgetSyncWorker.onFirstInstance] 里按需注册，
+     *  无桌面组件时不白耗电。 */
     private fun scheduleBackgroundWork() {
         val wm = WorkManager.getInstance(this)
-        WidgetSyncWorker.enqueuePeriodic(this)
         DailyWeatherNotificationWorker.schedule(this)
         wm.enqueueUniquePeriodicWork(
             "weather_notification_periodic",
             ExistingPeriodicWorkPolicy.KEEP,
-            PeriodicWorkRequestBuilder<PersistentWeatherWorker>(30, TimeUnit.MINUTES).build(),
+            PeriodicWorkRequestBuilder<PersistentWeatherWorker>(30, TimeUnit.MINUTES)
+                .setConstraints(com.dailyweather.app.notification.networkConstraints())
+                .setBackoffCriteria(
+                    androidx.work.BackoffPolicy.EXPONENTIAL,
+                    com.dailyweather.app.notification.RETRY_BACKOFF_SECONDS,
+                    TimeUnit.SECONDS,
+                )
+                .build(),
         )
     }
 

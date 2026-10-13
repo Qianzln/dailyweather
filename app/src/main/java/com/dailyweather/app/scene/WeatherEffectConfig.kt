@@ -3,7 +3,6 @@ package com.dailyweather.app.scene
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableFloatState
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -65,15 +64,6 @@ data class EffectQuality(
         val Off = EffectQuality(0f, WeatherEffectFps.Static, false)
     }
 }
-
-/**
- * 全局开关：关掉后整个粒子/云层不绘制，天空渐变仍走动画。
- * 对应设置项「天气动效」与「无背景」。
- */
-val LocalWeatherEffectDrawEnabled = compositionLocalOf { true }
-
-/** 当前生效的质量档。由外部（省电/热状态/刷新率）算好后注入，本层不做决策。 */
-val LocalEffectQuality = compositionLocalOf { EffectQuality.High }
 
 /**
  * 边缘淡出距离（占画布短边的分数）。

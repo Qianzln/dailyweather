@@ -54,14 +54,33 @@ class AppContainer(context: Context) {
     val refreshManager = RefreshManager(
         weatherRepository, cityRepository, settings, locationCoordinator, amapGeo,
         onRefreshSuccess = { cityId ->
+            val wm = androidx.work.WorkManager.getInstance(appContext)
             // 每次刷新成功后检查预警：UrgentNotificationWorker 内部按 城市+标题+发布时间 去重。
-            androidx.work.WorkManager.getInstance(appContext).enqueueUniqueWork(
+            wm.enqueueUniqueWork(
                 "urgent_alert_check",
                 androidx.work.ExistingWorkPolicy.REPLACE,
                 androidx.work.OneTimeWorkRequestBuilder<com.dailyweather.app.notification.UrgentNotificationWorker>()
                     .setInputData(androidx.work.workDataOf(
                         com.dailyweather.app.notification.UrgentNotificationWorker.KEY_CITY_ID to cityId,
                     ))
+                    .build(),
+            )
+            // 天气变化提醒（温度骤变 / 大风 / 极端）：同样在拿到新数据后才比较，
+            // 内部按 城市+类型+日期 去重，开关全关时第一件事就返回。
+            wm.enqueueUniqueWork(
+                "weather_change_alert",
+                androidx.work.ExistingWorkPolicy.REPLACE,
+                androidx.work.OneTimeWorkRequestBuilder<com.dailyweather.app.notification.WeatherChangeAlertWorker>()
+                    .build(),
+            )
+            // 刷新成功后联动桌面组件与常驻胶囊，避免最多滞后 30 分钟。
+            com.dailyweather.app.widget.WidgetSyncWorker.enqueueOneTime(
+                appContext, "refresh_success", renderOnly = true,
+            )
+            wm.enqueueUniqueWork(
+                "refresh_success_capsule",
+                androidx.work.ExistingWorkPolicy.REPLACE,
+                androidx.work.OneTimeWorkRequestBuilder<com.dailyweather.app.notification.PersistentWeatherWorker>()
                     .build(),
             )
         },
