@@ -36,8 +36,10 @@ android {
         applicationId = "com.dailyweather.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 55
-        versionName = "0.1.55"
+        versionCode = 56
+        versionName = "0.1.56"
+        // 只保留中文（默认 values 即中文）：剥掉第三方库 100+ locale 字符串，resources.arsc 瘦身
+        resConfigs("zh")
         buildConfigField("String", "CAIYUN_TOKEN", "\"${keys.getProperty("caiyun_token", "")}\"")
         buildConfigField("String", "AMAP_KEY", "\"${keys.getProperty("amap_key", "")}\"")
         // CloudBase 云代理（与微风天气同一已打通链路）：彩云/和风/小米/高德唯一出口
@@ -58,6 +60,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true   // R8 之后剥掉未引用资源（配合 resConfigs 瘦身 arsc）
             signingConfig = signingConfigs.findByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
