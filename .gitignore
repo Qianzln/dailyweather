@@ -37,3 +37,6 @@ app/build.gradle.kts.tmp
 # 逆向参考资料（体积大/版权敏感，不入库）
 01 复刻内容/
 skypulse_refs/
+
+.gradle_native_extracted/
+.gradle_native/
