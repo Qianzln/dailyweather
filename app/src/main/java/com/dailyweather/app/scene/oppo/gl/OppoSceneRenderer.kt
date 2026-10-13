@@ -39,31 +39,11 @@ class OppoSceneRenderer(private val context: Context) {
         const val TAG = "OppoRenderer"
         const val MAX_DIR = 10
         const val MAX_POINT = 10
-        /** 闪电包络长度（秒）：参考 21_2 预设 thunder_animator 关键帧的 0.885s 周期。 */
-        const val FLASH_LEN = 0.885f
-        /** 两次闪电之间的完整周期（含静默）。 */
-        const val FLASH_PERIOD = 4.5f
     }
 
     /** 该预设里的闪电帧数量（保留给调试/日志）。 */
     private fun thunderCount(preset: OppoScenePreset): Int =
         preset.entities.count { it.thunder != null }.coerceAtLeast(1)
-
-    /**
-     * 闪电双峰包络（按参考关键帧重建）：
-     * `u_flashStrength: 0→0.3@0.07→0.8@0.32→0.2@0.38→0.9@0.47→0@0.82`
-     * `u_alpha:        0→1@0.32→0.6@0.34→0.8@0.39→…→0@0.885`
-     * 两簇合并成一条 0→1→0.55→1→0 的双峰曲线。
-     */
-    private fun thunderEnvelope(s: Float): Float = when {
-        s < 0f -> 0f
-        s < 0.07f -> s / 0.07f * 0.3f
-        s < 0.32f -> 0.3f + (s - 0.07f) / 0.25f * 0.7f
-        s < 0.38f -> 1f - (s - 0.32f) / 0.06f * 0.45f
-        s < 0.47f -> 0.55f + (s - 0.38f) / 0.09f * 0.45f
-        s <= FLASH_LEN -> 1f - (s - 0.47f) / (FLASH_LEN - 0.47f)
-        else -> 0f
-    }
 
     private val proj = FloatArray(16)
     private val view = FloatArray(16)
@@ -234,24 +214,15 @@ class OppoSceneRenderer(private val context: Context) {
 
         // 闪电帧动画（按 21_2 预设 thunder_animator 关键帧重建，2026-10-13 核对修正）：
         // 5 个 thunder_N 是同位叠画的 5 种 bolt 形态（各有独立 u_texLight0），
-        // 原版对全部 5 层**同时**驱动同一组关键帧——不是序列帧、也不是轮换：
-        //   u_flashStrength: 0→0.3@0.07→0.8@0.32→0.2@0.38→0.9@0.47→0@0.82
-        //   u_alpha:         0→1@0.32→0.6@0.34→0.8@0.39→0@0.77
-        //   u_DissolveValue: 1@0.01→0.6→0@0.42（bolt 从粗到细溶解显形）
-        // 数据里这些 uniform 是静态 0（u_alpha=0 → 不动画就永远不可见）。
-        // 驱动方式：每 4.5s 一次闪电（前 0.885s 动画窗口，其余静默）。
+        // 原版对全部 5 层**同时**驱动同一组关键帧——不是序列帧、也不是轮换。
         // 动画值在 uniform 循环之后单独直接上传（见下），不再每帧复制整个 uniforms map。
+        // 雷闪逻辑已抽离到 SceneAnimator，渲染器只消费结果。
         var thunderEnv = -1f      // <0 = 非雷帧
         var thunderDissolve = 0f
         if (e.thunder != null) {
-            val t = timeSeconds % FLASH_PERIOD
-            if (t > FLASH_LEN) return                                    // 静默期整条不画
-            thunderEnv = thunderEnvelope(t)
-            thunderDissolve = when {
-                t < 0.01f -> 1f
-                t < 0.42f -> 1f - (t - 0.01f) / 0.41f                    // 1→0 溶解显形
-                else -> 0f
-            }
+            val state = SceneAnimator.thunderState(timeSeconds) ?: return  // 静默期整条不画
+            thunderEnv = state.first
+            thunderDissolve = state.second
         }
 
         val vert = OppoShaderLibrary.assetName(e.shaderVert) ?: OPPO_VERT_FALLBACK
@@ -267,14 +238,10 @@ class OppoSceneRenderer(private val context: Context) {
         // （2026-10-13 反馈）。按天气应用通行做法给云一个右→左的缓慢平移 + 环绕回场：
         // 近景快、远景慢（视差），z≈-0.7 约 300s 穿屏、z≈0.6 约 150s 穿屏。
         // 云贴图四边 alpha 渐变到 0（CLAMP_TO_EDGE），滑出/滑入屏幕边缘不会出现硬切。
+        // 漂移逻辑已抽离到 SceneAnimator，渲染器只消费结果。
         var posX = e.pos[0]
         if (e.cloud != null) {
-            val scaleX = kotlin.math.abs(e.scale.getOrElse(0) { 1f }).coerceAtLeast(0.01f)
-            val range = 2f * (1f + scaleX)
-            val depthFactor = ((e.pos.getOrElse(2) { 0f } + 0.7f) / 1.3f).coerceIn(0f, 1f)
-            val period = 300f - 150f * depthFactor
-            val drift = timeSeconds * (range / period)
-            posX = ((e.pos[0] + 1f + scaleX - drift) % range + range) % range - (1f + scaleX)
+            posX = SceneAnimator.cloudDriftX(e, timeSeconds)
         }
         Matrix.translateM(model, 0, posX, e.pos[1], e.pos.getOrElse(2) { 0f })
         if (e.rot.size >= 3) {
@@ -353,10 +320,11 @@ class OppoSceneRenderer(private val context: Context) {
 
 
     private fun sceneFade(): Float {
-        if (sceneFadeStart < 0f) return 1f
-        val f = (timeSeconds - sceneFadeStart) / 0.9f
-        if (f >= 1f) { sceneFadeStart = -1f; return 1f }
-        return f.coerceIn(0f, 1f)
+        val fade = SceneAnimator.sceneFade(timeSeconds, sceneFadeStart)
+        if (SceneAnimator.sceneFadeDone(timeSeconds, sceneFadeStart)) {
+            sceneFadeStart = -1f  // 标记已播完
+        }
+        return fade
     }
 
     private fun applyBlend(e: OppoEntity) {
