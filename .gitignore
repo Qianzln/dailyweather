@@ -28,7 +28,7 @@ docs/skypulse_4.3.64/res_raw/
 .tmp/
 .tmp-native/
 android-sdk-w/
-com/
+/com/
 build_full.txt
 build_info.txt
 build_stacktrace.txt
