@@ -172,6 +172,15 @@ fun WeatherScreen(
         SceneBridge.oppoSceneKeyOf(snapshot, cityZone)
     }
 
+    // 动态帧率（v0.1.56 省电项）：预设里有 GPU 粒子（雨/雪/星/沙尘）或雷帧才跟满刷新率；
+    // 纯天空+云场景降到 30fps——云漂移是 150~300s 穿屏的慢速位移，30fps 与满帧观感一致。
+    // 未就绪/空键时为 false（反正也不渲染），预设就绪后随 oppoSceneKey 重算。
+    val sceneNeedsFullFps = remember(oppoSceneKey) {
+        oppoSceneKey
+            ?.let { com.dailyweather.app.scene.oppo.OppoSceneRegistry.preset(it) }
+            ?.entities?.any { it.particle != null || it.thunder != null } == true
+    }
+
     CompositionLocalProvider(
         LocalSky provides sky,
     ) {
@@ -201,9 +210,12 @@ fun WeatherScreen(
             OppoGlSceneLayer(
                 presetKey = oppoSceneKey,
                 modifier = Modifier.matchParentSize(),
-                // 云层漂移走 cloud 档（跟满设备刷新率），不是 ambient 半速率档：
-                // 120Hz 屏上 ambient=60 会让云的噪声位移看起来"一顿一顿"。
-                targetFps = effectQuality.fps.cloud.coerceAtLeast(1).toInt(),
+                // 动态帧率：有粒子/雷帧的场景走 cloud 档（跟满设备刷新率，120Hz 屏
+                // 上 ambient=60 会让粒子/噪声位移看起来"一顿一顿"）；
+                // 纯天空+云场景 30fps（慢速云漂移观感无损，省电）。
+                targetFps = if (sceneNeedsFullFps) {
+                    effectQuality.fps.cloud.coerceAtLeast(1).toInt()
+                } else 30,
                 // 「天气动效」开关：关掉 = GL 停帧（预设切换/尺寸变化仍补一帧静态画面）。
                 paused = !motion,
             )
