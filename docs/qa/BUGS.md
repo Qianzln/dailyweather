@@ -1,10 +1,10 @@
 # 每日天气 Bug 清单（QA 登记）
 
-> 维护：Lens（QA）。状态机：待修复 → 修复中（Meteor）→ 待验收 → 已验证关闭（验收：Lens，按 SCENE_CHECKLIST 流程）。
+> 维护：Meteor（2026-10-13 起接管，原 QA 岗 Lens 已撤销）。状态机：待修复 → 修复中 → 待实机验证 → 已验证关闭（用户实机验收，通过后更新 SCENE_CHECKLIST 对应行状态）。
 
 ## B1 🔴 夜间场景不生效：晴夜显示粉紫渐变，而非深蓝夜空
 
-- **状态**：待修复
+- **状态**：待实机验证
 - **登记**：2026-10-13（Chief 转用户实机报告）
 - **版本/设备**：v0.1.56 实机（5G 安卓，GLES ≥3.2 机型）
 - **现象**：18:20（当天日落 17:26 之后 54 分钟）首页天空呈**粉紫渐变**，无月亮、无星星、无云；逐小时图标已是月亮（kind/phase 链路夜间感知正常）。同机同时刻南风天气（18:26）为深蓝夜空 + 明月 + 夜云（正确参照）。
@@ -28,7 +28,13 @@ adb logcat -s SceneBridge:D OppoSceneKey:D OppoSceneRenderer:I OppoTextureCache:
 ```
 看 `SceneBridge oppoSceneKey: skycon=… slot=… key=…` 一行即可分流：slot=4 → S1；slot=6 且 key=1_6 → S2/S3。
 
-**验收标准（修复后）**：实机 18:20 显示 `1_6_sunny-night`：深蓝夜空 + 月亮 + 星点粒子。验收人 Lens，通过后更新 `SCENE_CHECKLIST.md` 的 `1_6` 行状态并在此关闭本单。
+### 修复记录（2026-10-13，a518f057 / v0.1.57）
+
+- **根因确认：S1 完全命中**。Providers 把 yesterday 实况补在日卡首行（`daily[0]`=昨天），而 `SceneBridge.oppoSceneKeyOf` 和 `SunCard` 都用 `daily.firstOrNull()` 取「今天」拿到昨天——昨天 sunRise/sunSet 解析失败（非 ISO 格式）→ rise/set=null → `fallbackSlot(18)`=4 → `resolve(1,4)`=`1_4_sunny-sunset`（粉紫日落）。
+- **修复**：按日期匹配今天（`LocalDate.now(zone).toString()`），兜底再取首项；日落卡显示昨天时间的同根因问题一并修复。
+- **构建验证**：assembleDebug + assembleVersionedRelease 均通过；APK `release/dailyweather-v0.1.57.apk`（14.76MB）。
+
+**验收标准**：实机日落后显示 `1_6_sunny-night`：深蓝夜空 + 月亮 + 星点粒子；日落卡显示当天日落时间（非昨天）。验收人：用户实机确认，通过后更新 `SCENE_CHECKLIST.md` 的 `1_6` 行状态并在此关闭本单。
 
 ---
 
